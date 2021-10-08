@@ -3,8 +3,10 @@
 # pip3 install torch==1.9.1+cu102 torchvision==0.10.1+cu102 torchaudio===0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 
 import torch
-from node import get_node_data
 import numpy as np
+from prettytable import PrettyTable
+from itertools import combinations as comb
+from node import get_node_data
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -58,8 +60,62 @@ def MMD(x, y, kernel, kernel_bandwidth):
     
     return 1/(m*(m-1)) * torch.sum(XX) - 2/(m*n) * torch.sum(XY) + 1/(n*(n-1)) * torch.sum(YY)
 
+def avg_similarity_disimilarity_MMD(samples, similar_sets, dissimilar_sets, kernel, kernel_bandwidth, return_tables = True):
+    # The similar set contains the nodes that are similar to each other and dissimilar to the the dissimilar set.
+    # The dissimilar set is dissimilar to similar set nodes but they could be similar to each other.
+    
+    s = PrettyTable(['Nodes', 'Similar MMD'])
+    d = PrettyTable(['Nodes', 'Dissimilar MMD'])
+    
+    combos = comb(range(len(similar_sets)),2)
+    similar_mmds = []
+    for combo in combos:
+        x = similar_sets[combo[0]]
+        y = similar_sets[combo[1]]
+        sx = samples[x]
+        sy = samples[y]
+        mmd = MMD(sx,sy, kernel, kernel_bandwidth)
+        similar_mmds.append(mmd)
+        s.add_row([(x,y), mmd])
+
+    ## calculate the mmd between each dissimilar set and the similar sets
+    dissimilar_mmds = []
+    for i in range(len(dissimilar_sets)):
+        x = dissimilar_sets[i]
+        sx = samples[x]
+        for j in range(len(similar_sets)):
+            y = similar_sets[j]
+            sy = samples[y]
+            mmd = MMD(sx,sy, kernel, kernel_bandwidth)
+            dissimilar_mmds.append(mmd)
+            d.add_row([(x,y), mmd])
+    
+    ## calculate the mmd between the dissimilar sets as they could be dissimilar/similar to each other
+    if len(dissimilar_sets) > 1:
+        combos = comb(range(len(dissimilar_sets)),2)
+        for combo in combos:
+            x = dissimilar_sets[combo[0]]
+            y = dissimilar_sets[combo[1]]
+            sx = samples[x]
+            sy = samples[y]
+            mmd = MMD(sx,sy, kernel, kernel_bandwidth)
+            if mmd > np.mean(similar_mmds) +  np.mean(similar_mmds) * 0.15:
+                dissimilar_mmds.append(mmd)
+                d.add_row([(x,y), mmd])
+            else: 
+                similar_mmds.append(mmd)
+                s.add_row([(x,y), mmd])
+
+    if return_tables:
+        return np.mean(similar_mmds), np.mean(dissimilar_mmds), s, d
+    else:
+        return np.mean(similar_mmds), np.mean(dissimilar_mmds)
+
+def to_tensor(data):
+    return torch.tensor(data.values.astype(np.float32)).to(device)
+
 def get_tensor_sample(data, sample_size):
-    return torch.tensor(data.sample(sample_size).values.astype(np.float32)).to(device)
+    return to_tensor(data.sample(sample_size))
 
 def get_tensor_samples(data, experiment, sample_size):
     a,b,c,d = get_node_data(data, experiment)  

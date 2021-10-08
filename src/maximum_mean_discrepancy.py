@@ -87,8 +87,12 @@ def avg_similarity_disimilarity_MMD(samples, similar_sets, dissimilar_sets, kern
             y = similar_sets[j]
             sy = samples[y]
             mmd = MMD(sx,sy, kernel, kernel_bandwidth)
-            dissimilar_mmds.append(mmd)
-            d.add_row([(x,y), mmd])
+            if mmd > np.mean(similar_mmds):
+                dissimilar_mmds.append(mmd)
+                d.add_row([(x,y), mmd])
+            else: 
+                similar_mmds.append(mmd)
+                s.add_row([(x,y), mmd])
     
     ## calculate the mmd between the dissimilar sets as they could be dissimilar/similar to each other
     if len(dissimilar_sets) > 1:

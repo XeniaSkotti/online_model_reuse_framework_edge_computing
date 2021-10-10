@@ -12,15 +12,15 @@ def get_node_data(data, experiment):
 
 def remove_outliers(node_data, experiment):
     for i in range(4):
-        model = OneClassSVM(nu=0.2)
+        model = OneClassSVM(nu=0.1)
         pred = model.fit_predict(node_data[i])
         inliers = np.where(pred == 1)
         node_data[i] = node_data[i].iloc[inliers]
         
     if experiment == 1:
-        for j in range(4):
-            node_data[j] = node_data[j].loc[(node_data[j].humidity > 10) & (node_data[j].temperature > 10)]
+        for i in range(4):
+            node_data[i] = node_data[i].loc[(node_data[i].humidity > 10) & (node_data[i].temperature > 10)]
     elif experiment == 2:
-        for j in range(4):
-            node_data[j] = node_data[j].loc[node_data[j].temperature > 32]
+        for i in range(4):
+            node_data[i] = node_data[i].loc[node_data[i].temperature > 32]
     return node_data

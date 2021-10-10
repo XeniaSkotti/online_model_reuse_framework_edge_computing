@@ -121,7 +121,7 @@ def to_tensor(data):
 def get_tensor_sample(data, sample_size):
     if isinstance(data, np.ndarray):
         indices = np.random.choice(data.shape[0], sample_size, replace=False)
-        return to_tesnor(data[indices])
+        return to_tensor(data[indices])
     else:
         return to_tensor(data.sample(sample_size).values.astype(np.float32))
 

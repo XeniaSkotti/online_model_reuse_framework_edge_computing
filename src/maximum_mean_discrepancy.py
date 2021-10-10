@@ -103,7 +103,7 @@ def avg_similarity_disimilarity_MMD(samples, similar_sets, dissimilar_sets, kern
             sx = samples[x]
             sy = samples[y]
             mmd = MMD(sx,sy, kernel, kernel_bandwidth)
-            if mmd > np.mean(similar_mmds) +  np.mean(similar_mmds) * 0.15:
+            if mmd > np.mean(similar_mmds):
                 dissimilar_mmds.append(mmd)
                 d.add_row([(x,y), mmd])
             else: 

@@ -58,7 +58,7 @@ def MMD(x, y, kernel, kernel_bandwidth):
     m = x.size()[0]
     n = y.size()[0]
     
-    return 1/(m*(m-1)) * torch.sum(XX) - 2/(m*n) * torch.sum(XY) + 1/(n*(n-1)) * torch.sum(YY)
+    return (1/(m*(m-1)) * torch.sum(XX) - 2/(m*n) * torch.sum(XY) + 1/(n*(n-1)) * torch.sum(YY)).item()
 
 def avg_similarity_disimilarity_MMD(samples, similar_sets, dissimilar_sets, kernel, kernel_bandwidth, return_tables = True):
     # The similar set contains the nodes that are similar to each other and dissimilar to the the dissimilar set.

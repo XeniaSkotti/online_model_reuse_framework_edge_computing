@@ -116,10 +116,14 @@ def avg_similarity_disimilarity_MMD(samples, similar_sets, dissimilar_sets, kern
         return np.mean(similar_mmds), np.mean(dissimilar_mmds)
 
 def to_tensor(data):
-    return torch.tensor(data.values.astype(np.float32)).to(device)
+    return torch.tensor(data).to(device)
 
 def get_tensor_sample(data, sample_size):
-    return to_tensor(data.sample(sample_size))
+    if isinstance(data, np.ndarray):
+        indices = np.random.choice(data.shape[0], sample_size, replace=False)
+        return to_tesnor(data[indices])
+    else:
+        return to_tensor(data.sample(sample_size).values.astype(np.float32))
 
 def get_tensor_samples(data, experiment, sample_size):
     a,b,c,d = get_node_data(data, experiment)  

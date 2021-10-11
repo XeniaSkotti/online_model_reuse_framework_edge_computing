@@ -7,6 +7,7 @@ import numpy as np
 from prettytable import PrettyTable
 from itertools import combinations as comb
 from node import get_node_data
+from sklearn.preprocessing import StandardScaler
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -119,20 +120,28 @@ def to_tensor(data):
     return torch.tensor(data).to(device)
 
 def get_tensor_sample(data, sample_size):
-    if isinstance(data, np.ndarray):
-        indices = np.random.choice(data.shape[0], sample_size, replace=False)
-        return to_tensor(data[indices])
-    else:
-        return to_tensor(data.sample(sample_size).values.astype(np.float32))
+    indices = get_sample_indices(data.shape[0], sample_size)
+    return to_tensor(data[indices])
 
-def get_tensor_samples(data, experiment, sample_size):
-    a,b,c,d = get_node_data(data, experiment)  
-    sa = get_tensor_sample(a,sample_size)
-    sb = get_tensor_sample(b,sample_size)
-    sc = get_tensor_sample(c,sample_size)
-    sd = get_tensor_sample(d, sample_size)
+def get_sample_indices(range_of_indices, sample_size):
+    return np.random.choice(range_of_indices, sample_size, replace=False)
+
+def get_tensor_samples(data, experiment, sample_size, standardised = False):
+    node_data = [node_data.values.astype(np.float32) for node_data in get_node_data(data, experiment)]
     
-    return {"pi2" : sa,
-            "pi3" : sb,
-            "pi4" : sc,
-            "pi5" : sd}
+    if standardised:
+        scaler = StandardScaler()
+        scaler.fit(np.concatenate(node_data))
+        standardised_node_data = [scaler.transform(node_data[i]) for i in range(4)]
+        
+    samples = {}
+    for i in range(4):
+        indices = get_sample_indices(node_data[i].shape[0], sample_size)
+        s = to_tensor(node_data[i][indices])
+        samples["pi"+str(i+2)] = s
+        
+        if standardised:
+            stds = to_tensor(standardised_node_data[i][indices])
+            samples["pi"+str(i+2)+"std"] = stds 
+    
+    return samples

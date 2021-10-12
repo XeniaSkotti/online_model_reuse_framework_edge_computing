@@ -20,7 +20,7 @@ def score_clf(clf, test):
 def grid_search_models(clf_name, model_data, selected_nodes, param_grid):
     models = {}
     t = PrettyTable(['Node', 'Baseline Model', 'Baseline Coefficient of Determination (R)',
-                    'Optimised Model', 'Optimised Model Coeffficient of Determination (R'])
+                    'Optimised Model', 'Optimised Model R'])
     for node in selected_nodes:
         train, test = model_data[node] 
         

@@ -35,7 +35,7 @@ def grid_search_models(clf_name, model_data, selected_nodes, param_grid):
         optimised_score = fit_clf(optimised_model, train, test)
         t.add_row([node, baseline_model, baseline_score, optimised_model, optimised_score])
         
-        if optmised_score > baseline_score:
+        if optimised_score > baseline_score:
             model = optimised_model
         else:
             model = baseline_model

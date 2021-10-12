@@ -66,15 +66,15 @@ def MMD(x, y, kernel, kernel_bandwidth):
 def avg_similarity_disimilarity_MMD(samples, similar_nodes, other_nodes, 
                                     kernel, kernel_bandwidth, return_tables = True):
     
-    """ The function calculates the average similarity and dissimilarity MMD (ASDMMD) 
-    between the nodes given. 
+    """ Calculates the average similarity and dissimilarity MMD (ASDMMD) between the 
+    given nodes. 
     
     Args: 
         samples: dictionary associating each node (pi2-pi5) with a sample used for the 
                  MMD calculation.
         similar_nodes: nodes which we have visually identified as similar to each other.
         other_nodes: the rest of the nodes which we're unsure of.
-        kernel: specifies the kernel type to be used for the MMD calculation.
+        kernel: the kernel type to be used for the MMD calculation.
         kernel_bandwidth: scalar value to be used by the kernel in the MMD calculation.
         return_tables: boolean value which determines whether we return the tables s(imilar)
                        and d(issimilar) containing a pair of nodes and their corresponding 
@@ -145,6 +145,47 @@ def avg_similarity_disimilarity_MMD(samples, similar_nodes, other_nodes,
         return np.mean(similar_mmds), s, d
     else:
         return np.mean(similar_mmds)
+    
+def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
+    mmd = MMD(x,y, kernel, kernel_bandwidth)
+    if mmd < asdmmd + asdmmd * 0.05:
+        return True
+    else:
+        return False
+
+def find_similar_pairs(model_data, asmmd, kernel, kernel_bandwidth):
+    
+    """Finds the pairs of nodes which are similar using the ASMMD
+    
+    Args:
+        model_data: dictionary which associates each node with it's train and test data. 
+        asdmmd: the average similarity MMD
+        kernel: the kernel type to be used for the MMD calculation.
+        kernel_bandwidth: scalar value to be used by the kernel in the MMD calculation. 
+    """
+    
+    combos = comb(range(4),2)
+    similar_pairs = []
+    similar_nodes = []
+    for c in combos:
+        node_x = "pi"+str(c[0]+2)
+        node_y = "pi"+str(c[1]+2)
+        
+        x, x_test = model_data[node_x]
+        y, y_test = model_data[node_y]
+        
+        sample_size = min(x.shape[0], y.shape[0])
+        tx, ty = get_tensor_sample(x, sample_size), get_tensor_sample(y, sample_size)
+        
+        mmd = MMD(tx, ty, kernel, kernel_bandwidth)
+        if mmd < asmmd + asmmd * 0.05:
+            if node_x not in similar_nodes:
+                similar_sets.append(node_x)
+            if node_y not in similar_nodes:
+                similar_sets.append(node_y)
+                
+            similar_pairs.append((node_x, node_y))
+    return similar_pairs, similar_nodes
 
 def to_tensor(data):
     return torch.tensor(data).to(device)
@@ -157,7 +198,8 @@ def get_sample_indices(range_of_indices, sample_size):
     return np.random.choice(range_of_indices, sample_size, replace=False)
 
 def get_tensor_samples(data, experiment, sample_size, standardised = False):
-    node_data = [node_data.values.astype(np.float32) for node_data in get_node_data(data, experiment)]
+    node_data = [node_data.values.astype(np.float32) 
+                 for node_data in get_node_data(data, experiment)]
     
     if standardised:
         scaler = StandardScaler()

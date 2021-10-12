@@ -130,6 +130,5 @@ dmypy.json
 
 # folders to ignore
 papers/
-data/
 relevant reading/
 meeting notes/

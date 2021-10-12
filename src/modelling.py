@@ -19,22 +19,27 @@ def score_clf(clf, test):
 
 def grid_search_models(clf_name, model_data, selected_nodes, param_grid):
     models = {}
-    t = PrettyTable(['Node', 'Model', 'Coefficient of Determination (R)'])
+    t = PrettyTable(['Node', 'Baseline Model', 'Baseline Coefficient of Determination (R)',
+                    'Optimised Model', 'Optimised Model Coeffficient of Determination (R'])
     for node in selected_nodes:
         train, test = model_data[node] 
         
-        model = instantiate_clf(clf_name)
-        score = fit_clf(model, train, test)
-        t.add_row([node, model, score])
+        baseline_model = instantiate_clf(clf_name)
+        baseline_score = fit_clf(baseline_model, train, test)
 
         grid_search = GridSearchCV(instantiate_clf(clf_name), param_grid)
         grid_search.fit(train[:,1].reshape(-1,1), train[:,0])
 
-        model = instantiate_clf(clf_name)
-        model.set_params(**grid_search.best_params_)
-        score = fit_clf(model, train, test)
-        t.add_row([node, model, score])
+        optimised_model = instantiate_clf(clf_name)
+        optimised_model.set_params(**grid_search.best_params_)
+        optimised_score = fit_clf(optimised_model, train, test)
+        t.add_row([node, baseline_model, baseline_score, optimised_model, optimised_score])
         
+        if optmised_score > baseline_score:
+            model = optimised_model
+        else:
+            model = baseline_model
+            
         models[node] = model
     
     print(t)

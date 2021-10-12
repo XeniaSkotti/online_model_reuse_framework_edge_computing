@@ -17,10 +17,23 @@ def fit_clf(clf, train, test):
 def score_clf(clf, test):
     return clf.score(test[:,1].reshape(-1,1), test[:,0])
 
-def grid_search_models(clf_name, model_data, selected_nodes, param_grid):
+def get_clf_param_grid(name):
+    if name == "linear":
+        parm_grid = {}
+    elif name == "svr":
+        param_grid = {"kernel": ["rbf", "linear"],
+                      "C" : [0.05, 0.1, 0.5, 1, 2, 5, 10, 50],
+                      "epsilon" : [0.05, 0.1, 0.15, 0.2, 0.5, 1]
+                     }
+    return param_grid
+
+def grid_search_models(clf_name, model_data, selected_nodes):
     models = {}
     t = PrettyTable(['Node', 'Baseline Model', 'Baseline Coefficient of Determination (R)',
                     'Optimised Model', 'Optimised Model R'])
+    
+    param_grid = get_clf_param_grid(clf_name)
+    
     for node in selected_nodes:
         train, test = model_data[node] 
         

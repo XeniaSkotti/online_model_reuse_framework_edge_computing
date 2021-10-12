@@ -16,6 +16,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ## - this tutorial: https://www.kaggle.com/onurtunali/maximum-mean-discrepancy
 
 def MMD(x, y, kernel, kernel_bandwidth):
+    
     """Emprical maximum mean discrepancy. The lower the result 
     the more evidence that distributions are the same.
 

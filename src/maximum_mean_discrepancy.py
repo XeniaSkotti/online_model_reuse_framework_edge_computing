@@ -97,7 +97,7 @@ def avg_similarity_disimilarity_MMD(samples, similar_nodes, other_nodes,
     d = PrettyTable(['Nodes', 'Dissimilar MMD'])
     
     ## Calculating the baseline ASMMD
-    combos = comb(range(len(similar_sets)),2)
+    combos = comb(range(len(similar_nodes)),2)
     similar_mmds = []
     for combo in combos:
         x = similar_nodes[combo[0]]
@@ -110,10 +110,10 @@ def avg_similarity_disimilarity_MMD(samples, similar_nodes, other_nodes,
 
     ## Comparing the other_nodes with each of the similar_nodes
     dissimilar_mmds = []
-    for i in range(len(dissimilar_sets)):
+    for i in range(len(other_nodes)):
         x = other_nodes[i]
         sx = samples[x]
-        for j in range(len(similar_sets)):
+        for j in range(len(similar_nodes)):
             y = similar_nodes[j]
             sy = samples[y]
             mmd = MMD(sx,sy, kernel, kernel_bandwidth)
@@ -126,8 +126,8 @@ def avg_similarity_disimilarity_MMD(samples, similar_nodes, other_nodes,
                 s.add_row([(x,y), mmd])
     
     ## Calculating the MMD between each 
-    if len(dissimilar_sets) > 1:
-        combos = comb(range(len(dissimilar_sets)),2)
+    if len(other_nodes) > 1:
+        combos = comb(range(len(other_nodes)),2)
         for combo in combos:
             x = other_nodes[combo[0]]
             y = other_nodes[combo[1]]
@@ -180,9 +180,9 @@ def find_similar_pairs(model_data, asmmd, kernel, kernel_bandwidth):
         mmd = MMD(tx, ty, kernel, kernel_bandwidth)
         if mmd < asmmd + asmmd * 0.05:
             if node_x not in similar_nodes:
-                similar_sets.append(node_x)
+                similar_nodes.append(node_x)
             if node_y not in similar_nodes:
-                similar_sets.append(node_y)
+                similar_nodes.append(node_y)
                 
             similar_pairs.append((node_x, node_y))
     return similar_pairs, similar_nodes

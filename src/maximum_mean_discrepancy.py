@@ -16,13 +16,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ## - this tutorial: https://www.kaggle.com/onurtunali/maximum-mean-discrepancy
 
 def MMD(x, y, kernel, kernel_bandwidth):
-    """Emprical maximum mean discrepancy. The lower the result
-       the more evidence that distributions are the same.
+    """Emprical maximum mean discrepancy. The lower the result 
+    the more evidence that distributions are the same.
 
     Args:
         x: first sample, distribution P
         y: second sample, distribution Q
-        kernel: kernel type such as "multiscale" or "rbf"
+        kernel: kernel type such as "multiscale", "rbf", "linear"
+        kernel_bandwidth: specifies the scalar value to be used by the kernel
     """
     
     ## torch.mm performs matrix multiplication
@@ -61,50 +62,78 @@ def MMD(x, y, kernel, kernel_bandwidth):
     
     return (1/(m*(m-1)) * torch.sum(XX) - 2/(m*n) * torch.sum(XY) + 1/(n*(n-1)) * torch.sum(YY)).item()
 
-def avg_similarity_disimilarity_MMD(samples, similar_sets, dissimilar_sets, kernel, kernel_bandwidth, return_tables = True):
-    # The similar set contains the nodes that are similar to each other and dissimilar to the the dissimilar set.
-    # The dissimilar set is dissimilar to similar set nodes but they could be similar to each other.
+def avg_similarity_disimilarity_MMD(samples, similar_nodes, other_nodes, 
+                                    kernel, kernel_bandwidth, return_tables = True):
+    
+    """ The function calculates the average similarity and dissimilarity MMD (ASDMMD) 
+    between the nodes given. 
+    
+    Args: 
+        samples: dictionary associating each node (pi2-pi5) with a sample used for the 
+                 MMD calculation.
+        similar_nodes: nodes which we have visually identified as similar to each other.
+        other_nodes: the rest of the nodes which we're unsure of.
+        kernel: specifies the kernel type to be used for the MMD calculation.
+        kernel_bandwidth: scalar value to be used by the kernel in the MMD calculation.
+        return_tables: boolean value which determines whether we return the tables s(imilar)
+                       and d(issimilar) containing a pair of nodes and their corresponding 
+                       MMD.  
+    
+    We use the similar_nodes to calculate a baseline average similarity MMD (ASMMD). 
+    Then, we use ASMMD to judge whether the other_nodes are similar to each other or 
+    to the similar_nodes. If they are we calculate the new ASMMD and we use this to 
+    judge the next pair. Otherwise, we use the calculated MMD value in the 
+    average dissimilar MMD (ADMMD).
+    
+    Regardless of whether we return the tables s and d we always return the ASMMD.
+    
+    """
+    
+    ## The tables are constructed for experimentation purposes to understand 
+    ## relationships between pairs and pin point which pairs are similar. 
     
     s = PrettyTable(['Nodes', 'Similar MMD'])
     d = PrettyTable(['Nodes', 'Dissimilar MMD'])
     
+    ## Calculating the baseline ASMMD
     combos = comb(range(len(similar_sets)),2)
     similar_mmds = []
     for combo in combos:
-        x = similar_sets[combo[0]]
-        y = similar_sets[combo[1]]
+        x = similar_nodes[combo[0]]
+        y = similar_nodes[combo[1]]
         sx = samples[x]
         sy = samples[y]
         mmd = MMD(sx,sy, kernel, kernel_bandwidth)
         similar_mmds.append(mmd)
         s.add_row([(x,y), mmd])
 
-    ## calculate the mmd between each dissimilar set and the similar sets
+    ## Comparing the other_nodes with each of the similar_nodes
     dissimilar_mmds = []
     for i in range(len(dissimilar_sets)):
-        x = dissimilar_sets[i]
+        x = other_nodes[i]
         sx = samples[x]
         for j in range(len(similar_sets)):
-            y = similar_sets[j]
+            y = similar_nodes[j]
             sy = samples[y]
             mmd = MMD(sx,sy, kernel, kernel_bandwidth)
-            if mmd > np.mean(similar_mmds):
+            ## allow for the mmd to be 5% higher than the current ASMMD
+            if mmd > np.mean(similar_mmds) + np.mean(similar_mmds) * 0.05:
                 dissimilar_mmds.append(mmd)
                 d.add_row([(x,y), mmd])
             else: 
                 similar_mmds.append(mmd)
                 s.add_row([(x,y), mmd])
     
-    ## calculate the mmd between the dissimilar sets as they could be dissimilar/similar to each other
+    ## Calculating the MMD between each 
     if len(dissimilar_sets) > 1:
         combos = comb(range(len(dissimilar_sets)),2)
         for combo in combos:
-            x = dissimilar_sets[combo[0]]
-            y = dissimilar_sets[combo[1]]
+            x = other_nodes[combo[0]]
+            y = other_nodes[combo[1]]
             sx = samples[x]
             sy = samples[y]
             mmd = MMD(sx,sy, kernel, kernel_bandwidth)
-            if mmd > np.mean(similar_mmds):
+            if mmd > np.mean(similar_mmds) + np.mean(similar_mmds) * 0.05:
                 dissimilar_mmds.append(mmd)
                 d.add_row([(x,y), mmd])
             else: 
@@ -112,9 +141,9 @@ def avg_similarity_disimilarity_MMD(samples, similar_sets, dissimilar_sets, kern
                 s.add_row([(x,y), mmd])
 
     if return_tables:
-        return np.mean(similar_mmds), np.mean(dissimilar_mmds), s, d
+        return np.mean(similar_mmds), s, d
     else:
-        return np.mean(similar_mmds), np.mean(dissimilar_mmds)
+        return np.mean(similar_mmds)
 
 def to_tensor(data):
     return torch.tensor(data).to(device)

@@ -2,6 +2,18 @@ import numpy as np
 import pandas as pd
 from sklearn.svm import OneClassSVM
 
+def get_similar_other_nodes_sets(experiment):
+    if experiment == 1:
+        similar_nodes = ["pi2", "pi4"]
+        other_nodes = ["pi3", "pi5"]
+    elif experiment == 2:
+        similar_nodes = ["pi3", "pi5"]
+        other_nodes = ["pi2", "pi4"]
+    elif experiment == 3:
+        similar_nodes = ["pi3", "pi5"]
+        other_nodes = ["pi2", "pi4"]
+    return similar_nodes, other_nodes
+
 def get_node_data(data, experiment):
     exp = data.loc[data.experiment==experiment][["humidity", "temperature"]]
     a = exp.loc[data.pi=="pi2"]

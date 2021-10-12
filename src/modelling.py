@@ -1,4 +1,4 @@
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.svm import SVR
 from sklearn.model_selection import GridSearchCV
 from prettytable import PrettyTable
@@ -8,6 +8,8 @@ def instantiate_clf(name):
         return LinearRegression()
     elif name == "svr":
         return SVR()
+    elif name == "lr":
+        return LogisticRegression(max_iter = 10000, solver = "saga")
 
 def fit_clf(clf, train, test):
     ## position 1 has temperature and position 0 humnidity
@@ -19,11 +21,16 @@ def score_clf(clf, test):
 
 def get_clf_param_grid(name):
     if name == "linear":
-        parm_grid = {}
+        param_grid = {"normalize" : [True, False]}
     elif name == "svr":
         param_grid = {"kernel": ["rbf", "linear"],
                       "C" : [0.05, 0.1, 0.5, 1, 2, 5, 10, 50],
                       "epsilon" : [0.05, 0.1, 0.15, 0.2, 0.5, 1]
+                     }
+    elif name == "lr":
+        param_grid = {"penalty" : ["elasticnet"],
+                      "C" : [0.05, 0.1, 0.5, 1, 2, 5, 10, 50],
+                      "l1_ratio" : [0.1, 0.3, 0.5, 0.7, 0.9]
                      }
     return param_grid
 

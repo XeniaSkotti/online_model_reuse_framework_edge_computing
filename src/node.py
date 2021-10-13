@@ -39,14 +39,14 @@ def remove_outliers(node_data, return_models=False):
         node_data[i] = node_data[i].iloc[node_inliers]
         if return_models:
             models.append(model)
-            inliers.append(node_inliers)
+            inliers.append(node_inliers[0])
         
     if return_models:
-        return node_data, models, node_inliers
+        return node_data, models, inliers
     else:
         return node_data
 
-def get_similar_pairs_unidirectional(models, node_data, threshold, unidirectional):
+def get_similar_pairs_ocsvm(node_data, threshold, unidirectional):
     similar_pairs = []
     similar_nodes = []
     combos = comb(range(4),2)
@@ -55,14 +55,11 @@ def get_similar_pairs_unidirectional(models, node_data, threshold, unidirectiona
         x, y = c[0], c[1]
 
         model_x, model_y = models[x], models[y]
-        predicted_x_inliers = np.where(model_y.predict(node_data[x]) == 1)
-        predicted_y_inliers = np.where(model_x.predict(node_data[y]) == 1)
+        predicted_x_inliers = np.where(model_y.predict(node_data[x]) == 1)[0]
+        predicted_y_inliers = np.where(model_x.predict(node_data[y]) == 1)[0]
 
-        int_x = np.intersect1d(inliers[x], predicted_x_inliers)
-        int_y = np.intersect1d(inliers[y], predicted_y_inliers)
-
-        x_y_overlap = int_x.shape[0]/inliers_x.shape[0]
-        y_x_overlap = int_y.shape[0]/inliers_y.shape[0]
+        x_y_overlap = np.intersect1d(inliers[x], predicted_x_inliers).shape[0]/inliers[x].shape[0]
+        y_x_overlap = np.intersect1d(inliers[y], predicted_y_inliers).shape[0]/inliers[y].shape[0]
         
         if max(y_x_overlap,x_y_overlap) > threshold:
             node_x = "pi"+str(x+2)

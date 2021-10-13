@@ -153,7 +153,7 @@ def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
     else:
         return False
 
-def find_similar_pairs(model_data, asmmd, kernel, kernel_bandwidth):
+def find_similar_pairs(data, asmmd, kernel, kernel_bandwidth):
     
     """Finds the pairs of nodes which are similar using the ASMMD
     
@@ -171,16 +171,12 @@ def find_similar_pairs(model_data, asmmd, kernel, kernel_bandwidth):
         node_x = "pi"+str(c[0]+2)
         node_y = "pi"+str(c[1]+2)
         
-        x, x_test = model_data[node_x]
-        y, y_test = model_data[node_y]
-        
-        x = np.stack(x, axis=-1)
-        y = np.stack(y, axis=-1)
-         
+        x = data[node_x]
+        y = data[node_y]
+
         sample_size = min(x.shape[0], y.shape[0])
         tx, ty = get_tensor_sample(x, sample_size), get_tensor_sample(y, sample_size)
 
-        
         mmd = MMD(tx, ty, kernel, kernel_bandwidth)
         if mmd < asmmd + asmmd * 0.05:
             if node_x not in similar_nodes:

@@ -28,38 +28,36 @@ def get_node_data(data, experiment, filtered = True):
     else: 
         return node_data
 
-def remove_outliers(node_data):
+def remove_outliers(node_data, return_models=False):
+    if return_models:
+        models = []
     for i in range(4):
         model = OneClassSVM(nu=0.1)
         pred = model.fit_predict(node_data[i])
         inliers = np.where(pred == 1)
         node_data[i] = node_data[i].iloc[inliers]
+        if return_models:
+            models.append(model)
         
-    return node_data
+    if return_models:
+        return node_data, models
+    else:
+        return node_data
 
-def get_similar_pairs_unidirectional(node_data, threshold):
-    predicted_inliers = []
-    models = []
-
-    for i in range(4):
-        model = OneClassSVM(nu=0.1)
-        pred = model.fit_predict(node_data[i])
-        inliers = np.where(pred == 1)
-        predicted_inliers.append(inliers[0])
-        models.append(model)
-
-    combos = comb(range(4),2)
-
+def get_similar_pairs_unidirectional(models, node_data, threshold):
     similar_pairs = []
     similar_nodes = []
+    combos = comb(range(4),2)
+    filtered_node_data, models = remove_outliers(node_data, return_models=True)
     for c in combos:
         x, y = c[0], c[1]
 
         model_x, model_y = models[x], models[y]
-        inliers_x, inliers_y = predicted_inliers[x], predicted_inliers[y]
-
-        predicted_y_inliers = np.where(model_x.predict(node_data[y]) == 1)
+        
+        inliers_x = np.where(model_x.predict(node_data[x]))
+        inliers_y = np.where(model_y.predict(node_data[y]))
         predicted_x_inliers = np.where(model_y.predict(node_data[x]) == 1)
+        predicted_y_inliers = np.where(model_x.predict(node_data[y]) == 1)
 
         int_x = np.intersect1d(inliers_x, predicted_x_inliers)
         int_y = np.intersect1d(inliers_y, predicted_y_inliers)
@@ -78,8 +76,5 @@ def get_similar_pairs_unidirectional(node_data, threshold):
                 similar_pairs.append((node_x, node_y))
             if x_y_overlap > threshold:
                 similar_pairs.append((node_y, node_x))
-        
-    for i in range(4):
-        node_data[i] = node_data[i].iloc[predicted_inliers[i]]
     
-    return similar_pairs, similar_nodes, node_data
+    return similar_pairs, similar_nodes, filtered_node_data

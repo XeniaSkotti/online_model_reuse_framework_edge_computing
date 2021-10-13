@@ -174,8 +174,12 @@ def find_similar_pairs(model_data, asmmd, kernel, kernel_bandwidth):
         x, x_test = model_data[node_x]
         y, y_test = model_data[node_y]
         
+        x = np.stack(x, axis=-1)
+        y = np.stack(y, axis=-1)
+         
         sample_size = min(x.shape[0], y.shape[0])
         tx, ty = get_tensor_sample(x, sample_size), get_tensor_sample(y, sample_size)
+
         
         mmd = MMD(tx, ty, kernel, kernel_bandwidth)
         if mmd < asmmd + asmmd * 0.05:

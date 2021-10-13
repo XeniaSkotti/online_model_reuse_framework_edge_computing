@@ -37,7 +37,7 @@ def remove_outliers(node_data):
         
     return node_data
 
-def get_similar_pairs_unidirectional(node_data):
+def get_similar_pairs_unidirectional(node_data, threshold):
     predicted_inliers = []
     models = []
 
@@ -51,6 +51,7 @@ def get_similar_pairs_unidirectional(node_data):
     combos = comb(range(4),2)
 
     similar_pairs = []
+    similar_nodes = []
     for c in combos:
         x, y = c[0], c[1]
 
@@ -65,10 +66,20 @@ def get_similar_pairs_unidirectional(node_data):
 
         x_y_overlap = int_x.shape[0]/inliers_x.shape[0]
         y_x_overlap = int_y.shape[0]/inliers_y.shape[0]
-
-        if y_x_overlap > 0.85:
-            similar_pairs.append(("pi"+str(x+2), "pi"+str(y+2)))
-        if x_y_overlap > 0.85:
-            similar_pairs.append(("pi"+str(y+2), "pi"+str(x+2)))
+        
+        if max(y_x_overlap,x_y_overlap) > threshold:
+            node_x = "pi"+str(x+2)
+            node_y = "pi"+str(y+2)
+            if node_x not in similar_nodes:
+                similar_nodes.append(node_x)
+            if node_y not in similar_nodes:
+                similar_nodes.append(node_y)
+            if y_x_overlap > threshold:
+                similar_pairs.append((node_x, node_y))
+            if x_y_overlap > threshold:
+                similar_pairs.append((node_y, node_x))
+        
+    for i in range(4):
+        node_data[i] = node_data[i].iloc[predicted_inliers[i]]
     
-    return similar_pairs
+    return similar_pairs, similar_nodes, node_data

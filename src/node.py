@@ -46,7 +46,7 @@ def remove_outliers(node_data, return_models=False):
     else:
         return node_data
 
-def get_similar_pairs_unidirectional(models, node_data, threshold):
+def get_similar_pairs_unidirectional(models, node_data, threshold, unidirectional):
     similar_pairs = []
     similar_nodes = []
     combos = comb(range(4),2)
@@ -67,13 +67,18 @@ def get_similar_pairs_unidirectional(models, node_data, threshold):
         if max(y_x_overlap,x_y_overlap) > threshold:
             node_x = "pi"+str(x+2)
             node_y = "pi"+str(y+2)
+            
             if node_x not in similar_nodes:
                 similar_nodes.append(node_x)
             if node_y not in similar_nodes:
                 similar_nodes.append(node_y)
-            if y_x_overlap > threshold:
+                
+            if unidirectional:
+                if y_x_overlap > threshold:
+                    similar_pairs.append((node_x, node_y))
+                if x_y_overlap > threshold:
+                    similar_pairs.append((node_y, node_x))
+            else:
                 similar_pairs.append((node_x, node_y))
-            if x_y_overlap > threshold:
-                similar_pairs.append((node_y, node_x))
     
     return similar_pairs, similar_nodes, filtered_node_data

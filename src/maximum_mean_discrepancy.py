@@ -6,8 +6,6 @@ import torch
 import numpy as np
 from prettytable import PrettyTable
 from itertools import combinations as comb
-from node import get_node_data
-from sklearn.preprocessing import StandardScaler
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -142,7 +140,7 @@ def avg_similarity_disimilarity_MMD(samples, similar_nodes, other_nodes,
                 s.add_row([(x,y), mmd])
 
     if return_tables:
-        return np.mean(similar_mmds), s, d
+        return np.mean(similar_mmds), np.mean(dissimilar_mmds), s, d
     else:
         return np.mean(similar_mmds)
     
@@ -153,12 +151,12 @@ def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
     else:
         return False
 
-def find_similar_pairs(data, asmmd, kernel, kernel_bandwidth):
+def find_similar_pairs(node_data, asmmd, kernel, kernel_bandwidth):
     
     """Finds the pairs of nodes which are similar using the ASMMD
     
     Args:
-        model_data: dictionary which associates each node with it's train and test data. 
+        node_data: list of dataframes, one for each no
         asdmmd: the average similarity MMD
         kernel: the kernel type to be used for the MMD calculation.
         kernel_bandwidth: scalar value to be used by the kernel in the MMD calculation. 
@@ -171,8 +169,8 @@ def find_similar_pairs(data, asmmd, kernel, kernel_bandwidth):
         node_x = "pi"+str(c[0]+2)
         node_y = "pi"+str(c[1]+2)
         
-        x = data[node_x]
-        y = data[node_y]
+        x = node_data[c[0]][["humidity", "temperature"]].values.astype(np.float32)
+        y = node_data[c[1]][["humidity", "temperature"]].values.astype(np.float32)
 
         sample_size = min(x.shape[0], y.shape[0])
         tx, ty = get_tensor_sample(x, sample_size), get_tensor_sample(y, sample_size)
@@ -197,23 +195,11 @@ def get_tensor_sample(data, sample_size):
 def get_sample_indices(range_of_indices, sample_size):
     return np.random.choice(range_of_indices, sample_size, replace=False)
 
-def get_tensor_samples(data, experiment, sample_size, standardised = False):
-    node_data = [node_data.values.astype(np.float32) 
-                 for node_data in get_node_data(data, experiment)]
-    
-    if standardised:
-        scaler = StandardScaler()
-        scaler.fit(np.concatenate(node_data))
-        standardised_node_data = [scaler.transform(node_data[i]) for i in range(4)]
-        
+def get_tensor_samples(node_data, sample_size):        
     samples = {}
     for i in range(4):
         indices = get_sample_indices(node_data[i].shape[0], sample_size)
-        s = to_tensor(node_data[i][indices])
+        s = to_tensor(node_data[i][["humidity", "temperature"]].values.astype(np.float32)[indices])
         samples["pi"+str(i+2)] = s
-        
-        if standardised:
-            stds = to_tensor(standardised_node_data[i][indices])
-            samples["pi"+str(i+2)+"std"] = stds 
     
     return samples

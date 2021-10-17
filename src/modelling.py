@@ -11,10 +11,10 @@ def instantiate_clf(name):
     elif name == "lsvr":
         return SVR(kernel="linear")
     
-def fit_clf(clf, train, test):
+def fit_clf(clf, train):
     ## position 1 has temperature and position 0 humnidity
     clf.fit(train[0].reshape(-1,1), train[1])
-    return score_clf(clf, test)
+    return score_clf(clf, train)
 
 def score_clf(clf, test):
     return clf.score(test[0].reshape(-1,1), test[1])

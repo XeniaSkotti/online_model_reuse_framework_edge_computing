@@ -16,7 +16,7 @@ def get_similar_other_nodes_sets(experiment):
     return similar_nodes, other_nodes
 
 def get_node_data(data, experiment, filtered = True):
-    exp = data.loc[data.experiment==experiment][["humidity", "temperature"]]
+    exp = data.loc[data.experiment==experiment]
     a = exp.loc[data.pi=="pi2"]
     b = exp.loc[data.pi=="pi3"]
     c = exp.loc[data.pi=="pi4"]
@@ -34,7 +34,7 @@ def remove_outliers(node_data, return_models=False):
         inliers = []
     for i in range(4):
         model = OneClassSVM(nu=0.1)
-        pred = model.fit_predict(node_data[i])
+        pred = model.fit_predict(node_data[i][["humidity", "temperature"]])
         node_inliers = np.where(pred == 1)
         node_data[i] = node_data[i].iloc[node_inliers]
         if return_models:

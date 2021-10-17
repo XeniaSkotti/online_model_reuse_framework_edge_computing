@@ -17,6 +17,7 @@ def visualise_train_test_data(node_data):
     plt.scatter(d[1].humidity, d[1].temperature, marker = "+", label="pi5-test", alpha=0.3)
     
     plt.legend()
+    plt.title(label="Experiment "+str(a.experiment.values[0])+ " Data")
     plt.xlabel(xlabel="Humidity")
     plt.ylabel(ylabel="Temperature")
     plt.show()
@@ -34,11 +35,12 @@ def visualise_experiment(node_data):
     plt.scatter(d.humidity, d.temperature, marker = "*", label="pi5", alpha=0.5)
     
     plt.legend()
+    plt.title(label="Experiment "+str(a.experiment.values[0])+ " Data")
     plt.xlabel(xlabel="Humidity")
     plt.ylabel(ylabel="Temperature")
     plt.show()
 
 def visualise_experiments(data):
     for i in range(1,4):
-        node_data = get_node_data(data, experiment = i)
+        node_data = get_node_data(data, experiment = i, filtered=False)
         visualise_experiment(node_data)

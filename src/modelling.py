@@ -1,7 +1,7 @@
-from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR, LinearSVR
 from sklearn.model_selection import GridSearchCV
-from prettytable import PrettyTable
+import pandas as pd
 
 def instantiate_clf(name):
     if name == "lreg":
@@ -34,8 +34,7 @@ def get_clf_param_grid(name):
 
 def grid_search_models(clf_name, model_data, selected_nodes):
     models = {}
-    t = PrettyTable(['Node', 'Baseline Model', 'Baseline R',
-                    'Optimised Model', 'Optimised Model R'])
+    l = []
     
     param_grid = get_clf_param_grid(clf_name)
     
@@ -51,15 +50,15 @@ def grid_search_models(clf_name, model_data, selected_nodes):
         optimised_model = instantiate_clf(clf_name)
         optimised_model.set_params(**grid_search.best_params_)
         optimised_score = fit_clf(optimised_model, train)
-        t.add_row([node, baseline_model, baseline_score, optimised_model, optimised_score])
         
         if optimised_score > baseline_score:
             model = optimised_model
+            score = optimised_score
         else:
             model = baseline_model
+            score = baseline_score
             
         models[node] = model
+        l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "score" : score}]))
     
-    print(t)
-    
-    return models
+    return models, pd.concat(l)

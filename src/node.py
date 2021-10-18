@@ -15,7 +15,7 @@ def get_similar_other_nodes_sets(experiment):
         other_nodes = ["pi2", "pi4"]
     return similar_nodes, other_nodes
 
-def get_node_data(data, experiment, filtered = True):
+def get_node_data(data, experiment, filtered = True, return_models = True):
     exp = data.loc[data.experiment==experiment]
     a = exp.loc[data.pi=="pi2"]
     b = exp.loc[data.pi=="pi3"]
@@ -24,7 +24,7 @@ def get_node_data(data, experiment, filtered = True):
     
     node_data = [a,b,c,d]
     if filtered:
-        return remove_outliers(node_data)
+        return remove_outliers(node_data, return_models)
     else: 
         return node_data
 
@@ -46,17 +46,16 @@ def remove_outliers(node_data, return_models=False):
     else:
         return node_data
 
-def get_similar_pairs_ocsvm(node_data, threshold, unidirectional):
+def get_similar_pairs_ocsvm(node_data, models, inliers, threshold, unidirectional):
     similar_pairs = []
     similar_nodes = []
     combos = comb(range(4),2)
-    filtered_node_data, models, inliers = remove_outliers(node_data, return_models=True)
     for c in combos:
         x, y = c[0], c[1]
 
         model_x, model_y = models[x], models[y]
-        predicted_x_inliers = np.where(model_y.predict(node_data[x]) == 1)[0]
-        predicted_y_inliers = np.where(model_x.predict(node_data[y]) == 1)[0]
+        predicted_x_inliers = np.where(model_y.predict(node_data[x][["humidity", "temperature"]]) == 1)[0]
+        predicted_y_inliers = np.where(model_x.predict(node_data[y][["humidity", "temperature"]]) == 1)[0]
 
         x_y_overlap = np.intersect1d(inliers[x], predicted_x_inliers).shape[0]/inliers[x].shape[0]
         y_x_overlap = np.intersect1d(inliers[y], predicted_y_inliers).shape[0]/inliers[y].shape[0]
@@ -78,4 +77,4 @@ def get_similar_pairs_ocsvm(node_data, threshold, unidirectional):
             else:
                 similar_pairs.append((node_x, node_y))
     
-    return similar_pairs, similar_nodes, filtered_node_data
+    return similar_pairs, similar_nodes

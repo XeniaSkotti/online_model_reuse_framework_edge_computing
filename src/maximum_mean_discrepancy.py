@@ -151,7 +151,7 @@ def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
     else:
         return False
 
-def find_similar_pairs(node_data, asmmd, kernel, kernel_bandwidth):
+def get_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
     
     """Finds the pairs of nodes which are similar using the ASMMD
     

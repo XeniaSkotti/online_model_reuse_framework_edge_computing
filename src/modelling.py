@@ -40,17 +40,17 @@ def grid_search_models(clf_name, model_data, selected_nodes):
     param_grid = get_clf_param_grid(clf_name)
     
     for node in selected_nodes:
-        train, test = model_data[node]
+        train = model_data[node]
         
         baseline_model = instantiate_clf(clf_name)
-        baseline_score = fit_clf(baseline_model, train, test)
+        baseline_score = fit_clf(baseline_model, train)
 
         grid_search = GridSearchCV(instantiate_clf(clf_name), param_grid)
         grid_search.fit(train[0].reshape(-1,1), train[1])
 
         optimised_model = instantiate_clf(clf_name)
         optimised_model.set_params(**grid_search.best_params_)
-        optimised_score = fit_clf(optimised_model, train, test)
+        optimised_score = fit_clf(optimised_model, train)
         t.add_row([node, baseline_model, baseline_score, optimised_model, optimised_score])
         
         if optimised_score > baseline_score:

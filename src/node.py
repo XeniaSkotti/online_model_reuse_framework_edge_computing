@@ -15,7 +15,7 @@ def get_similar_other_nodes_sets(experiment):
         other_nodes = ["pi2", "pi4"]
     return similar_nodes, other_nodes
 
-def get_node_data(data, experiment, filtered = True, return_models = True):
+def get_node_data(data, experiment, filtered = True, return_models = False):
     exp = data.loc[data.experiment==experiment]
     a = exp.loc[data.pi=="pi2"]
     b = exp.loc[data.pi=="pi3"]

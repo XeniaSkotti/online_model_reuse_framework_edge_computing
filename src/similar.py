@@ -1,6 +1,6 @@
 from maximum_mean_discrepancy import get_tensor_sample, get_tensor_samples, MMD
 from maximum_mean_discrepancy import avg_similarity_disimilarity_MMD as ASDMMD
-from node import get_similar_other_nodes_sets, remove_outliers
+from node import get_similar_other_nodes_sets, remove_outliers, get_node_data
 from itertools import combinations as comb
 import numpy as np
 import pandas as pd
@@ -12,7 +12,7 @@ def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
     else:
         return False
 
-def get_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
+def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
     
     """Finds the pairs of nodes which are similar using the ASMMD
     
@@ -46,7 +46,7 @@ def get_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
             similar_pairs.append((node_x, node_y))
     return similar_pairs, similar_nodes
 
-def get_similar_pairs_ocsvm(node_data, models, inliers, threshold, unidirectional):
+def find_similar_pairs_ocsvm(node_data, models, inliers, threshold, unidirectional):
     similar_pairs = []
     similar_nodes = []
     combos = comb(range(4),2)
@@ -79,43 +79,42 @@ def get_similar_pairs_ocsvm(node_data, models, inliers, threshold, unidirectiona
     
     return similar_pairs, similar_nodes
 
-def get_mmd_similar_pairs(experiment, kernel, kernel_bandwidth):
-    node_data = sampled_data[experiment]["data"]
+def get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth):
+    node_data = data[experiment]["sampled_data"]
     
     tensor_samples = get_tensor_samples(node_data, sample_size=200)
     similar_nodes, other_nodes = get_similar_other_nodes_sets(experiment)
     asmmd = ASDMMD(tensor_samples, similar_nodes, other_nodes, kernel, kernel_bandwidth, return_tables = False)
     print(f"The average MMD between similar sets is {asmmd}")
     
-    similar_pairs, similar_nodes = get_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth)
+    similar_pairs, similar_nodes = find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth)
     print(f"The following pairs of nodes were deemed similar {similar_pairs} using the MMD method.\n")
     
     return similar_pairs, similar_nodes
 
-def get_ocsvm_similar_pairs(threshold, unidirectional = False):
-    node_data = get_node_data(data, experiment, filtered = False)
-    models = sampled_data[experiment]["models"]
-    inliers =  sampled_data[experiment]["inliers"]
-    similar_pairs, similar_nodes = get_similar_pairs_ocsvm(node_data, models, inliers, threshold, unidirectional)
+def get_ocsvm_similar_pairs(data, experiment, threshold, unidirectional = False):
+    node_data = get_node_data(data[experiment]["raw_data"], experiment, filtered = False)
+    models = data[experiment]["models"]
+    inliers =  data[experiment]["inliers"]
+    similar_pairs, similar_nodes = find_similar_pairs_ocsvm(node_data, models, inliers, threshold, unidirectional)
     print(f"The following pairs of nodes were deemed similar {similar_pairs} using the OCSVM method.\n")
     
     return similar_pairs, similar_nodes
 
-def get_similar_pairs_nodes(method, similar_pairs_args):
+def get_similar_pairs_nodes(experiment, data, method, similar_pairs_args):
     if method in ["mmd", "ocsvm"]:
         if method == "mmd":
-            experiment, kernel, kernel_bandwidth = similar_pairs_args
-            similar_pairs, similar_nodes = get_mmd_similar_pairs(experiment, kernel, kernel_bandwidth)
-            node_data = sampled_data[experiment]
+            kernel, kernel_bandwidth = similar_pairs_args
+            similar_pairs, similar_nodes = get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth)
         elif method == "ocsvm":
             threshold, unidirectional = similar_pairs_args
-            similar_pairs, similar_nodes = get_ocsvm_similar_pairs(threshold, unidirectional)  
+            similar_pairs, similar_nodes = get_ocsvm_similar_pairs(data, experiment, threshold, unidirectional)  
     elif method in ["both", "verify", "trio"]:
         threshold, unidirectional = similar_pairs_args[1]
-        ocsvm_similar_pairs, ocsvm_similar_nodes = get_ocsvm_similar_pairs(threshold, unidirectional)
+        ocsvm_similar_pairs, ocsvm_similar_nodes = get_ocsvm_similar_pairs(data, experiment, threshold, unidirectional)  
 
-        experiment, kernel, kernel_bandwidth = similar_pairs_args[0]
-        mmd_similar_pairs, mmd_similar_nodes = get_mmd_similar_pairs(experiment, kernel, kernel_bandwidth)
+        kernel, kernel_bandwidth = similar_pairs_args[0]
+        mmd_similar_pairs, mmd_similar_nodes = get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth)
         
         if method in ["both", "trio"]:
             similar_pairs = [mmd_similar_pairs, ocsvm_similar_pairs]

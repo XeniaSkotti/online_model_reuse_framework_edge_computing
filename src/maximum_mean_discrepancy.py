@@ -143,47 +143,6 @@ def avg_similarity_disimilarity_MMD(samples, similar_nodes, other_nodes,
         return np.mean(similar_mmds), np.mean(dissimilar_mmds), s, d
     else:
         return np.mean(similar_mmds)
-    
-def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
-    mmd = MMD(x,y, kernel, kernel_bandwidth)
-    if mmd < asdmmd + asdmmd * 0.05:
-        return True
-    else:
-        return False
-
-def get_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
-    
-    """Finds the pairs of nodes which are similar using the ASMMD
-    
-    Args:
-        node_data: list of dataframes, one for each no
-        asdmmd: the average similarity MMD
-        kernel: the kernel type to be used for the MMD calculation.
-        kernel_bandwidth: scalar value to be used by the kernel in the MMD calculation. 
-    """
-    
-    combos = comb(range(4),2)
-    similar_pairs = []
-    similar_nodes = []
-    for c in combos:
-        node_x = "pi"+str(c[0]+2)
-        node_y = "pi"+str(c[1]+2)
-        
-        x = node_data[c[0]][["humidity", "temperature"]].values.astype(np.float32)
-        y = node_data[c[1]][["humidity", "temperature"]].values.astype(np.float32)
-
-        sample_size = min(x.shape[0], y.shape[0])
-        tx, ty = get_tensor_sample(x, sample_size), get_tensor_sample(y, sample_size)
-
-        mmd = MMD(tx, ty, kernel, kernel_bandwidth)
-        if mmd < asmmd + asmmd * 0.05:
-            if node_x not in similar_nodes:
-                similar_nodes.append(node_x)
-            if node_y not in similar_nodes:
-                similar_nodes.append(node_y)
-                
-            similar_pairs.append((node_x, node_y))
-    return similar_pairs, similar_nodes
 
 def to_tensor(data):
     return torch.tensor(data).to(device)

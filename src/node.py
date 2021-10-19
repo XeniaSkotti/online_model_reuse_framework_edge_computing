@@ -45,36 +45,3 @@ def remove_outliers(node_data, return_models=False):
         return node_data, models, inliers
     else:
         return node_data
-
-def get_similar_pairs_ocsvm(node_data, models, inliers, threshold, unidirectional):
-    similar_pairs = []
-    similar_nodes = []
-    combos = comb(range(4),2)
-    for c in combos:
-        x, y = c[0], c[1]
-
-        model_x, model_y = models[x], models[y]
-        predicted_x_inliers = np.where(model_y.predict(node_data[x][["humidity", "temperature"]]) == 1)[0]
-        predicted_y_inliers = np.where(model_x.predict(node_data[y][["humidity", "temperature"]]) == 1)[0]
-
-        x_y_overlap = np.intersect1d(inliers[x], predicted_x_inliers).shape[0]/inliers[x].shape[0]
-        y_x_overlap = np.intersect1d(inliers[y], predicted_y_inliers).shape[0]/inliers[y].shape[0]
-        
-        if max(y_x_overlap,x_y_overlap) > threshold:
-            node_x = "pi"+str(x+2)
-            node_y = "pi"+str(y+2)
-            
-            if node_x not in similar_nodes:
-                similar_nodes.append(node_x)
-            if node_y not in similar_nodes:
-                similar_nodes.append(node_y)
-                
-            if unidirectional:
-                if y_x_overlap > threshold:
-                    similar_pairs.append((node_x, node_y))
-                if x_y_overlap > threshold:
-                    similar_pairs.append((node_y, node_x))
-            else:
-                similar_pairs.append((node_x, node_y))
-    
-    return similar_pairs, similar_nodes

@@ -3,7 +3,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVR, LinearSVR
 import pandas as pd
-
+import numpy as np
 
 def get_xy_data(data):
     x = data.humidity.values.astype(np.float32)

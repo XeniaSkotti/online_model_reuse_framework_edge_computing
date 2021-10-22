@@ -82,13 +82,13 @@ def find_similar_pairs_ocsvm(node_data, models, inliers, threshold, unidirection
 def get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth):
     node_data = data[experiment]["sampled_data"]
     
-    tensor_samples = get_tensor_samples(node_data, sample_size=200)
+    tensor_samples = get_tensor_samples(node_data, sample_size=node_data[0].shape[0])
     similar_nodes, other_nodes = get_similar_other_nodes_sets(experiment)
     asmmd = ASDMMD(tensor_samples, similar_nodes, other_nodes, kernel, kernel_bandwidth, return_tables = False)
-    print(f"The average MMD between similar sets is {asmmd}")
+#     print(f"The average MMD between similar sets is {asmmd}")
     
     similar_pairs, similar_nodes = find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth)
-    print(f"The following pairs of nodes were deemed similar {similar_pairs} using the MMD method.\n")
+#     print(f"The following pairs of nodes were deemed similar {similar_pairs} using the MMD method.\n")
     
     return similar_pairs, similar_nodes
 
@@ -97,7 +97,7 @@ def get_ocsvm_similar_pairs(data, experiment, threshold, unidirectional = False)
     models = data[experiment]["models"]
     inliers =  data[experiment]["inliers"]
     similar_pairs, similar_nodes = find_similar_pairs_ocsvm(node_data, models, inliers, threshold, unidirectional)
-    print(f"The following pairs of nodes were deemed similar {similar_pairs} using the OCSVM method.\n")
+#     print(f"The following pairs of nodes were deemed similar {similar_pairs} using the OCSVM method.\n")
     
     return similar_pairs, similar_nodes
 
@@ -117,19 +117,24 @@ def get_similar_pairs_nodes(experiment, data, method, similar_pairs_args):
         mmd_similar_pairs, mmd_similar_nodes = get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth)
         
         if method in ["both", "trio"]:
-            similar_pairs = [mmd_similar_pairs, ocsvm_similar_pairs]
-            similar_nodes = [mmd_similar_nodes, ocsvm_similar_nodes]
+            similar_pairs = {"MMD" : mmd_similar_pairs, "OCSVM" : ocsvm_similar_pairs}
+            similar_nodes = {"MMD" : mmd_similar_nodes, "OCSVM" : ocsvm_similar_nodes}
         
         if method in  ["verify", "trio"]:
             str_mmd_similar_pairs = str([pair[::-1] for pair in mmd_similar_pairs]) + str(mmd_similar_pairs)
             verify_similar_pairs = [pair for pair in ocsvm_similar_pairs if str(pair) in str_mmd_similar_pairs]
             verify_similar_nodes = [node for node in ocsvm_similar_nodes if node in str(verify_similar_pairs)]
+#             print(f"The following pairs of nodes were deemed similar {verify_similar_pairs} using the MMD OCSVM Verify method.\n")
 
             if method == "trio":
-                similar_pairs.append(verify_similar_pairs)
-                similar_nodes.append(verify_similar_nodes)
+                similar_pairs["MMD OCSVM Verify"] = verify_similar_pairs
+                similar_nodes["MMD OCSVM Verify"] = verify_similar_nodes
             else:
                 similar_pairs = verify_similar_pairs
                 similar_nodes = verify_similar_nodes
-
+    
+    if isinstance(similar_pairs, dict):
+        similar_pairs = {k:i for k, i in similar_pairs.items() if i != []}
+        similar_nodes = {k:i for k, i in similar_nodes.items() if i != []}
+    
     return similar_pairs, similar_nodes

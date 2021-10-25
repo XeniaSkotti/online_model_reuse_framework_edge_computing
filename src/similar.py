@@ -47,7 +47,7 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
             similar_pairs.append((node_x, node_y))
     return similar_pairs, similar_nodes, threshold
 
-def find_similar_pairs_ocsvm(node_data, models, inliers, threshold):
+def find_similar_pairs_ocsvm(node_data, models, threshold, inliers):
     similar_pairs = []
     similar_nodes = []
     pair_thresholds = []
@@ -56,11 +56,19 @@ def find_similar_pairs_ocsvm(node_data, models, inliers, threshold):
         x, y = c[0], c[1]
 
         model_x, model_y = models[x], models[y]
-        predicted_x_inliers = np.where(model_y.predict(node_data[x][["humidity", "temperature"]]) == 1)[0]
-        predicted_y_inliers = np.where(model_x.predict(node_data[y][["humidity", "temperature"]]) == 1)[0]
-
-        x_y_overlap = np.intersect1d(inliers[x], predicted_x_inliers).shape[0]/inliers[x].shape[0]
-        y_x_overlap = np.intersect1d(inliers[y], predicted_y_inliers).shape[0]/inliers[y].shape[0]
+        
+        sample_x = node_data[x][["humidity", "temperature"]]
+        sample_y = node_data[y][["humidity", "temperature"]]
+        
+        predicted_x_inliers = np.where(model_y.predict(sample_x) == 1)[0]
+        predicted_y_inliers = np.where(model_x.predict(sample_y) == 1)[0]
+        
+        if inliers==[]:
+            x_y_overlap = len(predicted_x_inliers)/len(sample_x)
+            y_x_overlap = len(predicted_y_inliers)/len(sample_y)
+        else:
+            x_y_overlap = np.intersect1d(inliers[x], predicted_x_inliers).shape[0]/inliers[x].shape[0]
+            y_x_overlap = np.intersect1d(inliers[y], predicted_y_inliers).shape[0]/inliers[y].shape[0]
         
         if max(y_x_overlap,x_y_overlap) > threshold:
             node_x = "pi"+str(x+2)
@@ -82,19 +90,20 @@ def get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth):
     tensor_samples = get_tensor_samples(node_data, sample_size=node_data[0].shape[0])
     similar_nodes, other_nodes = get_similar_other_nodes_sets(experiment)
     asmmd = ASDMMD(tensor_samples, similar_nodes, other_nodes, kernel, kernel_bandwidth, return_tables = False)
-#     print(f"The average MMD between similar sets is {asmmd}")
     
     similar_pairs, similar_nodes, threshold = find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth)
-#     print(f"The following pairs of nodes were deemed similar {similar_pairs} using the MMD method.\n")
     
     return similar_pairs, similar_nodes, threshold
 
-def get_ocsvm_similar_pairs(data, experiment, threshold):
-    node_data = get_node_data(data[experiment]["raw_data"], experiment, filtered = False)
+def get_ocsvm_similar_pairs(data, experiment, threshold, use_samples=False):
+    if use_samples:
+        node_data = data[experiment]["sampled_data"]
+        inliers = []
+    else:
+        node_data = get_node_data(data[experiment]["raw_data"], experiment, filtered = False)
+        inliers =  data[experiment]["inliers"]
     models = data[experiment]["models"]
-    inliers =  data[experiment]["inliers"]
-    similar_pairs, similar_nodes, pair_thresholds = find_similar_pairs_ocsvm(node_data, models, inliers, threshold)
-#     print(f"The following pairs of nodes were deemed similar {similar_pairs} using the OCSVM method.\n")
+    similar_pairs, similar_nodes, pair_thresholds = find_similar_pairs_ocsvm(node_data, models, threshold, inliers)
     
     return similar_pairs, similar_nodes, pair_thresholds
 
@@ -104,11 +113,11 @@ def get_similar_pairs_nodes(experiment, data, method, similar_pairs_args):
             kernel, kernel_bandwidth = similar_pairs_args
             similar_pairs, similar_nodes, thresholds = get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth)
         elif method == "ocsvm":
-            threshold = similar_pairs_args
-            similar_pairs, similar_nodes, thresholds = get_ocsvm_similar_pairs(data, experiment, threshold)  
-    elif method in ["both", "verify", "trio"]:
-        threshold = similar_pairs_args[1]
-        ocsvm_similar_pairs, ocsvm_similar_nodes, ocsvm_thresholds = get_ocsvm_similar_pairs(data, experiment, threshold)  
+            threshold, use_samples = similar_pairs_args
+            similar_pairs, similar_nodes, thresholds = get_ocsvm_similar_pairs(data, experiment, threshold, use_samples)  
+    elif method in ["both", "verify", "trio", "ocsvm-based"]:
+        threshold, use_samples = similar_pairs_args[1]
+        ocsvm_similar_pairs, ocsvm_similar_nodes, ocsvm_thresholds = get_ocsvm_similar_pairs(data, experiment, threshold, use_samples)  
 
         kernel, kernel_bandwidth = similar_pairs_args[0]
         mmd_similar_pairs, mmd_similar_nodes, mmd_threshold = get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth)
@@ -118,7 +127,12 @@ def get_similar_pairs_nodes(experiment, data, method, similar_pairs_args):
             similar_nodes = {"MMD" : mmd_similar_nodes, "OCSVM" : ocsvm_similar_nodes}
             thresholds = {"MMD" : mmd_threshold, "OCSVM" : ocsvm_thresholds}
         
-        if method in  ["verify", "trio"]:
+        if method == "ocsvm-based":
+            similar_pairs = {"OCSVM" : ocsvm_similar_pairs}
+            similar_nodes = {"OCSVM" : ocsvm_similar_nodes}
+            thresholds = {"OCSVM" : ocsvm_thresholds}
+        
+        if method in  ["verify", "trio", "ocsvm-based"]:
             str_mmd_similar_pairs = str([pair[::-1] for pair in mmd_similar_pairs]) + str(mmd_similar_pairs)
             verify_similar_pairs = []
             verify_thresholds = []
@@ -129,7 +143,7 @@ def get_similar_pairs_nodes(experiment, data, method, similar_pairs_args):
                     verify_thresholds.append(ocsvm_thresholds[pair_index]) 
             verify_similar_nodes = [node for node in ocsvm_similar_nodes if node in str(verify_similar_pairs)]
 
-            if method == "trio":
+            if method in ["trio", "ocsvm-based"]:
                 similar_pairs["MMD OCSVM Verify"] = verify_similar_pairs
                 similar_nodes["MMD OCSVM Verify"] = verify_similar_nodes
                 thresholds["MMD OCSVM Verify"] = verify_thresholds
@@ -137,10 +151,10 @@ def get_similar_pairs_nodes(experiment, data, method, similar_pairs_args):
                 similar_pairs = verify_similar_pairs
                 similar_nodes = verify_similar_nodes
                 thresholds = verify_thresholds
-    
+
     if isinstance(similar_pairs, dict):
+        thresholds = {k:i for k, i in thresholds.items() if similar_pairs[k] != []}
         similar_pairs = {k:i for k, i in similar_pairs.items() if i != []}
         similar_nodes = {k:i for k, i in similar_nodes.items() if i != []}
-        thresholds = {k:i for k, i in thresholds.items() if similar_pairs[k] != []}
     
     return similar_pairs, similar_nodes, thresholds

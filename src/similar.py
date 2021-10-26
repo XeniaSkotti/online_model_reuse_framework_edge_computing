@@ -1,9 +1,46 @@
 from maximum_mean_discrepancy import get_tensor_sample, get_tensor_samples, MMD
 from maximum_mean_discrepancy import avg_similarity_disimilarity_MMD as ASDMMD
-from node import get_similar_other_nodes_sets, remove_outliers, get_node_data
 from itertools import combinations as comb
 import numpy as np
 import pandas as pd
+
+def get_mmd_args(experiment, standardised):
+    if experiment ==1:
+        if standardised:
+            mmd_args = ("rbf", 0.5)
+        else:
+            mmd_args = ("rbf", 10)
+    elif experiment == 2:
+        if standardised:
+            mmd_args = ("rbf", 1)
+        else:
+            mmd_args = ("rbf", 100)
+    elif experiment == 3:
+        if standardised:
+            mmd_args = ("rbf", 1)
+        else:
+            mmd_args = ("rbf", 5)
+    return mmd_args
+
+def get_similar_other_nodes_sets(experiment, std=False):
+    if experiment == 1:
+        if std:
+            similar_nodes = ["pi2","pi3","pi4"]
+            other_nodes = ["pi5"]
+        else:
+            similar_nodes = ["pi2", "pi4"]
+            other_nodes = ["pi3", "pi5"]
+    elif experiment == 2:
+        if std:
+            similar_nodes = ["pi2", "pi3", "pi5"]
+            other_nodes = ["pi4"]
+        else:
+            similar_nodes = ["pi3", "pi5"]
+            other_nodes = ["pi2", "pi4"]
+    elif experiment == 3:
+        similar_nodes = ["pi3", "pi5"]
+        other_nodes = ["pi2", "pi4"]
+    return similar_nodes, other_nodes
 
 def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
     mmd = MMD(x,y, kernel, kernel_bandwidth)
@@ -26,6 +63,7 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
     combos = comb(range(4),2)
     similar_pairs = []
     similar_nodes = []
+    pair_mmd =[]
     threshold = asmmd + asmmd * 0.05
     for c in combos:
         node_x = "pi"+str(c[0]+2)
@@ -43,11 +81,12 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
                 similar_nodes.append(node_x)
             if node_y not in similar_nodes:
                 similar_nodes.append(node_y)
+            pair_mmd.append(mmd)
                 
             similar_pairs.append((node_x, node_y))
-    return similar_pairs, similar_nodes, threshold
+    return similar_pairs, similar_nodes, pair_mmd
 
-def find_similar_pairs_ocsvm(node_data, models, threshold, inliers):
+def find_similar_pairs_ocsvm(node_data, models, threshold, use_samples):
     similar_pairs = []
     similar_nodes = []
     pair_thresholds = []
@@ -63,12 +102,14 @@ def find_similar_pairs_ocsvm(node_data, models, threshold, inliers):
         predicted_x_inliers = np.where(model_y.predict(sample_x) == 1)[0]
         predicted_y_inliers = np.where(model_x.predict(sample_y) == 1)[0]
         
-        if inliers==[]:
+        if use_samples:
             x_y_overlap = len(predicted_x_inliers)/len(sample_x)
             y_x_overlap = len(predicted_y_inliers)/len(sample_y)
         else:
-            x_y_overlap = np.intersect1d(inliers[x], predicted_x_inliers).shape[0]/inliers[x].shape[0]
-            y_x_overlap = np.intersect1d(inliers[y], predicted_y_inliers).shape[0]/inliers[y].shape[0]
+            inliers_x = np.where(model_x.predict(sample_x) == 1)[0]
+            inliers_y = np.where(model_y.predict(sample_y) == 1)[0]
+            x_y_overlap = np.intersect1d(inliers_x, predicted_x_inliers).shape[0]/inliers_x.shape[0]
+            y_x_overlap = np.intersect1d(inliers_y, predicted_y_inliers).shape[0]/inliers_x.shape[0]
         
         if max(y_x_overlap,x_y_overlap) > threshold:
             node_x = "pi"+str(x+2)
@@ -84,34 +125,33 @@ def find_similar_pairs_ocsvm(node_data, models, threshold, inliers):
     
     return similar_pairs, similar_nodes, pair_thresholds
 
-def get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth):
+def get_mmd_similar_pairs(data, experiment, standardised):
     node_data = data[experiment]["sampled_data"]
+    kernel, kernel_bandwidth =  get_mmd_args(experiment, standardised)
     
     tensor_samples = get_tensor_samples(node_data, sample_size=node_data[0].shape[0])
-    similar_nodes, other_nodes = get_similar_other_nodes_sets(experiment)
+    similar_nodes, other_nodes = get_similar_other_nodes_sets(experiment, standardised)
     asmmd = ASDMMD(tensor_samples, similar_nodes, other_nodes, kernel, kernel_bandwidth, return_tables = False)
     
-    similar_pairs, similar_nodes, threshold = find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth)
+    similar_pairs, similar_nodes, pair_mmds = find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth)
     
-    return similar_pairs, similar_nodes, threshold
+    return similar_pairs, similar_nodes, pair_mmds
 
-def get_ocsvm_similar_pairs(data, experiment, threshold, use_samples=False):
+def get_ocsvm_similar_pairs(data, experiment, threshold, use_samples):
     if use_samples:
         node_data = data[experiment]["sampled_data"]
-        inliers = []
     else:
-        node_data = get_node_data(data[experiment]["raw_data"], experiment, filtered = False)
-        inliers =  data[experiment]["inliers"]
+        node_data = data[experiment]["raw_node_data"]
     models = data[experiment]["models"]
-    similar_pairs, similar_nodes, pair_thresholds = find_similar_pairs_ocsvm(node_data, models, threshold, inliers)
+    similar_pairs, similar_nodes, pair_thresholds = find_similar_pairs_ocsvm(node_data, models, threshold, use_samples)
     
     return similar_pairs, similar_nodes, pair_thresholds
 
 def get_similar_pairs_nodes(experiment, data, method, similar_pairs_args):
     if method in ["mmd", "ocsvm"]:
         if method == "mmd":
-            kernel, kernel_bandwidth = similar_pairs_args
-            similar_pairs, similar_nodes, thresholds = get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth)
+            standardised = similar_pairs_args
+            similar_pairs, similar_nodes, thresholds = get_mmd_similar_pairs(data, experiment, standardised)
         elif method == "ocsvm":
             threshold, use_samples = similar_pairs_args
             similar_pairs, similar_nodes, thresholds = get_ocsvm_similar_pairs(data, experiment, threshold, use_samples)  
@@ -119,8 +159,8 @@ def get_similar_pairs_nodes(experiment, data, method, similar_pairs_args):
         threshold, use_samples = similar_pairs_args[1]
         ocsvm_similar_pairs, ocsvm_similar_nodes, ocsvm_thresholds = get_ocsvm_similar_pairs(data, experiment, threshold, use_samples)  
 
-        kernel, kernel_bandwidth = similar_pairs_args[0]
-        mmd_similar_pairs, mmd_similar_nodes, mmd_threshold = get_mmd_similar_pairs(data, experiment, kernel, kernel_bandwidth)
+        standardised = similar_pairs_args[0]
+        mmd_similar_pairs, mmd_similar_nodes, mmd_threshold = get_mmd_similar_pairs(data, experiment, standardised)
         
         if method in ["both", "trio"]:
             similar_pairs = {"MMD" : mmd_similar_pairs, "OCSVM" : ocsvm_similar_pairs}

@@ -1,5 +1,4 @@
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVR, LinearSVR
 import pandas as pd
@@ -10,27 +9,13 @@ def get_xy_data(data):
     y = data.temperature.values.astype(np.float32)
     return x, y
 
-def get_model_data(node_data, standardised = False):
+def select_model_data(node_data, similar_nodes):
     model_data = {}
-    
-    if standardised:
-        scaler = StandardScaler()
-        scaler.fit(pd.concat(node_data)[["humidity", "temperature"]])
-    
     for i in range(4):
         node = "pi"+str(i+2)
-        if standardised:
-            std_node = scaler.transform(node_data[i][["humidity", "temperature"]])
-            model_data[node] = (std_node[:,0],std_node[:,1])
-        else:
+        if node in similar_nodes:
             model_data[node] = get_xy_data(node_data[i])
-        
     return model_data
-
-def select_model_data(node_data, similar_nodes, standardised):
-    model_data = get_model_data(node_data, standardised)
-    selected_model_data = {node : model_data[node] for node in similar_nodes}
-    return selected_model_data
 
 def instantiate_clf(name):
     if name == "lreg":
@@ -88,6 +73,6 @@ def grid_search_models(clf_name, model_data, selected_nodes):
             score = baseline_score
             
         models[node] = model
-        l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "score" : score}]))
+        l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "score" : round(score,2)}]))
     
     return models, pd.concat(l)

@@ -103,13 +103,13 @@ def find_similar_pairs_ocsvm(node_data, models, threshold, use_samples):
         predicted_y_inliers = np.where(model_x.predict(sample_y) == 1)[0]
         
         if use_samples:
-            x_y_overlap = len(predicted_x_inliers)/len(sample_x)
-            y_x_overlap = len(predicted_y_inliers)/len(sample_y)
+            x_y_overlap = len(predicted_y_inliers)/len(sample_y)
+            y_x_overlap = len(predicted_x_inliers)/len(sample_x)
         else:
             inliers_x = np.where(model_x.predict(sample_x) == 1)[0]
             inliers_y = np.where(model_y.predict(sample_y) == 1)[0]
-            x_y_overlap = np.intersect1d(inliers_x, predicted_x_inliers).shape[0]/inliers_x.shape[0]
-            y_x_overlap = np.intersect1d(inliers_y, predicted_y_inliers).shape[0]/inliers_x.shape[0]
+            x_y_overlap = np.intersect1d(inliers_y, predicted_y_inliers).shape[0]/inliers_x.shape[0]
+            y_x_overlap = np.intersect1d(inliers_x, predicted_x_inliers).shape[0]/inliers_x.shape[0]
         
         if max(y_x_overlap,x_y_overlap) > threshold:
             node_x = "pi"+str(x+2)

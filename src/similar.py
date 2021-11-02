@@ -54,7 +54,7 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
     """Finds the pairs of nodes which are similar using the ASMMD
     
     Args:
-        node_data: list of dataframes, one for each no
+        node_data: list of dataframes, one for each node
         asdmmd: the average similarity MMD
         kernel: the kernel type to be used for the MMD calculation.
         kernel_bandwidth: scalar value to be used by the kernel in the MMD calculation. 

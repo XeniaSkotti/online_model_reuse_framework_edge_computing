@@ -9,23 +9,57 @@
 % packages to use
 \usepackage{array} % Drop-in replacement for 'tabular' environment, with more options
 \usepackage{color}
+\usepackage[linesnumbered,ruled, noline]{algorithm2e}
+% \usepackage[T1]{fontenc} 
 \usepackage{graphicx}
 \usepackage{epsfig}
 \usepackage{fixltx2e} % Misc. bugfixes
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{amsfonts}
-\usepackage{listings} % Environment for code listings
+\usepackage{listings} % nice code listings
 \usepackage[a4paper]{geometry}
 \usepackage[breaklinks,colorlinks,citecolor=black,urlcolor=black,linkcolor=black,pdfpagelabels=false,pdfusetitle]{hyperref}
 \usepackage{flushend} % Automatically balances columns on the last page
 
-% Settings for code listing environment
+% % Settings for code listing environment
 \definecolor{lightgray}{rgb}{.9,.9,.9}
+% \lstset{
+% basicstyle=\ttfamily \footnotesize,
+% backgroundcolor=\color{lightgray},
+% breaklines=true,
+% }
+
+% from: https://gist.github.com/FelipeCortez/10729134
+% set up listings for prettier output
+\definecolor{bluekeywords}{rgb}{0.13, 0.19, 0.7}
+\definecolor{greencomments}{rgb}{0.1, 0.5, 0.2}
+\definecolor{redstrings}{rgb}{0.8, 0.15, 0.1}
+\definecolor{graynumbers}{rgb}{0.5, 0.5, 0.5}
+\definecolor{subtlegray}{rgb}{0.98, 0.98, 0.98}
+\usepackage{lstautogobble}
+\usepackage{listings}
 \lstset{
-basicstyle=\ttfamily \footnotesize,
-backgroundcolor=\color{lightgray},
-breaklines=true,
+    autogobble,    
+    columns=fullflexible,
+    showspaces=false,
+    showtabs=false,
+    breaklines=true,
+    showstringspaces=false,
+    breakatwhitespace=true,
+    escapeinside={(*@}{@*)},
+    rulecolor=\color{lightgray},
+    backgroundcolor=\color{subtlegray},
+    commentstyle=\color{greencomments},
+    keywordstyle=\color{bluekeywords},
+    stringstyle=\color{redstrings},
+    numberstyle=\color{graynumbers},
+    basicstyle=\ttfamily\linespread{1.15}\footnotesize,
+    frame=tb,
+    framesep=12pt,
+    framexleftmargin=12pt,
+    tabsize=4,
+    captionpos=b
 }
 
 %%% The main features of this style are:
@@ -833,20 +867,20 @@ breaklines=true,
 \setcounter{secnumdepth}{3}
 \def\part{%
     \@startsection{part}{9}{\z@}{-10\p@ \@plus -4\p@ \@minus -2\p@}
-        {4\p@}{\normalsize\@ucheadtrue}%
+        {12\p@}{\normalsize\@ucheadtrue}%
 }
 \def\section{%
     \@startsection{section}{1}{\z@}{-10\p@ \@plus -4\p@ \@minus -2\p@}% GM
-    {4\p@}{\baselineskip 14pt\secfnt\@ucheadtrue}%
+    {14\p@}{\baselineskip 14pt\secfnt\@ucheadtrue}%
 }
 
 \def\subsection{%
     \@startsection{subsection}{2}{\z@}{-8\p@ \@plus -2\p@ \@minus -\p@}
-    {4\p@}{\secfnt}%
+    {14\p@}{\secfnt}%
 }
 \def\subsubsection{%
     \@startsection{subsubsection}{3}{\z@}{-8\p@ \@plus -2\p@ \@minus -\p@}%
-    {4\p@}{\subsecfnt}%
+    {12\p@}{\subsecfnt}%
 }
 %\def\paragraph{%
 %    \vskip 12pt\@startsection{paragraph}{3}{\z@}{6\p@ \@plus \p@}% original
@@ -1474,5 +1508,4 @@ breaklines=true,
   }
 
 \endinput
-%
 

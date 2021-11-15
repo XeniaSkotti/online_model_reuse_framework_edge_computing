@@ -3,6 +3,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVR, LinearSVR
 import pandas as pd
 import numpy as np
+import time
 
 def get_xy_data(data):
     x = data.humidity.values.astype(np.float32)
@@ -37,12 +38,12 @@ def get_clf_param_grid(name):
     if name == "lreg":
         param_grid = {"normalize" : [True, False]}
     elif name == "svr":
-        param_grid = {"C" : [0.00001, 0.0001, 0.001, 0.01, 0.1,  1, 10, 100],
+        param_grid = {"C" : [0.01, 0.1,  1, 10],
                       "epsilon" : [0.01, 0.1, 0.1, 0.2, 0.5, 1]
                      }
     elif name == "lsvr":
-        param_grid = {"C" : [0.00001, 0.0001, 0.001, 0.01, 0.1,  1, 10, 100],
-                      "epsilon" : [0, 0.01, 0.1, 0.2, 0.5, 1],
+        param_grid = {"C" : [0.01, 0.1,  1, 10],
+                      "epsilon" : [0.1, 0.5, 1, 2, 5],
                      }
     return param_grid
 
@@ -56,23 +57,31 @@ def grid_search_models(clf_name, model_data, selected_nodes):
         train = model_data[node]
         
         baseline_model = instantiate_clf(clf_name)
+        start_time = time.time()
         baseline_score = fit_clf(baseline_model, train)
+        end_time = time.time()
+        baseline_train_time = end_time - start_time
 
         grid_search = GridSearchCV(instantiate_clf(clf_name), param_grid)
         grid_search.fit(train[0].reshape(-1,1), train[1])
 
         optimised_model = instantiate_clf(clf_name)
         optimised_model.set_params(**grid_search.best_params_)
+        start_time = time.time()
         optimised_score = fit_clf(optimised_model, train)
+        end_time = time.time()
+        optimised_train_time = end_time - start_time
         
         if optimised_score > baseline_score:
             model = optimised_model
             score = optimised_score
+            train_time = optimised_train_time
         else:
             model = baseline_model
             score = baseline_score
+            train_time = baseline_train_time
             
         models[node] = model
-        l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "score" : round(score,2)}]))
+        l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "train_time" : train_time, "score" : round(score,2)}]))
     
     return models, pd.concat(l)

@@ -89,14 +89,15 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
 def calculate_ocsvm_scores(node_data, similar_pairs, models):
     pair_thresholds = []
     for x, y in similar_pairs:
-
-        model_x, model_y = models[x], models[y]
+        x_n, y_n = int(x[-1])-2, int(y[-1])-2
         
-        sample_x = node_data[x][["humidity", "temperature"]]
-        sample_y = node_data[y][["humidity", "temperature"]]
+        model_x, model_y = models[x_n], models[y_n]
         
-        predicted_x_inliers = np.where(model_y.predict(sample_x) == 1)[0]
+        sample_x = node_data[x_n][["humidity", "temperature"]]
+        sample_y = node_data[y_n][["humidity", "temperature"]]
+        
         predicted_y_inliers = np.where(model_x.predict(sample_y) == 1)[0]
+        predicted_x_inliers = np.where(model_y.predict(sample_x) == 1)[0]
         
         x_y_overlap = len(predicted_y_inliers)/len(sample_y)
         y_x_overlap = len(predicted_x_inliers)/len(sample_x)
@@ -105,7 +106,7 @@ def calculate_ocsvm_scores(node_data, similar_pairs, models):
     
     return pair_thresholds
 
-def get_similar_pairs_nodes(experiment, data, method, standardised):
+def get_similar_pairs_nodes(experiment, data, standardised):
     node_data = data[experiment]["sampled_data"]
     models = data[experiment]["models"]
     
@@ -122,4 +123,4 @@ def get_similar_pairs_nodes(experiment, data, method, standardised):
 #         similar_pairs = {k:i for k, i in similar_pairs.items() if i != []}
 #         similar_nodes = {k:i for k, i in similar_nodes.items() if i != []}
     
-    return similar_pairs, similar_nodes, mmd_scores, ocsvm_scores
+    return similar_pairs, similar_nodes, asmmd, mmd_scores, ocsvm_scores

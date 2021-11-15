@@ -1,117 +1,25 @@
-model_node,model,score,test_node,discrepancy,method,threshold,sample pair calculation,experiment,std
-pi2,"SVR(C=100, epsilon=0.2)",0.99,pi4,0.12,MMD,0.13,True,1,False
-pi4,"SVR(C=100, epsilon=1)",0.97,pi2,0.05,MMD,0.13,True,1,False
-pi2,"SVR(C=100, epsilon=0.5, kernel='linear')",0.99,pi4,0.07,MMD,0.13,True,1,False
-pi4,"SVR(C=1, epsilon=1, kernel='linear')",0.92,pi2,0.06,MMD,0.13,True,1,False
-pi2,"SVR(C=100, epsilon=0.2)",0.99,pi4,0.12,OCSVM,0.6,True,1,False
-pi4,"SVR(C=100, epsilon=1)",0.97,pi2,0.05,OCSVM,0.85,True,1,False
-pi4,"SVR(C=100, epsilon=1)",0.97,pi3,0.24,OCSVM,0.65,True,1,False
-pi3,"SVR(C=100, epsilon=0.2)",0.98,pi4,2.63,OCSVM,0.1,True,1,False
-pi3,"SVR(C=100, epsilon=0.2)",0.98,pi5,1.17,OCSVM,0.18,True,1,False
-pi5,"SVR(C=100, epsilon=1)",0.42,pi3,0.44,OCSVM,0.99,True,1,False
-pi2,"SVR(C=100, epsilon=0.5, kernel='linear')",0.99,pi4,0.07,OCSVM,0.6,True,1,False
-pi4,"SVR(C=1, epsilon=1, kernel='linear')",0.92,pi2,0.06,OCSVM,0.85,True,1,False
-pi4,"SVR(C=1, epsilon=1, kernel='linear')",0.92,pi3,0.05,OCSVM,0.65,True,1,False
-pi3,"SVR(C=0.1, epsilon=0.5, kernel='linear')",0.93,pi4,0.27,OCSVM,0.1,True,1,False
-pi3,"SVR(C=0.1, epsilon=0.5, kernel='linear')",0.93,pi5,1.13,OCSVM,0.18,True,1,False
-pi5,"SVR(C=0.1, epsilon=1, kernel='linear')",0.23,pi3,0.1,OCSVM,0.99,True,1,False
-pi2,"SVR(C=100, epsilon=0.2)",0.99,pi4,0.12,MMD OCSVM Verify,0.6,True,1,False
-pi4,"SVR(C=100, epsilon=1)",0.97,pi2,0.05,MMD OCSVM Verify,0.85,True,1,False
-pi2,"SVR(C=100, epsilon=0.5, kernel='linear')",0.99,pi4,0.07,MMD OCSVM Verify,0.6,True,1,False
-pi4,"SVR(C=1, epsilon=1, kernel='linear')",0.92,pi2,0.06,MMD OCSVM Verify,0.85,True,1,False
-pi2,"SVR(C=100, epsilon=0.2)",0.99,pi4,0.12,OCSVM,0.73,False,1,False
-pi4,"SVR(C=100, epsilon=1)",0.97,pi2,0.05,OCSVM,0.89,False,1,False
-pi4,"SVR(C=100, epsilon=1)",0.97,pi3,0.24,OCSVM,0.69,False,1,False
-pi3,"SVR(C=100, epsilon=0.2)",0.98,pi4,2.63,OCSVM,0.22,False,1,False
-pi3,"SVR(C=100, epsilon=0.2)",0.98,pi5,1.17,OCSVM,0.52,False,1,False
-pi5,"SVR(C=100, epsilon=1)",0.42,pi3,0.44,OCSVM,1.0,False,1,False
-pi2,"SVR(C=100, epsilon=0.5, kernel='linear')",0.99,pi4,0.07,OCSVM,0.73,False,1,False
-pi4,"SVR(C=1, epsilon=1, kernel='linear')",0.92,pi2,0.06,OCSVM,0.89,False,1,False
-pi4,"SVR(C=1, epsilon=1, kernel='linear')",0.92,pi3,0.05,OCSVM,0.69,False,1,False
-pi3,"SVR(C=0.1, epsilon=0.5, kernel='linear')",0.93,pi4,0.27,OCSVM,0.22,False,1,False
-pi3,"SVR(C=0.1, epsilon=0.5, kernel='linear')",0.93,pi5,1.13,OCSVM,0.52,False,1,False
-pi5,"SVR(C=0.1, epsilon=1, kernel='linear')",0.23,pi3,0.1,OCSVM,1.0,False,1,False
-pi2,"SVR(C=100, epsilon=0.2)",0.99,pi4,0.12,MMD OCSVM Verify,0.73,False,1,False
-pi4,"SVR(C=100, epsilon=1)",0.97,pi2,0.05,MMD OCSVM Verify,0.89,False,1,False
-pi2,"SVR(C=100, epsilon=0.5, kernel='linear')",0.99,pi4,0.07,MMD OCSVM Verify,0.73,False,1,False
-pi4,"SVR(C=1, epsilon=1, kernel='linear')",0.92,pi2,0.06,MMD OCSVM Verify,0.89,False,1,False
-pi2,"SVR(C=100, epsilon=1)",0.26,pi4,0.13,MMD,0.17,True,2,False
-pi4,"SVR(C=100, epsilon=1)",0.26,pi2,0.16,MMD,0.17,True,2,False
-pi2,"SVR(C=0.1, epsilon=1, kernel='linear')",0.17,pi4,0.43,MMD,0.17,True,2,False
-pi4,"SVR(C=0.0001, epsilon=0, kernel='linear')",-0.0,pi2,0.12,MMD,0.17,True,2,False
-pi2,"SVR(C=100, epsilon=1)",0.26,pi4,0.13,OCSVM,0.46,True,2,False
-pi2,"SVR(C=100, epsilon=1)",0.26,pi5,14.21,OCSVM,0.86,True,2,False
-pi4,"SVR(C=100, epsilon=1)",0.26,pi2,0.16,OCSVM,0.78,True,2,False
-pi4,"SVR(C=100, epsilon=1)",0.26,pi3,5.08,OCSVM,0.82,True,2,False
-pi4,"SVR(C=100, epsilon=1)",0.26,pi5,7.43,OCSVM,0.77,True,2,False
-pi5,"SVR(C=10, epsilon=0.5)",0.51,pi2,1.75,OCSVM,0.0,True,2,False
-pi5,"SVR(C=10, epsilon=0.5)",0.51,pi3,0.43,OCSVM,0.46,True,2,False
-pi5,"SVR(C=10, epsilon=0.5)",0.51,pi4,1.73,OCSVM,0.06,True,2,False
-pi3,"SVR(C=100, epsilon=0.2)",0.63,pi4,2.75,OCSVM,0.07,True,2,False
-pi3,"SVR(C=100, epsilon=0.2)",0.63,pi5,0.51,OCSVM,0.97,True,2,False
-pi2,"SVR(C=0.1, epsilon=1, kernel='linear')",0.17,pi4,0.43,OCSVM,0.46,True,2,False
-pi2,"SVR(C=0.1, epsilon=1, kernel='linear')",0.17,pi5,13.61,OCSVM,0.86,True,2,False
-pi4,"SVR(C=0.0001, epsilon=0, kernel='linear')",-0.0,pi2,0.12,OCSVM,0.78,True,2,False
-pi4,"SVR(C=0.0001, epsilon=0, kernel='linear')",-0.0,pi3,4.66,OCSVM,0.82,True,2,False
-pi4,"SVR(C=0.0001, epsilon=0, kernel='linear')",-0.0,pi5,16.51,OCSVM,0.77,True,2,False
-pi5,SVR(kernel='linear'),0.41,pi2,1.69,OCSVM,0.0,True,2,False
-pi5,SVR(kernel='linear'),0.41,pi3,0.04,OCSVM,0.46,True,2,False
-pi5,SVR(kernel='linear'),0.41,pi4,2.08,OCSVM,0.06,True,2,False
-pi3,"SVR(C=0.01, epsilon=1, kernel='linear')",0.46,pi4,2.4,OCSVM,0.07,True,2,False
-pi3,"SVR(C=0.01, epsilon=1, kernel='linear')",0.46,pi5,0.07,OCSVM,0.97,True,2,False
-pi2,"SVR(C=100, epsilon=1)",0.26,pi4,0.13,MMD OCSVM Verify,0.46,True,2,False
-pi4,"SVR(C=100, epsilon=1)",0.26,pi2,0.16,MMD OCSVM Verify,0.78,True,2,False
-pi2,"SVR(C=0.1, epsilon=1, kernel='linear')",0.17,pi4,0.43,MMD OCSVM Verify,0.46,True,2,False
-pi4,"SVR(C=0.0001, epsilon=0, kernel='linear')",-0.0,pi2,0.12,MMD OCSVM Verify,0.78,True,2,False
-pi2,"SVR(C=100, epsilon=1)",0.26,pi4,0.13,OCSVM,0.88,False,2,False
-pi2,"SVR(C=100, epsilon=1)",0.26,pi5,14.21,OCSVM,2.22,False,2,False
-pi4,"SVR(C=100, epsilon=1)",0.26,pi2,0.16,OCSVM,0.84,False,2,False
-pi4,"SVR(C=100, epsilon=1)",0.26,pi3,5.08,OCSVM,0.87,False,2,False
-pi4,"SVR(C=100, epsilon=1)",0.26,pi5,7.43,OCSVM,1.09,False,2,False
-pi5,"SVR(C=10, epsilon=0.5)",0.51,pi2,1.75,OCSVM,0.0,False,2,False
-pi5,"SVR(C=10, epsilon=0.5)",0.51,pi3,0.43,OCSVM,0.55,False,2,False
-pi5,"SVR(C=10, epsilon=0.5)",0.51,pi4,1.73,OCSVM,0.07,False,2,False
-pi3,"SVR(C=100, epsilon=0.2)",0.63,pi4,2.75,OCSVM,0.11,False,2,False
-pi3,"SVR(C=100, epsilon=0.2)",0.63,pi5,0.51,OCSVM,1.85,False,2,False
-pi2,"SVR(C=0.1, epsilon=1, kernel='linear')",0.17,pi4,0.43,OCSVM,0.88,False,2,False
-pi2,"SVR(C=0.1, epsilon=1, kernel='linear')",0.17,pi5,13.61,OCSVM,2.22,False,2,False
-pi4,"SVR(C=0.0001, epsilon=0, kernel='linear')",-0.0,pi2,0.12,OCSVM,0.84,False,2,False
-pi4,"SVR(C=0.0001, epsilon=0, kernel='linear')",-0.0,pi3,4.66,OCSVM,0.87,False,2,False
-pi4,"SVR(C=0.0001, epsilon=0, kernel='linear')",-0.0,pi5,16.51,OCSVM,1.09,False,2,False
-pi5,SVR(kernel='linear'),0.41,pi2,1.69,OCSVM,0.0,False,2,False
-pi5,SVR(kernel='linear'),0.41,pi3,0.04,OCSVM,0.55,False,2,False
-pi5,SVR(kernel='linear'),0.41,pi4,2.08,OCSVM,0.07,False,2,False
-pi3,"SVR(C=0.01, epsilon=1, kernel='linear')",0.46,pi4,2.4,OCSVM,0.11,False,2,False
-pi3,"SVR(C=0.01, epsilon=1, kernel='linear')",0.46,pi5,0.07,OCSVM,1.85,False,2,False
-pi2,"SVR(C=100, epsilon=1)",0.26,pi4,0.13,MMD OCSVM Verify,0.88,False,2,False
-pi4,"SVR(C=100, epsilon=1)",0.26,pi2,0.16,MMD OCSVM Verify,0.84,False,2,False
-pi2,"SVR(C=0.1, epsilon=1, kernel='linear')",0.17,pi4,0.43,MMD OCSVM Verify,0.88,False,2,False
-pi4,"SVR(C=0.0001, epsilon=0, kernel='linear')",-0.0,pi2,0.12,MMD OCSVM Verify,0.84,False,2,False
-pi2,"SVR(C=100, epsilon=0.2)",0.96,pi4,2.17,MMD,0.34,True,3,False
-pi2,"SVR(C=100, epsilon=0.2)",0.96,pi5,8.37,MMD,0.61,True,3,False
-pi4,"SVR(C=100, epsilon=0.5)",0.99,pi2,1.27,MMD,0.34,True,3,False
-pi4,"SVR(C=100, epsilon=0.5)",0.99,pi5,3.4,MMD,0.38,True,3,False
-pi5,"SVR(C=100, epsilon=0.01)",0.56,pi2,6.54,MMD,0.61,True,3,False
-pi5,"SVR(C=100, epsilon=0.01)",0.56,pi4,0.65,MMD,0.38,True,3,False
-pi2,"SVR(C=100, kernel='linear')",0.96,pi4,0.08,MMD,0.34,True,3,False
-pi2,"SVR(C=100, kernel='linear')",0.96,pi5,1.99,MMD,0.61,True,3,False
-pi4,SVR(kernel='linear'),0.99,pi2,0.06,MMD,0.34,True,3,False
-pi4,SVR(kernel='linear'),0.99,pi5,3.12,MMD,0.38,True,3,False
-pi5,"SVR(C=10, epsilon=1, kernel='linear')",0.56,pi2,5.13,MMD,0.61,True,3,False
-pi5,"SVR(C=10, epsilon=1, kernel='linear')",0.56,pi4,1.24,MMD,0.38,True,3,False
-pi3,SVR(C=0.1),0.29,pi4,0.33,OCSVM,0.08,True,3,False
-pi4,"SVR(C=100, epsilon=0.5)",0.99,pi3,1.99,OCSVM,0.47,True,3,False
-pi3,"SVR(C=0.1, epsilon=0.5, kernel='linear')",0.09,pi4,0.6,OCSVM,0.08,True,3,False
-pi4,SVR(kernel='linear'),0.99,pi3,2.55,OCSVM,0.47,True,3,False
-pi2,"SVR(C=100, epsilon=0.2)",0.96,pi4,2.17,OCSVM,0.42,False,3,False
-pi4,"SVR(C=100, epsilon=0.5)",0.99,pi2,1.27,OCSVM,0.46,False,3,False
-pi4,"SVR(C=100, epsilon=0.5)",0.99,pi3,1.99,OCSVM,0.46,False,3,False
-pi3,SVR(C=0.1),0.29,pi4,0.33,OCSVM,0.09,False,3,False
-pi2,"SVR(C=100, kernel='linear')",0.96,pi4,0.08,OCSVM,0.42,False,3,False
-pi4,SVR(kernel='linear'),0.99,pi2,0.06,OCSVM,0.46,False,3,False
-pi4,SVR(kernel='linear'),0.99,pi3,2.55,OCSVM,0.46,False,3,False
-pi3,"SVR(C=0.1, epsilon=0.5, kernel='linear')",0.09,pi4,0.6,OCSVM,0.09,False,3,False
-pi2,"SVR(C=100, epsilon=0.2)",0.96,pi4,2.17,MMD OCSVM Verify,0.42,False,3,False
-pi4,"SVR(C=100, epsilon=0.5)",0.99,pi2,1.27,MMD OCSVM Verify,0.46,False,3,False
-pi2,"SVR(C=100, kernel='linear')",0.96,pi4,0.08,MMD OCSVM Verify,0.42,False,3,False
-pi4,SVR(kernel='linear'),0.99,pi2,0.06,MMD OCSVM Verify,0.46,False,3,False
+model_node,model,train_time,score,test_node,discrepancy,mmd_score,ocsvm_score,experiment,std,asmmd
+pi2,"SVR(C=10, epsilon=0.2)",0.03789830207824707,0.99,pi4,0.1,0.11037576198577881,0.6133333333333333,1,False,0.11037576198577881
+pi4,"SVR(C=10, epsilon=0.5)",0.019918441772460938,0.96,pi2,0.02,0.11037576198577881,0.8711111111111111,1,False,0.11037576198577881
+pi2,"SVR(C=1, epsilon=0.5, kernel='linear')",0.0857703685760498,0.99,pi4,0.07,0.11037576198577881,0.6133333333333333,1,False,0.11037576198577881
+pi4,"SVR(C=0.1, epsilon=1, kernel='linear')",0.013980627059936523,0.92,pi2,0.06,0.11037576198577881,0.8711111111111111,1,False,0.11037576198577881
+pi2,"SVR(C=10, epsilon=1)",0.019946575164794922,0.27,pi4,0.02,0.19349360466003418,0.4311111111111111,2,False,0.20159226655960083
+pi4,"SVR(C=10, epsilon=0.5)",0.022934675216674805,0.39,pi2,1.18,0.19349360466003418,0.7555555555555555,2,False,0.20159226655960083
+pi3,"SVR(C=10, epsilon=1)",0.018947839736938477,0.6,pi5,0.66,0.20969104766845703,0.98,2,False,0.20159226655960083
+pi5,"SVR(C=10, epsilon=0.5)",0.01894974708557129,0.49,pi3,0.37,0.20969104766845703,0.4666666666666667,2,False,0.20159226655960083
+pi2,"SVR(C=10, epsilon=5, kernel='linear')",0.0164642333984375,0.22,pi4,0.32,0.19349360466003418,0.4311111111111111,2,False,0.20159226655960083
+pi4,"SVR(C=0.01, epsilon=1, kernel='linear')",0.012998819351196289,-0.0,pi2,0.18,0.19349360466003418,0.7555555555555555,2,False,0.20159226655960083
+pi3,"SVR(C=1, epsilon=2, kernel='linear')",0.014927864074707031,0.48,pi5,0.07,0.20969104766845703,0.98,2,False,0.20159226655960083
+pi5,SVR(kernel='linear'),0.036940813064575195,0.41,pi3,0.02,0.20969104766845703,0.4666666666666667,2,False,0.20159226655960083
+pi2,"SVR(C=10, epsilon=0.2)",0.010970592498779297,0.95,pi4,2.48,0.2987358570098877,0.3181818181818182,3,False,0.5642462968826294
+pi2,"SVR(C=10, epsilon=0.2)",0.010970592498779297,0.95,pi5,9.73,0.5908827781677246,0.0,3,False,0.5642462968826294
+pi4,"SVR(C=10, epsilon=0.5)",0.007979631423950195,0.99,pi2,0.44,0.2987358570098877,0.4393939393939394,3,False,0.5642462968826294
+pi4,"SVR(C=10, epsilon=0.5)",0.007979631423950195,0.99,pi5,2.93,0.3730565905570984,0.03787878787878788,3,False,0.5642462968826294
+pi5,"SVR(C=10, epsilon=0.5)",0.007947921752929688,0.54,pi2,6.37,0.5908827781677246,0.011363636363636364,3,False,0.5642462968826294
+pi5,"SVR(C=10, epsilon=0.5)",0.007947921752929688,0.54,pi4,0.54,0.3730565905570984,0.2537878787878788,3,False,0.5642462968826294
+pi2,"SVR(C=0.1, kernel='linear')",0.007013559341430664,0.95,pi4,0.03,0.2987358570098877,0.3181818181818182,3,False,0.5642462968826294
+pi2,"SVR(C=0.1, kernel='linear')",0.007013559341430664,0.95,pi5,1.82,0.5908827781677246,0.0,3,False,0.5642462968826294
+pi4,SVR(kernel='linear'),0.02643442153930664,0.98,pi2,0.06,0.2987358570098877,0.4393939393939394,3,False,0.5642462968826294
+pi4,SVR(kernel='linear'),0.02643442153930664,0.98,pi5,2.67,0.3730565905570984,0.03787878787878788,3,False,0.5642462968826294
+pi5,"SVR(C=0.1, epsilon=2, kernel='linear')",0.002991914749145508,0.46,pi2,5.03,0.5908827781677246,0.011363636363636364,3,False,0.5642462968826294
+pi5,"SVR(C=0.1, epsilon=2, kernel='linear')",0.002991914749145508,0.46,pi4,0.67,0.3730565905570984,0.2537878787878788,3,False,0.5642462968826294

@@ -38,8 +38,8 @@ def get_similar_other_nodes_sets(experiment, std=False):
             similar_nodes = ["pi3", "pi5"]
             other_nodes = ["pi2", "pi4"]
     elif experiment == 3:
-        similar_nodes = ["pi3", "pi5"]
-        other_nodes = ["pi2", "pi4"]
+        similar_nodes = ["pi2", "pi4"]
+        other_nodes = ["pi3", "pi5"]
     return similar_nodes, other_nodes
 
 def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):

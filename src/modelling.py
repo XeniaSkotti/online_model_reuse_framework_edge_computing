@@ -39,7 +39,7 @@ def get_clf_param_grid(name):
         param_grid = {"normalize" : [True, False]}
     elif name == "svr":
         param_grid = {"C" : [0.01, 0.1,  1, 10],
-                      "epsilon" : [0.01, 0.1, 0.1, 0.2, 0.5, 1]
+                      "epsilon" : [0.1, 0.5, 1, 2, 5],
                      }
     elif name == "lsvr":
         param_grid = {"C" : [0.01, 0.1,  1, 10],

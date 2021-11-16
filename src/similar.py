@@ -81,7 +81,7 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
                 similar_nodes.append(node_x)
             if node_y not in similar_nodes:
                 similar_nodes.append(node_y)
-            pairs_mmd.append(mmd)
+            pairs_mmd.append(round(mmd,2))
                 
             similar_pairs.append((node_x, node_y))
     return similar_pairs, similar_nodes, pairs_mmd
@@ -99,8 +99,8 @@ def calculate_ocsvm_scores(node_data, similar_pairs, models):
         predicted_y_inliers = np.where(model_x.predict(sample_y) == 1)[0]
         predicted_x_inliers = np.where(model_y.predict(sample_x) == 1)[0]
         
-        x_y_overlap = len(predicted_y_inliers)/len(sample_y)
-        y_x_overlap = len(predicted_x_inliers)/len(sample_x)
+        x_y_overlap = round(len(predicted_y_inliers)/len(sample_y), 2)
+        y_x_overlap = round(len(predicted_x_inliers)/len(sample_x), 2)
 
         pair_thresholds.append((x_y_overlap, y_x_overlap))
     
@@ -117,10 +117,5 @@ def get_similar_pairs_nodes(experiment, data, standardised):
     
     similar_pairs, similar_nodes, mmd_scores = find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth)
     ocsvm_scores = calculate_ocsvm_scores(node_data, similar_pairs, models)
-
-#     if isinstance(similar_pairs, dict):
-#         thresholds = {k:i for k, i in thresholds.items() if similar_pairs[k] != []}
-#         similar_pairs = {k:i for k, i in similar_pairs.items() if i != []}
-#         similar_nodes = {k:i for k, i in similar_nodes.items() if i != []}
     
     return similar_pairs, similar_nodes, asmmd, mmd_scores, ocsvm_scores

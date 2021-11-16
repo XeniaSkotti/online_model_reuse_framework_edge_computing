@@ -59,18 +59,18 @@ def grid_search_models(clf_name, model_data, selected_nodes):
         baseline_model = instantiate_clf(clf_name)
         start_time = time.time()
         baseline_score = fit_clf(baseline_model, train)
-        end_time = time.time()
-        baseline_train_time = end_time - start_time
-
+        baseline_train_time = time.time() - start_time
+        
         grid_search = GridSearchCV(instantiate_clf(clf_name), param_grid)
+        start_time = time.time()
         grid_search.fit(train[0].reshape(-1,1), train[1])
+        optimisation_time = time.time() - start_time
 
         optimised_model = instantiate_clf(clf_name)
         optimised_model.set_params(**grid_search.best_params_)
         start_time = time.time()
         optimised_score = fit_clf(optimised_model, train)
-        end_time = time.time()
-        optimised_train_time = end_time - start_time
+        optimised_train_time = time.time() - start_time
         
         if optimised_score > baseline_score:
             model = optimised_model
@@ -82,6 +82,7 @@ def grid_search_models(clf_name, model_data, selected_nodes):
             train_time = baseline_train_time
             
         models[node] = model
-        l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "train_time" : train_time, "score" : round(score,2)}]))
+        l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "train_time" : round(train_time,2), 
+                                "optimisation_time" : round(optimisation_time, 2), "score" : round(score,2)}]))
     
     return models, pd.concat(l)

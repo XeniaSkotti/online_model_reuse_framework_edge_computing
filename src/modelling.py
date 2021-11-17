@@ -83,6 +83,6 @@ def grid_search_models(clf_name, model_data, selected_nodes):
             
         models[node] = model
         l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "train_time" : round(train_time,2), 
-                                "optimisation_time" : round(optimisation_time, 2), "r2" : round(score,2)}]))
+                                "optimisation_time" : round(optimisation_time, 2), "model_r2" : round(score,2)}]))
     
     return models, pd.concat(l)

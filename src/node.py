@@ -43,7 +43,7 @@ def remove_outliers(node_data, return_models=False):
     else:
         return node_data
     
-def create_samples(raw_data, standardised): 
+def create_samples(n_samples, raw_data, standardised): 
     ocsvm_data = {}
     samples = {} 
     for experiment in range(1,4):
@@ -60,7 +60,7 @@ def create_samples(raw_data, standardised):
             m = 450
             
         exp_samples = []
-        for sample_id in range(4):
+        for sample_id in range(n_samples):
             node_data = filtered_node_data.copy()
             for i in range(4):
                 node_data[i] = filtered_node_data[i].sample(m).reset_index(drop=True)

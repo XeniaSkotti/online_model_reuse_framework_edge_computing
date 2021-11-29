@@ -27,7 +27,7 @@ def read_data():
     experiments_data = []
     for i in range(1,4):
         experiment =  "experiment_" + str(i)
-        directory = "//".join([os.getcwd(), "data", experiment])
+        directory = "//".join([os.getcwd(), "data//GNFUV", experiment])
         experiment_files = os.listdir(directory)
         data = []
         for file in experiment_files:

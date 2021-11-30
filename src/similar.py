@@ -77,7 +77,7 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
         node_x = "pi"+str(c[0]+2)
         node_y = "pi"+str(c[1]+2)
         
-        if "label" in node_data[x_n].columns:
+        if "label" in node_data[c[0]].columns:
             x = node_data[c[0]][["x", "y", "z"]].values.astype(np.float32)
             y = node_data[c[1]][["x", "y", "z"]].values.astype(np.float32)
         else:
@@ -150,11 +150,11 @@ def get_similar_pairs_nodes(data, standardised=False, experiment = False):
     node_data, models = remove_outliers(raw_node_data, return_models = True)
   
     kernel, kernel_bandwidth =  get_mmd_args(experiment, standardised)  
-    tensor_samples = get_tensor_samples(node_data, sample_size=node_data[0].shape[0])
+    tensor_samples = get_tensor_samples(node_data, sample_size=min([df.shape[0] for df in node_data]))
     similar_nodes, other_nodes = get_similar_other_nodes_sets(experiment, standardised)
     asmmd = ASDMMD(tensor_samples, similar_nodes, other_nodes, kernel, kernel_bandwidth, return_tables = False)
     
     similar_pairs, similar_nodes, mmd_scores = find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth)
     ocsvm_scores = calculate_ocsvm_scores(node_data, similar_pairs, models)
     
-    return similar_pairs, similar_nodes, asmmd, mmd_scores, ocsvm_scores
+    return node_data, similar_pairs, similar_nodes, asmmd, mmd_scores, ocsvm_scores

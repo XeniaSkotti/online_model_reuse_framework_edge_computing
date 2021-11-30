@@ -58,6 +58,8 @@ def MMD(x, y, kernel, kernel_bandwidth):
 
     m = x.size()[0]
     n = y.size()[0]
+    if min(m,n) < 1:
+        print(f"({m},{n})", end = " ")
     
     return (1/(m*(m-1)) * torch.sum(XX) - 2/(m*n) * torch.sum(XY) + 1/(n*(n-1)) * torch.sum(YY)).item()
 

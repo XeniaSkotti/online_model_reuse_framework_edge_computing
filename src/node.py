@@ -41,8 +41,8 @@ def create_experiment_samples(n_samples, raw_data, standardised=False, experimen
     m = min_samples
     if min_samples/2 > 450:    
         m = int(min_samples/2)
-    elif min_samples > 450:
-        m = 450
+    elif min_samples > 500:
+        m = 500
 
     exp_samples = []
     no_nodes = len(np.unique(raw_data.pi))

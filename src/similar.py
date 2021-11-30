@@ -1,5 +1,6 @@
 from maximum_mean_discrepancy import get_tensor_sample, get_tensor_samples, MMD
 from maximum_mean_discrepancy import avg_similarity_disimilarity_MMD as ASDMMD
+from sklearn.svm import OneClassSVM
 from itertools import combinations as comb
 import numpy as np
 import pandas as pd
@@ -97,6 +98,26 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
             similar_pairs.append((node_x, node_y))
     return similar_pairs, similar_nodes, pairs_mmd
 
+def remove_outliers(node_data, return_models=False):
+    if return_models:
+        models = []
+        
+    for i in range(len(node_data)):
+        model = OneClassSVM(nu=0.1)
+        if "label" in node_data[i].columns:
+            pred = model.fit_predict(node_data[i][["x", "y", "z"]])
+        else:
+            pred = model.fit_predict(node_data[i][["humidity", "temperature"]])
+        pred_inliers = np.where(pred == 1)[0]
+        node_data[i] = node_data[i].iloc[pred_inliers]
+        if return_models:
+            models.append(model)
+        
+    if return_models:
+        return node_data, models
+    else:
+        return node_data
+    
 def calculate_ocsvm_scores(node_data, similar_pairs, models):
     pair_thresholds = []
     for x, y in similar_pairs:
@@ -121,10 +142,13 @@ def calculate_ocsvm_scores(node_data, similar_pairs, models):
     
     return pair_thresholds
 
-def get_similar_pairs_nodes(experiment, data, standardised=False):
-    node_data = data[experiment]["sampled_data"]
-    models = data[experiment]["models"]
-    
+def get_similar_pairs_nodes(data, standardised=False, experiment = False):
+    if isinstance(experiment, bool):
+        raw_node_data = data["sampled_data"]
+    else:
+        raw_node_data = data[experiment]["sampled_data"]
+    node_data, models = remove_outliers(raw_node_data, return_models = True)
+  
     kernel, kernel_bandwidth =  get_mmd_args(experiment, standardised)  
     tensor_samples = get_tensor_samples(node_data, sample_size=node_data[0].shape[0])
     similar_nodes, other_nodes = get_similar_other_nodes_sets(experiment, standardised)

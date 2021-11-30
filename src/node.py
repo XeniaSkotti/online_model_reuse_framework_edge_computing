@@ -78,7 +78,7 @@ def create_samples(n_samples, raw_data, standardised=False):
         samples = {}
         ocsvm_data = {}
         for experiment in range(1,4):
-            samples[experiment], models = create_experiment_samples(n_samples, raw_data, standardised, experiment)
+            samples[experiment] = create_experiment_samples(n_samples, raw_data, standardised, experiment)
         return samples
     else:
         return create_experiment_samples(n_samples, raw_data)

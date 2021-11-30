@@ -19,8 +19,8 @@ def get_node_data(data, experiment, filtered = True, return_models = False):
 def standardise_node_data(experiment, node_data):
     scaler = StandardScaler()
     experiment_std_data = [pd.DataFrame(columns = ["humidity", "temperature"],
-                           data = scaler.fit_transform(node_data[i][["humidity", "temperature"]])) 
-                         for i in range(4)]
+                                        data = scaler.fit_transform(node_data[i][["humidity", "temperature"]])) 
+                           for i in range(4)]
     index=2
     for df in experiment_std_data:
         df["experiment"] = experiment
@@ -32,9 +32,14 @@ def remove_outliers(node_data, return_models=False):
     if return_models:
         models = []
         
-    for i in range(4):
+    for i in range(len(node_data)):
         model = OneClassSVM(nu=0.1)
-        model.fit(node_data[i][["humidity", "temperature"]])
+        if "label" in node_data[i].columns:
+            pred = model.fit_predict(node_data[i].loc[:, node_data[i].columns != "label"])
+        else:
+            pred = model.fit_predict(node_data[i][["humidity", "temperature"]])
+        pred_inliers = np.where(pred == 1)[0]
+        node_data[i] = node_data[i].iloc[pred_inliers]
         if return_models:
             models.append(model)
         

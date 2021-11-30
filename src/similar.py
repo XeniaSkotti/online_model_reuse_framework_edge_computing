@@ -4,42 +4,49 @@ from itertools import combinations as comb
 import numpy as np
 import pandas as pd
 
-def get_mmd_args(experiment, standardised):
-    if experiment ==1:
-        if standardised:
-            mmd_args = ("rbf", 0.5)
-        else:
-            mmd_args = ("rbf", 10)
-    elif experiment == 2:
-        if standardised:
-            mmd_args = ("rbf", 1)
-        else:
-            mmd_args = ("rbf", 100)
-    elif experiment == 3:
-        if standardised:
-            mmd_args = ("rbf", 1)
-        else:
-            mmd_args = ("rbf", 5)
+def get_mmd_args(experiment, standardised=False):
+    if isinstance(experiment, int):
+        if experiment ==1:
+            if standardised:
+                mmd_args = ("rbf", 0.5)
+            else:
+                mmd_args = ("rbf", 10)
+        elif experiment == 2:
+            if standardised:
+                mmd_args = ("rbf", 1)
+            else:
+                mmd_args = ("rbf", 100)
+        elif experiment == 3:
+            if standardised:
+                mmd_args = ("rbf", 1)
+            else:
+                mmd_args = ("rbf", 5)
+    elif experiment == False:
+        mmd_args = ("linear", 1)
     return mmd_args
 
 def get_similar_other_nodes_sets(experiment, std=False):
-    if experiment == 1:
-        if std:
-            similar_nodes = ["pi2","pi3","pi4"]
-            other_nodes = ["pi5"]
-        else:
+    if isinstance(experiment, int):
+        if experiment == 1:
+            if std:
+                similar_nodes = ["pi2","pi3","pi4"]
+                other_nodes = ["pi5"]
+            else:
+                similar_nodes = ["pi2", "pi4"]
+                other_nodes = ["pi3", "pi5"]
+        elif experiment == 2:
+            if std:
+                similar_nodes = ["pi2", "pi3", "pi5"]
+                other_nodes = ["pi4"]
+            else:
+                similar_nodes = ["pi3", "pi5"]
+                other_nodes = ["pi2", "pi4"]
+        elif experiment == 3:
             similar_nodes = ["pi2", "pi4"]
             other_nodes = ["pi3", "pi5"]
-    elif experiment == 2:
-        if std:
-            similar_nodes = ["pi2", "pi3", "pi5"]
-            other_nodes = ["pi4"]
-        else:
-            similar_nodes = ["pi3", "pi5"]
-            other_nodes = ["pi2", "pi4"]
-    elif experiment == 3:
-        similar_nodes = ["pi2", "pi4"]
-        other_nodes = ["pi3", "pi5"]
+    elif experiment == False:
+        similar_nodes = ["pi3","pi5","pi7","pi8"]
+        other_nodes = ["pi2","pi4","pi6","pi9"]
     return similar_nodes, other_nodes
 
 def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
@@ -93,8 +100,12 @@ def calculate_ocsvm_scores(node_data, similar_pairs, models):
         
         model_x, model_y = models[x_n], models[y_n]
         
-        sample_x = node_data[x_n][["humidity", "temperature"]]
-        sample_y = node_data[y_n][["humidity", "temperature"]]
+        if "label" in node_data[x_n].columns:
+            sample_x = node_data[x_n].loc[:, node_data[x_n].columns = != "label"]
+            sample_y = node_data[y_n].loc[:, node_data[y_n].columns = != "label"]
+        else:
+            sample_x = node_data[x_n][["humidity", "temperature"]]
+            sample_y = node_data[y_n][["humidity", "temperature"]]
         
         predicted_y_inliers = np.where(model_x.predict(sample_y) == 1)[0]
         predicted_x_inliers = np.where(model_y.predict(sample_x) == 1)[0]
@@ -106,7 +117,7 @@ def calculate_ocsvm_scores(node_data, similar_pairs, models):
     
     return pair_thresholds
 
-def get_similar_pairs_nodes(experiment, data, standardised):
+def get_similar_pairs_nodes(experiment, data, standardised=False):
     node_data = data[experiment]["sampled_data"]
     models = data[experiment]["models"]
     

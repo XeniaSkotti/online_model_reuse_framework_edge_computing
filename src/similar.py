@@ -22,7 +22,7 @@ def get_mmd_args(experiment, standardised=False):
             else:
                 mmd_args = ("rbf", 5)
     elif experiment == False:
-        mmd_args = ("linear", 1)
+        mmd_args = ("linear", 2)
     return mmd_args
 
 def get_similar_other_nodes_sets(experiment, std=False):
@@ -45,8 +45,8 @@ def get_similar_other_nodes_sets(experiment, std=False):
             similar_nodes = ["pi2", "pi4"]
             other_nodes = ["pi3", "pi5"]
     elif experiment == False:
-        similar_nodes = ["pi3","pi5","pi7","pi8"]
-        other_nodes = ["pi2","pi4","pi6","pi9"]
+        similar_nodes = ["pi5", "pi6"]
+        other_nodes = ["pi1", "pi2","pi3","pi4","pi7", "pi8"]
     return similar_nodes, other_nodes
 
 def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
@@ -76,8 +76,12 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
         node_x = "pi"+str(c[0]+2)
         node_y = "pi"+str(c[1]+2)
         
-        x = node_data[c[0]][["humidity", "temperature"]].values.astype(np.float32)
-        y = node_data[c[1]][["humidity", "temperature"]].values.astype(np.float32)
+        if "label" in node_data[x_n].columns:
+            x = node_data[c[0]][["x", "y", "z"]].values.astype(np.float32)
+            y = node_data[c[1]][["x", "y", "z"]].values.astype(np.float32)
+        else:
+            x = node_data[c[0]][["humidity", "temperature"]].values.astype(np.float32)
+            y = node_data[c[1]][["humidity", "temperature"]].values.astype(np.float32)
 
         sample_size = min(x.shape[0], y.shape[0])
         tx, ty = get_tensor_sample(x, sample_size), get_tensor_sample(y, sample_size)
@@ -101,8 +105,8 @@ def calculate_ocsvm_scores(node_data, similar_pairs, models):
         model_x, model_y = models[x_n], models[y_n]
         
         if "label" in node_data[x_n].columns:
-            sample_x = node_data[x_n].loc[:, node_data[x_n].columns = != "label"]
-            sample_y = node_data[y_n].loc[:, node_data[y_n].columns = != "label"]
+            sample_x = node_data[x_n][["x", "y", "z"]]
+            sample_y = node_data[y_n][["x", "y", "z"]]
         else:
             sample_x = node_data[x_n][["humidity", "temperature"]]
             sample_y = node_data[y_n][["humidity", "temperature"]]

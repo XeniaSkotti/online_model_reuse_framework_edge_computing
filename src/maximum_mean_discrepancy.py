@@ -160,8 +160,9 @@ def get_tensor_samples(node_data, sample_size):
         indices = get_sample_indices(node_data[i].shape[0], sample_size)
         if "humidity" in node_data[i].columns:
             s = node_data[i][["humidity", "temperature"]]
+            samples["pi"+str(i+2)] = to_tensor(s.values.astype(np.float32)[indices])
         else:
-            s = node_data[i].loc[:, node_data[i].columns!="label"]
-        samples["pi"+str(i+2)] = to_tensor(s.values.astype(np.float32)[indices])
+            s = node_data[i][["x", "y", "z"]]
+            samples["pi"+str(i+1)] = to_tensor(s.values.astype(np.float32)[indices])
     
     return samples

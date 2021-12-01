@@ -1,0 +1,5 @@
+model_node,model,train_time,optimisation_time,model_r2,test_node,discrepancy,model_r2-d,test_r2,mmd_score,ocsvm_score,asmmd,balanced
+pi3,LogisticRegression(max_iter=100000),0.02,0.75,0.95,pi4,0.01,0.9554170661553212,0.9549376797698945,10.13,0.97,15.3662109375,True
+pi4,LogisticRegression(max_iter=100000),0.01,0.71,0.95,pi3,0.01,0.9486317810849736,0.9486317810849736,10.13,0.99,15.3662109375,True
+pi3,LogisticRegression(max_iter=100000),0.01,0.69,0.96,pi4,0.0,0.9664,0.9664,19.24,0.98,22.593587239583332,False
+pi4,LogisticRegression(max_iter=100000),0.01,0.64,0.97,pi3,0.0,0.9637333333333333,0.9637333333333333,19.24,0.99,22.593587239583332,False

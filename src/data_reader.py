@@ -23,7 +23,13 @@ nodes = ["pi" + str(i) for i in range(2,6)]
 ## therefore each data row should record the following
 attributes = ["device", "humidity", "temperature", "time", "pi", "experiment"]
 
-def read_data():
+def read_data(dataset):
+    if dataset == "gnfuv":
+        return read_gnfuv_data()
+    elif dataset == "bank":
+        return read_banking_data()
+
+def read_gnfuv_data():
     experiments_data = []
     for i in range(1,4):
         experiment =  "experiment_" + str(i)
@@ -63,3 +69,18 @@ def read_data():
 
         experiments_data.append(pd.concat(data).reset_index(drop=True))
     return pd.concat(experiments_data).reset_index(drop=True)
+
+def read_banking_data():
+    directory = "//".join([os.getcwd(), "data", "bank-marketing", "raw","bank-additional-full.csv"])
+    df = pd.read_csv(directory, sep=";")
+
+    for column in df.columns:
+        column_type = str(df[column].dtype)
+        if "int" not in column_type and "float" not in column_type:
+            df[column] = df[column].astype("category")
+
+    cat_columns = df.select_dtypes(['category']).columns
+    df_codified = df.copy()
+    df_codified[cat_columns] = df[cat_columns].apply(lambda x: x.cat.codes)
+    
+    return df, df_codified

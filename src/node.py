@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.svm import OneClassSVM
 from sklearn.preprocessing import StandardScaler
 
-def get_node_data(data, experiment):
+def get_node_data(data, experiment=False):
     if isinstance(experiment, bool):
         if experiment == False:
             df = data.copy()

@@ -6,7 +6,9 @@ import numpy as np
 import pandas as pd
 
 def get_mmd_args(experiment, standardised=False):
-    if isinstance(experiment, int):
+    if isinstance(experiment, bool):
+        mmd_args = ("linear", 2)
+    elif isinstance(experiment, int):
         if experiment ==1:
             if standardised:
                 mmd_args = ("rbf", 0.5)
@@ -22,11 +24,12 @@ def get_mmd_args(experiment, standardised=False):
                 mmd_args = ("rbf", 1)
             else:
                 mmd_args = ("rbf", 5)
-    elif experiment == False:
-        mmd_args = ("linear", 2)
     return mmd_args
 
 def get_similar_other_nodes_sets(experiment, std=False):
+    if experiment == False:
+        similar_nodes = ["pi5", "pi6"]
+        other_nodes = ["pi1", "pi2","pi3","pi4","pi7", "pi8"]
     if isinstance(experiment, int):
         if experiment == 1:
             if std:
@@ -45,9 +48,7 @@ def get_similar_other_nodes_sets(experiment, std=False):
         elif experiment == 3:
             similar_nodes = ["pi2", "pi4"]
             other_nodes = ["pi3", "pi5"]
-    elif experiment == False:
-        similar_nodes = ["pi5", "pi6"]
-        other_nodes = ["pi1", "pi2","pi3","pi4","pi7", "pi8"]
+
     return similar_nodes, other_nodes
 
 def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
@@ -144,9 +145,9 @@ def calculate_ocsvm_scores(node_data, similar_pairs, models):
 
 def get_similar_pairs_nodes(data, standardised=False, experiment = False):
     if isinstance(experiment, bool):
-        raw_node_data = data["sampled_data"]
+        raw_node_data = data
     else:
-        raw_node_data = data[experiment]["sampled_data"]
+        raw_node_data = data[experiment]
     node_data, models = remove_outliers(raw_node_data, return_models = True)
   
     kernel, kernel_bandwidth =  get_mmd_args(experiment, standardised)  

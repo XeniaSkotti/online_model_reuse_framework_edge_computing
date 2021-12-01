@@ -1,26 +1,35 @@
-from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV
-from sklearn.svm import SVR, LinearSVR
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVR
 import pandas as pd
 import numpy as np
 import time
 
-def get_xy_data(data):
+def get_gnfuv_xy_data(data):
     x = data.humidity.values.astype(np.float32)
     y = data.temperature.values.astype(np.float32)
     return x, y
 
+def get_banking_xy_data(data):
+    x = data[["x", "y", "z"]].values.astype(np.float32)
+    y = data.label.values
+    return x,y
+
 def select_model_data(node_data, similar_nodes):
     model_data = {}
-    for i in range(4):
-        node = "pi"+str(i+2)
+    for i in range(len(node_data)):
+        n = node_data[i]
+        node = n.pi.values[0]
         if node in similar_nodes:
-            model_data[node] = get_xy_data(node_data[i])
+            if "experiment" in n.columns:
+                model_data[node] = get_gnfuv_xy_data(n)
+            else:
+                model_data[node] = get_banking_xy_data(n)
     return model_data
 
 def instantiate_clf(name):
-    if name == "lreg":
-        return LinearRegression()
+    if name == "lr":
+        return LogisticRegression(max_iter = 100000)
     elif name == "svr":
         return SVR()
     elif name == "lsvr":
@@ -28,15 +37,24 @@ def instantiate_clf(name):
     
 def fit_clf(clf, train):
     ## position 1 has temperature and position 0 humnidity
-    clf.fit(train[0].reshape(-1,1), train[1])
+    if train[0].shape[1] == 1:
+        clf.fit(train[0].reshape(-1,1), train[1])
+    else:
+         clf.fit(train[0], train[1])
     return score_clf(clf, train)
 
 def score_clf(clf, test):
-    return clf.score(test[0].reshape(-1,1), test[1])
+    if test[0].shape[1] == 1:
+        score = clf.score(test[0].reshape(-1,1), test[1])
+    else:
+        score = clf.score(test[0], test[1])
+    return score
 
 def get_clf_param_grid(name):
-    if name == "lreg":
-        param_grid = {"normalize" : [True, False]}
+    if name == "lr":
+        param_grid = {"C" :  [0.01, 0.1,  1, 10],
+                      "solver" : ["lbfgs","liblinear", "saga", "sag"],
+                     }
     elif name == "svr":
         param_grid = {"C" : [0.01, 0.1,  1, 10],
                       "epsilon" : [0.1, 0.5, 1, 2, 5],
@@ -63,7 +81,10 @@ def grid_search_models(clf_name, model_data, selected_nodes):
         
         grid_search = GridSearchCV(instantiate_clf(clf_name), param_grid)
         start_time = time.time()
-        grid_search.fit(train[0].reshape(-1,1), train[1])
+        if train[0].shape[1] == 1:
+            grid_search.fit(train[0].reshape(-1,1), train[1])
+        else:
+            grid_search.fit(train[0], train[1])
         optimisation_time = time.time() - start_time
 
         optimised_model = instantiate_clf(clf_name)

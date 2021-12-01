@@ -1,4 +1,5 @@
 from modelling import grid_search_models, fit_clf, score_clf
+import pandas as pd
 
 def test_in_pairs(similar_pairs, model_data, models, mmd_scores, ocsvm_scores):
     l = []

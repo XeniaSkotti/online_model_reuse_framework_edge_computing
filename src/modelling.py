@@ -37,14 +37,18 @@ def instantiate_clf(name):
     
 def fit_clf(clf, train):
     ## position 1 has temperature and position 0 humnidity
-    if train[0].shape[1] == 1:
+    if len(train[0].shape) == 1:
+        clf.fit(train[0].reshape(-1,1), train[1])
+    elif train[0].shape[1] == 1:
         clf.fit(train[0].reshape(-1,1), train[1])
     else:
          clf.fit(train[0], train[1])
     return score_clf(clf, train)
 
 def score_clf(clf, test):
-    if test[0].shape[1] == 1:
+    if len(test[0].shape) == 1:
+        score = clf.score(test[0].reshape(-1,1), test[1])
+    elif test[0].shape[1] == 1:
         score = clf.score(test[0].reshape(-1,1), test[1])
     else:
         score = clf.score(test[0], test[1])
@@ -81,7 +85,9 @@ def grid_search_models(clf_name, model_data, selected_nodes):
         
         grid_search = GridSearchCV(instantiate_clf(clf_name), param_grid)
         start_time = time.time()
-        if train[0].shape[1] == 1:
+        if len(train[0].shape) == 1:
+            grid_search.fit(train[0].reshape(-1,1), train[1])
+        elif train[0].shape[1] == 1:
             grid_search.fit(train[0].reshape(-1,1), train[1])
         else:
             grid_search.fit(train[0], train[1])
@@ -103,7 +109,9 @@ def grid_search_models(clf_name, model_data, selected_nodes):
             train_time = baseline_train_time
             
         models[node] = model
-        l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "train_time" : round(train_time,2), 
-                                "optimisation_time" : round(optimisation_time, 2), "model_r2" : round(score,2)}]))
-    
+          
+        l.append(pd.DataFrame([{"model_node" :  node, "model" : model, "model_r2" : round(score,2), 
+                                "train_time" : round(train_time,2), "optimisation_time" : round(optimisation_time, 2)}]))
+            
+
     return models, pd.concat(l)

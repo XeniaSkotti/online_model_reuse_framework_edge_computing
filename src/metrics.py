@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np 
 from results_helper_functions import find_similar_pairs
 
+normalized = {False:"original", True: "standardised"}
+kernels = ["rbf", "linear"]
+balanced_options = [True, False]
+
 def ocsvm_correct(df, strict):
     if strict:
         max_pairs = df.loc[df["model_r2-d"] == df["model_r2-d"].max()]
@@ -64,18 +68,89 @@ def gnfuv_precision(df, precision_args):
     avg_precision = sum(exp_precision)/3
     return exp_precision, round(weighted_avg_precision,2), round(avg_precision,2)
 
-def banking_precision(df, precision_args):
-    return precision(df, precision_args)
+# def banking_precision(df, precision_args):
+#     return precision(df, precision_args)
 
-def combined_precision(data, precision_fun):
+def print_combined_precision(data, precision_fun):
     for threshold in [0.6, 0.8]:
         print(threshold, end=": ")
         for strict in [True, False]:
-            print(preicsion_fun(data, [strict, threshold]), f"(strict={strict})", end = ", ")
+            print(precision_fun(data, [strict, threshold]), f"(strict={strict})", end = ", ")
         print()
     print()
 
-def ocsvm_precision(data, precision_fun):
+def combined_precision(data, per_model_type = False): 
+    if "kernel" in data.columns:
+        print(normalized[data["std"].values[0]])
+        precision_fun = gnfuv_precision
+    else:
+        precision_fun = precision
+          
+    if per_model_type:
+        if "kernel" in data.columns:
+            model_types = kernels
+            attr = "kernel"
+            print()
+        else:
+            model_types = balanced_options
+            attr = "balanced"            
+        for mt in model_types:
+            d = data.loc[data[attr] == mt]
+            print(f"{attr}={mt}")
+            print_combined_precision(d, precision_fun)
+    else:
+        print_combined_precision(data, precision_fun) 
+
+def print_ocsvm_precision(data, precision_fun):
     for strict in [True, False]:
         print(precision_fun(data, strict), f"(strict={strict})", end = ", ")
     print()
+
+def ocsvm_precision(data, per_model_type=False):
+    if "kernel" in data.columns:
+        precision_fun = gnfuv_precision
+    else:
+        precision_fun = precision
+    if per_model_type:
+        if "kernel" in data.columns:
+            model_types = kernels
+            attr = "kernel"
+        else:
+            model_types = balanced_options
+            attr = "balanced"            
+        for mt in model_types:
+            if "kernel" in data.columns: 
+                print(normalized[data["std"].values[0]], end = ", ")
+            d = data.loc[data[attr] == mt]
+            print(f"{attr}={mt}:", end = " ")
+            print_ocsvm_precision(data, precision_fun)
+    else:
+        if "kernel" in data.columns: 
+            print(normalized[data["std"].values[0]], end = ": ")
+        print_ocsvm_precision(data, precision_fun)
+
+def print_mmd_precision(data, precision_fun):
+    for threshold in [0.85, 0.9, 0.95]:                
+        print(f"{threshold}: {precision_fun(data, threshold)}")
+    print()
+    
+def mmd_precision(data, per_model_type=False):
+    if "kernel" in data.columns:
+        precision_fun = gnfuv_precision
+        print(normalized[data["std"].values[0]])
+    else:
+        precision_fun = precision
+    if per_model_type:
+        if "kernel" in data.columns:
+            model_types = kernels
+            attr = "kernel"
+            print()
+        else:
+            model_types = balanced_options
+            attr = "balanced"            
+        for mt in model_types:
+            d = data.loc[data[attr] == mt]
+            print(f"{attr}={mt}")
+            print_mmd_precision(data, precision_fun)
+    else:
+        print_mmd_precision(data, precision_fun)

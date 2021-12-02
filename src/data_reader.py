@@ -84,3 +84,23 @@ def read_banking_data():
     df_codified[cat_columns] = df[cat_columns].apply(lambda x: x.cat.codes)
     
     return df, df_codified
+
+def read_sample_results(directory):
+    sample_data = []
+    for i in range(1,101):
+        filename = directory + f"/sample_{i}.csv"
+        sample = pd.read_csv(filename)
+        sample["sample"] = i
+        sample_data.append(sample)
+    return pd.concat(sample_data, ignore_index = True)
+
+def read_gnfuv_sample_results():
+    data = []
+    for data_type in ["original", "standardised"]:
+        directory = f"results/GNFUV/{data_type}"
+        data.append(read_sample_results(directory))
+    return data
+
+def read_banking_sample_results():
+    directory = f"results/bank-marketing/reduced"
+    return read_sample_results(directory)

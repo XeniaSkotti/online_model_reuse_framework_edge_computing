@@ -18,7 +18,7 @@ std = ["original", "standardised"]
 
 def plot_gnfuv_r2_discrpenacy(df):
     for experiment in range(1,4):
-        directory = f'results/figures/GNFUV/experiment_{experiment}{normalized[df["std"].values[0]]}.pdf' 
+        directory = f'results/GNFUV/figures/experiment_{experiment}{normalized[df["std"].values[0]]}.pdf' 
         print(f"Experiment {experiment}")
         exp = df.loc[df.experiment==experiment]
         experiment_stats = pd.DataFrame(columns = exp.discrepancy.describe().index)
@@ -53,7 +53,7 @@ def plot_r2_discrepancy(directory, df, stats):
             stats.loc[backward_pair] = backward_df.discrepancy.describe().values.T
 
             for row in pair_df.itertuples(index=False):
-                if "kernel" in row.index:
+                if "kernel" in str(row):
                     color = kernel_colors[row.kernel]
                 else:
                     color = balanced_colors[row.balanced]
@@ -76,13 +76,13 @@ def plot_r2_discrepancy(directory, df, stats):
 
             usability_line = axs.plot([0,1.1],[0,1.1],c = "g", linestyle= "--", alpha=0.5)
             if "kernel" in pair_df.columns:
-                legend_color = kernel_colors[0]
+                legend_color = kernel_colors["rbf"]
                 model_type_lines = [Line2D(x, y, c= kernel_colors[k], alpha = 1, linewidth=5) for k in ["linear","rbf"]]
                 std_lines = [Line2D(x, y, c= "b", alpha = alpha_norm[True], linewidth=5)]
                 lines = std_lines + model_type_lines + usability_line
                 text = ["std", "linear", "non-linear", "equilibrium"]
             else:
-                legend_color = balanced_colors[0]
+                legend_color = balanced_colors[True]
                 model_type_lines = [Line2D(x, y, c= balanced_colors[b], alpha = 1, linewidth=5) for b in [True,False]]
                 lines = model_type_lines + usability_line
                 text = ["balanced", "unbalanced", "equilibrium"]

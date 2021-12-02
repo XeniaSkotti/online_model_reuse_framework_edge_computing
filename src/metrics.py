@@ -154,3 +154,48 @@ def mmd_precision(data, per_model_type=False):
             print_mmd_precision(data, precision_fun)
     else:
         print_mmd_precision(data, precision_fun)
+
+def get_saved_train_time(df):
+    best_entry = df.loc[df["ocsvm_score"].idxmax()]
+    reusable_node = best_entry["test_node"]
+    mask = df["model_node"] == reusable_node
+    train_time = sum(df.loc[mask,["train_time", "optimisation_time"]].values[0])
+    return train_time, reusable_node
+
+def speedup(df, nodes):
+    saved_train_time = 0
+    sample_ids = np.unique(df["sample"])
+    for sample_id in sample_ids:
+        sample_train_time = {}
+        sample_node_train_time = {}
+        sample_df = df.loc[(df["sample"] == sample_id)]
+        similar_pairs = find_similar_pairs(sample_df)
+        sample_nodes = np.unique(sample_df["model_node"])
+        for node in sample_nodes:
+            sample_node_train_time[node] = sum(sample_df.loc[sample_df.model_node == node, 
+                                                             ["train_time", "optimisation_time"]].values[0])
+        for x,y in similar_pairs[::2]:
+            pair_df = sample_df.loc[((sample_df.model_node == x) & (sample_df.test_node == y))|
+                                    ((sample_df.model_node ==y) & (sample_df.test_node == x))]
+            stt, rn = get_saved_train_time(pair_df)
+            if stt > 0: 
+                sample_train_time[rn] = sample_node_train_time[rn]
+        if len(sample_node_train_time) != 4:
+            avg_train_time = sum(sample_node_train_time.values())/len(sample_node_train_time)
+            for node in nodes:
+                if node not in sample_node_train_time.keys():
+                    sample_node_train_time[node] = avg_train_time
+                    sample_train_time[node] = avg_train_time
+
+        saved_train_time += 1- sum(sample_train_time.values())/sum(sample_node_train_time.values())
+    return round(saved_train_time/len(sample_ids),2)
+
+def gnfuv_speedup(df):
+    exp_speedup = []
+    for experiment in range(1,4):
+        exp = df.loc[(df.experiment == experiment)]
+        exp_speedup.append(speedup(exp, nodes = ["pi2", "pi3", "pi4", "pi5"]))
+    weights = [df.loc[df.experiment == experiment].shape[0]/df.shape[0] for experiment in range(1,4)]
+    weighted_avg_speedup = sum([weights[i] * exp_speedup[i] for i in range(3)])
+    avg_speedup = sum(exp_speedup)/3
+    return exp_speedup, round(weighted_avg_speedup,2), round(avg_speedup,2)

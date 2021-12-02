@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np 
+from results_helper_functions import find_similar_pairs
 
 def ocsvm_correct(df, strict):
     if strict:
@@ -39,10 +40,11 @@ def precision(df, precision_args):
     sample_ids = np.unique(df["sample"])
     for sample_id in sample_ids:
         sample_correct = 0
-        sample_df = df.loc[(df["sample"] == sample)]
+        sample_df = df.loc[(df["sample"] == sample_id)]
         similar_pairs = find_similar_pairs(sample_df)
         for x,y in similar_pairs[::2]:
-            pair_df = exp.loc[((exp.model_node == x) & (exp.test_node == y))|((exp.model_node ==y) & (exp.test_node == x))]
+            pair_df = sample_df.loc[((sample_df.model_node == x) & (sample_df.test_node == y))|
+                                    ((sample_df.model_node ==y) & (sample_df.test_node == x))]
             if isinstance(precision_args, list):
                 sample_correct += method_correct(pair_df, strict = precision_args[0], threshold = precision_args[1])
             elif isinstance(precision_args, bool):
@@ -64,3 +66,16 @@ def gnfuv_precision(df, precision_args):
 
 def banking_precision(df, precision_args):
     return precision(df, precision_args)
+
+def combined_precision(data, precision_fun):
+    for threshold in [0.6, 0.8]:
+        print(threshold, end=": ")
+        for strict in [True, False]:
+            print(preicsion_fun(data, [strict, threshold]), f"(strict={strict})", end = ", ")
+        print()
+    print()
+
+def ocsvm_precision(data, precision_fun):
+    for strict in [True, False]:
+        print(precision_fun(data, strict), f"(strict={strict})", end = ", ")
+    print()

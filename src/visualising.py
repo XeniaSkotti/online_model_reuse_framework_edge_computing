@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.lines import Line2D
 from node import get_node_data
-from metrics import find_similar_pairs, get_pair_df
+from results_helper_functions import find_similar_pairs, get_pair_df
 import pandas as pd
 import numpy as np
 

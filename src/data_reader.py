@@ -87,11 +87,20 @@ def read_banking_data():
 
 def read_sample_results(directory):
     sample_data = []
+    no_data = []
     for i in range(1,101):
         filename = directory + f"/sample_{i}.csv"
-        sample = pd.read_csv(filename)
-        sample["sample"] = i
-        sample_data.append(sample)
+        try:
+            sample = pd.read_csv(filename)
+            if not sample.empty:
+                sample["sample"] = i
+                sample_data.append(sample)
+        except:
+            no_data.append(f"sample_{i}")
+    if len(no_data) > 0:
+        print("The following samples had no similar pairs")
+        [print(sample, end = ", ") for sample in no_data[:-1]]
+        print(no_data[-1])
     return pd.concat(sample_data, ignore_index = True)
 
 def read_gnfuv_sample_results():

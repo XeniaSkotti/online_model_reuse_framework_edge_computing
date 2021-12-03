@@ -199,3 +199,7 @@ def gnfuv_speedup(df):
     weighted_avg_speedup = sum([weights[i] * exp_speedup[i] for i in range(3)])
     avg_speedup = sum(exp_speedup)/3
     return exp_speedup, round(weighted_avg_speedup,2), round(avg_speedup,2)
+
+def banking_speedup(df, no_nodes):
+    nodes = ["pi"+str(i+1) for i in range(no_nodes)]
+    return speedup(df, nodes)

@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 kernel_colors = {"linear" : "r", "rbf" : "b"}
-balanced_colors = {True : "c", False : "k"}
+balanced_colors = {True : "k", False : "c"}
 # colors = ["bo", "go", "ro", "co", "mo", "yo", "ko"]
 direction_markers = [9, 8]
 method_markers = ["o", "."]
@@ -25,7 +25,7 @@ def plot_gnfuv_r2_discrpenacy(df):
         plot_r2_discrepancy(directory, exp, experiment_stats)
         
 def plot_banking_r2_discrepancy(df):
-    directory = f'results/figures/bank-marketing/summary.pdf' 
+    directory = f'results/bank-marketing/summary.pdf' 
     stats = pd.DataFrame(columns = df.discrepancy.describe().index)
     df["std"] = False
     plot_r2_discrepancy(directory, df, stats)
@@ -115,14 +115,13 @@ def plot_r2_discrepancy(directory, df, stats):
             text.append(f"backward pair \nMMD({mmd_threshold}) OCSVM({ocsvm_thresholds[1]})"+ 
                         backward_statistics_text)
 
-            l1 = plt.legend(lines, text[:4])
-            l2 = plt.legend(threshold_lines, text[4:], bbox_to_anchor=(0.5, 0.5, 0, 1.5),
+            l1 = plt.legend(lines, text[:-2])
+            l2 = plt.legend(threshold_lines, text[-2:], bbox_to_anchor=(0.5, 0.5, 0, 1.5),
                             loc="center", borderaxespad=0)
             axs.add_artist(l1)
             axs.add_artist(l2)
             pdf.savefig(fig)
             plt.show()
-
 
 def visualise_train_test_data(node_data):
     plt.rcParams["figure.figsize"] = (9,5)
@@ -145,8 +144,6 @@ def visualise_train_test_data(node_data):
     plt.ylabel(ylabel="Temperature")
     plt.show()
     
-    
-
 def visualise_experiment(node_data):
     plt.rcParams["figure.figsize"] = (8,5)
     

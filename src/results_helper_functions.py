@@ -3,6 +3,7 @@ import numpy as np
 
 kernels = ["rbf", "linear"]
 balanced_options = [True, False]
+balanced_text = ["balanced", "unbalanced"]
 
 def find_similar_pairs(df):
     unique_pairs_df = pd.DataFrame.from_records(np.unique(df[["model_node", "test_node"]].to_records(index=False))) 
@@ -72,5 +73,68 @@ def merge_gnfuv_results(data):
         merged_data.append(pd.concat(experiment_merged_dfs, ignore_index=True))
     return merged_data
 
-def merge_banking_results(data):
-    return merge_data(data)
+def find_the_best_entry_per_sample(df):
+    results = pd.DataFrame()
+    sample_ids = np.unique(df["sample"])
+    for sample_id in sample_ids:
+        sample_df = df.loc[(df["sample"] == sample_id)]
+        similar_pairs = find_similar_pairs(sample_df)
+        for x,y in similar_pairs[::2]:
+            pair_df = sample_df.loc[((sample_df.model_node == x) & (sample_df.test_node == y))|
+                                    ((sample_df.model_node == y) & (sample_df.test_node == x))]
+            max_entry = pair_df.loc[pair_df["model_r2-d"].idxmax()]
+            results = pd.concat([results, max_entry.to_frame().T])
+    return results
+
+# def find_the_best_entry_per_sample_gnfuv(df):
+#     results = []
+#     for experiment in range(1,4):
+#         exp = df.loc[(df.experiment == experiment)]
+#         results.append(find_the_best_entry_per_sample(exp))
+#     return pd.concat(results)
+
+def gnfuv_data_summary(df, best_entry= False):
+     for experiment in range(1,4):
+        exp = df.loc[(df.experiment == experiment)]
+        print(f"Data sunmary for experiment {experiment}")
+        data_summary(exp, best_entry)
+        print()
+        
+def data_summary(df, best_entry = False):
+    if "kernel" in df.columns:
+        model_types = kernels
+        attr = "kernel"
+        text = kernels
+    else:
+        model_types = balanced_options
+        attr = "balanced" 
+        text = balanced_text
+    if best_entry:
+        df = find_the_best_entry_per_sample(df)
+        
+    type_1_df = df.loc[(df[attr] == model_types[0])]
+    type_2_df = df.loc[(df[attr] == model_types[1])]
+    
+    if best_entry:
+        print(f"The number of entries per model type are {text[0]}={type_1_df.shape[0]}, {text[1]}={type_2_df.shape[0]}")
+    if min(type_1_df.shape[0], type_2_df.shape[0]) == 0:
+        if type_1_df.shape[0] < type_2_df.shape[0]:
+            baseline_score, lower_discrepancy, best_model_type = text[1], text[1], text[1]
+        else:
+            baseline_score, lower_discrepancy, best_model_type = text[0], text[0], text[0]
+    else:
+        if type_1_df.model_r2.mean() > type_2_df.model_r2.mean():
+            baseline_score = text[0]
+        else:
+            baseline_score = text[1]
+        if type_1_df.discrepancy.mean() > type_2_df.discrepancy.mean():
+            lower_discrepancy = text[1]
+        else:
+            lower_discrepancy = text[0]
+        if type_1_df["model_r2-d"].mean() > type_2_df["model_r2-d"].mean():
+            best_model_type = text[0]
+        else:
+            best_model_type = text[1]
+    print(f"{baseline_score} models have higher baseline R2 scores", end = " and ")
+    print(f"{lower_discrepancy} models have lower discrepancy", end = ". \n")
+    print(f"{best_model_type} models yield the best results on average. \n")

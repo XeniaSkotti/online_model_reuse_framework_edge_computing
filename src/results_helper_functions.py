@@ -27,7 +27,7 @@ def sort_similar_pairs(df):
             df.iloc[pair_index*2] = backwards_pair
             df.iloc[pair_index*2+1] = pair
 
-    similar_pairs = [pair for pair in df.values]
+    similar_pairs = [(x,y) for x,y in df.values]
     
     return similar_pairs
 

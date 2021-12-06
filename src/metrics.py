@@ -68,9 +68,6 @@ def gnfuv_precision(df, precision_args):
     avg_precision = sum(exp_precision)/3
     return exp_precision, round(weighted_avg_precision,2), round(avg_precision,2)
 
-# def banking_precision(df, precision_args):
-#     return precision(df, precision_args)
-
 def print_combined_precision(data, precision_fun):
     for threshold in [0.6, 0.8]:
         print(threshold, end=": ")
@@ -155,40 +152,54 @@ def mmd_precision(data, per_model_type=False):
     else:
         print_mmd_precision(data, precision_fun)
 
-def get_saved_train_time(df):
-    best_entry = df.loc[df["ocsvm_score"].idxmax()]
-    reusable_node = best_entry["test_node"]
-    mask = df["model_node"] == reusable_node
-    train_time = sum(df.loc[mask,["train_time", "optimisation_time"]].values[0])
-    return train_time, reusable_node
+def find_modelless_nodes(df):
+    similar_pairs = find_similar_pairs(df)[::2]
+    nodes = list(np.unique(df.model_node))
+    modelless_nodes = nodes.copy()
+    pair_winner = {}
+    reused_modelless_nodes = {node : [] for node in nodes}
+    for node in nodes:
+        node_similar_pairs = [(x,y) for x,y in similar_pairs if x== node or y == node]
+        for x,y in node_similar_pairs:
+            pair_df = df.loc[((df.model_node == x) & (df.test_node == y))| 
+                             ((df.model_node == y) & (df.test_node == x))]
+            best_entry = pair_df.loc[pair_df["ocsvm_score"].idxmax()]
+            reusable_node = best_entry.model_node
+            modelless_node = best_entry.test_node
+            if reusable_node in modelless_nodes:
+                modelless_nodes.remove(reusable_node)
+            reused_modelless_nodes[modelless_node].append(reusable_node)
+            index = similar_pairs.index((x,y))
+            similar_pairs.pop(index)
+            pair_winner[(x,y)] = reusable_node
+
+    for node in nodes:
+        reused_nodes = reused_modelless_nodes[node]
+        if len(reused_nodes) > 1:
+            for reused_node in reused_nodes:
+                if reused_modelless_nodes[reused_node] != []:
+                    reused_modelless_nodes[node].remove(reused_node)
+                    modelless_nodes.append(reused_node)
+                    
+    return modelless_nodes
 
 def speedup(df, nodes):
     saved_train_time = 0
     sample_ids = np.unique(df["sample"])
     for sample_id in sample_ids:
-        sample_train_time = {}
         sample_node_train_time = {}
         sample_df = df.loc[(df["sample"] == sample_id)]
-        similar_pairs = find_similar_pairs(sample_df)
-        sample_nodes = np.unique(sample_df["model_node"])
-        for node in sample_nodes:
+        for node in np.unique(sample_df.model_node):
             sample_node_train_time[node] = sum(sample_df.loc[sample_df.model_node == node, 
                                                              ["train_time", "optimisation_time"]].values[0])
-        for x,y in similar_pairs[::2]:
-            pair_df = sample_df.loc[((sample_df.model_node == x) & (sample_df.test_node == y))|
-                                    ((sample_df.model_node ==y) & (sample_df.test_node == x))]
-            stt, rn = get_saved_train_time(pair_df)
-            if stt > 0: 
-                sample_train_time[rn] = sample_node_train_time[rn]
-        if len(sample_node_train_time) != 4:
+        if len(sample_node_train_time) != len(nodes):
             avg_train_time = sum(sample_node_train_time.values())/len(sample_node_train_time)
             for node in nodes:
                 if node not in sample_node_train_time.keys():
                     sample_node_train_time[node] = avg_train_time
-                    sample_train_time[node] = avg_train_time
-
-        saved_train_time += 1- sum(sample_train_time.values())/sum(sample_node_train_time.values())
-    return round(saved_train_time/len(sample_ids),2)
+        saved_node_train_time = {node: sample_node_train_time[node] for node in find_modelless_nodes(sample_df)}   
+        saved_train_time += sum(saved_node_train_time.values())/sum(sample_node_train_time.values())
+    return round(saved_train_time/len(sample_ids),2)                                           
 
 def gnfuv_speedup(df):
     exp_speedup = []

@@ -120,7 +120,7 @@ def ocsvm_precision(data, per_model_type=False):
                 print(normalized[data["std"].values[0]], end = ", ")
             d = data.loc[data[attr] == mt]
             print(f"{attr}={mt}:", end = " ")
-            print_ocsvm_precision(data, precision_fun)
+            print_ocsvm_precision(d, precision_fun)
     else:
         if "kernel" in data.columns: 
             print(normalized[data["std"].values[0]], end = ": ")
@@ -148,7 +148,7 @@ def mmd_precision(data, per_model_type=False):
         for mt in model_types:
             d = data.loc[data[attr] == mt]
             print(f"{attr}={mt}")
-            print_mmd_precision(data, precision_fun)
+            print_mmd_precision(d, precision_fun)
     else:
         print_mmd_precision(data, precision_fun)
 

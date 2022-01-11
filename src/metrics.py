@@ -7,11 +7,16 @@ kernels = ["rbf", "linear"]
 balanced_options = [True, False]
 
 def ocsvm_correct(df, strict):
+    ## find the pairs of nodes with the best performance
+    ## that is the entry(ies) which have the maximum model_r2 - discrepancy score
+    ## if we are not strict about this being exactly equal to the maimum value
+    ## we can allow for a 5% variation from it
     if strict:
         max_pairs = df.loc[df["model_r2-d"] == df["model_r2-d"].max()]
     else:
         max_pairs = df.loc[df["model_r2-d"] > df["model_r2-d"].max() - 0.05]
     
+    ## check if the ocsvm score of the node is the maximum out of the two in the pair
     if df["ocsvm_score"].max() in max_pairs["ocsvm_score"].values:
         return 1
     else: 
@@ -19,8 +24,11 @@ def ocsvm_correct(df, strict):
 
 def mmd_correct(df, threshold):
     max_pairs = df.loc[df["model_r2-d"] == df["model_r2-d"].max()]
-    drop = (max_pairs.loc[:, "model_r2-d"]/max_pairs.loc[:,"test_r2"]).min()
-    if drop > threshold:
+    ## find what is the performance drop if we use a replacement of the true model for the node
+    ## the performance drop essentially is the ratio between the current performance
+    ## i.e. using another's node model, and the true performance
+    performance_ratio = (max_pairs.loc[:, "model_r2-d"]/max_pairs.loc[:,"test_r2"]).min()
+    if performance_ratio > threshold:
         return 1
     else: 
         return 0
@@ -34,8 +42,8 @@ def method_correct(df, strict, threshold):
     correct = 0
     if df["ocsvm_score"].max() in max_pairs["ocsvm_score"].values:
         best_entry = max_pairs.loc[max_pairs["ocsvm_score"].idxmax()]
-        drop = best_entry["model_r2-d"]/best_entry["test_r2"]
-        if drop > threshold:
+        performance_ratio = best_entry["model_r2-d"]/best_entry["test_r2"]
+        if performance_ratio > threshold:
             correct = 1
     return correct
 
@@ -157,6 +165,8 @@ def find_modelless_nodes(df):
     nodes = list(np.unique(df.model_node))
     modelless_nodes = nodes.copy()
     pair_winner = {}
+    # maps each node that does not require a model
+    # to nodes whose models can be used as substitutes
     reused_modelless_nodes = {node : [] for node in nodes}
     for node in nodes:
         node_similar_pairs = [(x,y) for x,y in similar_pairs if x== node or y == node]
@@ -169,6 +179,7 @@ def find_modelless_nodes(df):
             if reusable_node in modelless_nodes:
                 modelless_nodes.remove(reusable_node)
             reused_modelless_nodes[modelless_node].append(reusable_node)
+            # ensures the pair is never examined again unnecessarily
             index = similar_pairs.index((x,y))
             similar_pairs.pop(index)
             pair_winner[(x,y)] = reusable_node
@@ -177,6 +188,10 @@ def find_modelless_nodes(df):
         reused_nodes = reused_modelless_nodes[node]
         if len(reused_nodes) > 1:
             for reused_node in reused_nodes:
+                # if the reused_node (that is potentially a subsititute for the node)
+                # can itself be substituted by another node then we don't consider this
+                # as a viable subsitution node since that one can be replaced itself
+                # but we only do this if we have more than one candidate for subsitition
                 if reused_modelless_nodes[reused_node] != []:
                     reused_modelless_nodes[node].remove(reused_node)
                     modelless_nodes.append(reused_node)

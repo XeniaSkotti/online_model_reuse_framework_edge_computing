@@ -36,19 +36,23 @@ def instantiate_clf(name):
         return SVR(kernel="linear")
     
 def fit_clf(clf, train):
-    ## position 1 has temperature and position 0 humnidity
-    if len(train[0].shape) == 1:
+    ## check either if this (...,) or this (...,1) is present
+    ## if so reshape the data
+    ## we cannot check these conditions in the same statement
+    ## the program would crash
+    if len(train[0].shape) == 1: # (...,)
         clf.fit(train[0].reshape(-1,1), train[1])
-    elif train[0].shape[1] == 1:
+    elif train[0].shape[1] == 1: # (...,1)
         clf.fit(train[0].reshape(-1,1), train[1])
     else:
          clf.fit(train[0], train[1])
     return score_clf(clf, train)
 
 def score_clf(clf, test):
-    if len(test[0].shape) == 1:
+    ## see fit_clf comments to explain why this is done
+    if len(test[0].shape) == 1: # (...,)
         score = clf.score(test[0].reshape(-1,1), test[1])
-    elif test[0].shape[1] == 1:
+    elif test[0].shape[1] == 1: # (...,1)
         score = clf.score(test[0].reshape(-1,1), test[1])
     else:
         score = clf.score(test[0], test[1])
@@ -85,9 +89,11 @@ def grid_search_models(clf_name, model_data, selected_nodes):
         
         grid_search = GridSearchCV(instantiate_clf(clf_name), param_grid)
         start_time = time.time()
-        if len(train[0].shape) == 1:
+        
+        ## see fit_clf comments to explain why this is done
+        if len(train[0].shape) == 1: # (...,)
             grid_search.fit(train[0].reshape(-1,1), train[1])
-        elif train[0].shape[1] == 1:
+        elif train[0].shape[1] == 1: # (...,1)
             grid_search.fit(train[0].reshape(-1,1), train[1])
         else:
             grid_search.fit(train[0], train[1])

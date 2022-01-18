@@ -69,19 +69,20 @@ def find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth):
         kernel_bandwidth: scalar value to be used by the kernel in the MMD calculation. 
     """
     
-    combos = comb(range(4),2)
+    combos = comb(range(len(node_data)),2)
     similar_pairs = []
     similar_nodes = []
     pairs_mmd =[]
     threshold = asmmd + asmmd * 0.05
-    for c in combos:
-        node_x = "pi"+str(c[0]+2)
-        node_y = "pi"+str(c[1]+2)
-        
+    for c in combos:    
         if "label" in node_data[c[0]].columns:
+            node_x = "pi"+str(c[0]+1)
+            node_y = "pi"+str(c[1]+1)
             x = node_data[c[0]][["x", "y", "z"]].values.astype(np.float32)
             y = node_data[c[1]][["x", "y", "z"]].values.astype(np.float32)
         else:
+            node_x = "pi"+str(c[0]+2)
+            node_y = "pi"+str(c[1]+2)
             x = node_data[c[0]][["humidity", "temperature"]].values.astype(np.float32)
             y = node_data[c[1]][["humidity", "temperature"]].values.astype(np.float32)
 
@@ -150,7 +151,7 @@ def get_similar_pairs_nodes(data, standardised=False, experiment = False):
         raw_node_data = data[experiment]
     node_data, models = remove_outliers(raw_node_data, return_models = True)
   
-    kernel, kernel_bandwidth =  get_mmd_args(experiment, standardised)  
+    kernel, kernel_bandwidth =  get_mmd_args(experiment, standardised)
     tensor_samples = get_tensor_samples(node_data, sample_size=min([df.shape[0] for df in node_data]))
     similar_nodes, other_nodes = get_similar_other_nodes_sets(experiment, standardised)
     asmmd = ASDMMD(tensor_samples, similar_nodes, other_nodes, kernel, kernel_bandwidth, return_tables = False)

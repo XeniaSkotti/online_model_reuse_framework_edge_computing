@@ -28,8 +28,8 @@ def get_mmd_args(experiment, standardised=False):
 
 def get_similar_other_nodes_sets(experiment, std=False):
     if experiment == False:
-        similar_nodes = ["pi1", "pi4", "pi5", "pi6", "pi7", "pi8", "pi9"]
-        other_nodes = ["pi2", "pi3", "pi10", "pi11"]
+        similar_nodes = ["pi1", "pi4", "pi5", "pi6", "pi7", "pi8"]
+        other_nodes = ["pi2", "pi3", "pi10"]
     if isinstance(experiment, int):
         if experiment == 1:
             if std:

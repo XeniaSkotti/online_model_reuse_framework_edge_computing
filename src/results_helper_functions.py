@@ -50,14 +50,15 @@ def merge_data(df):
     for x,y in similar_pairs:
         for mt in model_types:
             pair_df = df.loc[(df.model_node == x) & (df.test_node==y) & (df[attr] == mt)]
-            mean_data = pair_df.mean().round(2)
-            merged_pair_df = pd.DataFrame(columns=mean_data.index.values)
-            merged_pair_df.loc[0] = mean_data.values
-            merged_pair_df.round(1)
-            merged_pair_df["model_node"] = x
-            merged_pair_df["test_node"] = y
-            merged_pair_df[attr] = mt
-            merged.append(merged_pair_df)
+            if not pair_df.empty:
+                mean_data = pair_df.mean().round(2)
+                merged_pair_df = pd.DataFrame(columns=mean_data.index.values)
+                merged_pair_df.loc[0] = mean_data.values
+                merged_pair_df.round(1)
+                merged_pair_df["model_node"] = x
+                merged_pair_df["test_node"] = y
+                merged_pair_df[attr] = mt
+                merged.append(merged_pair_df)
     return pd.concat(merged, ignore_index = True)
 
 def merge_gnfuv_results(data):

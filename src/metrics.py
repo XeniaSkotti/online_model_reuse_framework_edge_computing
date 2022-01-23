@@ -214,7 +214,23 @@ def speedup(df, nodes):
                     sample_node_train_time[node] = avg_train_time
         saved_node_train_time = {node: sample_node_train_time[node] for node in find_modelless_nodes(sample_df)}   
         saved_train_time += sum(saved_node_train_time.values())/sum(sample_node_train_time.values())
-    return round(saved_train_time/len(sample_ids),2)                                           
+    return round(saved_train_time/len(sample_ids),2) 
+
+def merged_data_speedup(df, nodes):
+    sample_node_train_time = {}
+    saved_train_time = 0
+    sample_df = df
+    for node in np.unique(sample_df.model_node):
+        sample_node_train_time[node] = sum(sample_df.loc[sample_df.model_node == node, 
+                                                         ["train_time", "optimisation_time"]].values[0])
+    if len(sample_node_train_time) != len(nodes):
+        avg_train_time = sum(sample_node_train_time.values())/len(sample_node_train_time)
+        for node in nodes:
+            if node not in sample_node_train_time.keys():
+                sample_node_train_time[node] = avg_train_time
+    saved_node_train_time = {node: sample_node_train_time[node] for node in find_modelless_nodes(sample_df)}   
+    saved_train_time += sum(saved_node_train_time.values())/sum(sample_node_train_time.values())
+    return saved_train_time
 
 def gnfuv_speedup(df):
     exp_speedup = []
@@ -226,6 +242,9 @@ def gnfuv_speedup(df):
     avg_speedup = sum(exp_speedup)/3
     return exp_speedup, round(weighted_avg_speedup,2), round(avg_speedup,2)
 
-def banking_speedup(df, no_nodes):
+def banking_speedup(df, no_nodes, averaged_data=False):
     nodes = ["pi"+str(i+1) for i in range(no_nodes)]
-    return speedup(df, nodes)
+    if averaged_data:
+        return merged_data_speedup(df, nodes)
+    else:
+        return speedup(df, nodes)

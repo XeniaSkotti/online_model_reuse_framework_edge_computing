@@ -58,7 +58,7 @@ def merge_data(df):
                 merged_pair_df["model_node"] = x
                 merged_pair_df["test_node"] = y
                 merged_pair_df[attr] = mt
-                merged.append(merged_pair_df)
+                merged.append(merged_pair_df.drop(columns = ["sample"]))
     return pd.concat(merged, ignore_index = True)
 
 def merge_gnfuv_results(data):

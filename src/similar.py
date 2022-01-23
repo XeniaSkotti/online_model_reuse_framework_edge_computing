@@ -7,7 +7,7 @@ import pandas as pd
 
 def get_mmd_args(experiment, standardised=False):
     if isinstance(experiment, bool):
-        mmd_args = ("linear", 2)
+        mmd_args = ("linear", 0.001)
     elif isinstance(experiment, int):
         if experiment ==1:
             if standardised:
@@ -28,8 +28,8 @@ def get_mmd_args(experiment, standardised=False):
 
 def get_similar_other_nodes_sets(experiment, std=False):
     if experiment == False:
-        similar_nodes = ["pi1", "pi4", "pi5", "pi6", "pi7", "pi8"]
-        other_nodes = ["pi2", "pi3", "pi10"]
+        similar_nodes = ["pi4", "pi5"]
+        other_nodes = ["pi1", "pi2", "pi3"]
     if isinstance(experiment, int):
         if experiment == 1:
             if std:
@@ -146,9 +146,9 @@ def calculate_ocsvm_scores(node_data, similar_pairs, models):
 
 def get_similar_pairs_nodes(data, standardised=False, experiment = False):
     if isinstance(experiment, bool):
-        raw_node_data = data
+        raw_node_data = data.copy()
     else:
-        raw_node_data = data[experiment]
+        raw_node_data = data[experiment].copy()
     node_data, models = remove_outliers(raw_node_data, return_models = True)
   
     kernel, kernel_bandwidth =  get_mmd_args(experiment, standardised)

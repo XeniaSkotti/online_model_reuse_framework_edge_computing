@@ -33,8 +33,8 @@ def create_experiment_samples(n_samples, raw_data, standardised=False, experimen
             raw_node_data = standardise_node_data(experiment,raw_node_data)
     min_samples = min([d.shape[0] for d in raw_node_data])
     m = min_samples
-    if min_samples/2 > 500:    
-        m = int(min_samples/2)
+    if min_samples*2/3 > 500:    
+        m = int(min_samples*2/3)
     elif min_samples > 500:
         m = 500
 
@@ -44,6 +44,16 @@ def create_experiment_samples(n_samples, raw_data, standardised=False, experimen
         node_data = raw_node_data.copy()
         for i in range(no_nodes):
             node_data[i] = raw_node_data[i].sample(m).reset_index(drop=True)
+#             if "label" in node_data[i].columns:
+#                 yes = node_data[i].loc[node_data[i].label == "yes"].shape[0]
+#                 no = node_data[i].loc[node_data[i].label == "no"].shape[0]
+#                 raw_yes = raw_node_data[i].loc[raw_node_data[i].label == "yes"].shape[0]
+#                 raw_no = raw_node_data[i].loc[raw_node_data[i].label == "no"].shape[0]
+#                 percentage_of_dataset = round(m/raw_node_data[i].shape[0],2)
+#                 print(percentage_of_dataset, round(percentage_of_dataset * raw_yes,2), yes,  round(percentage_of_dataset * raw_no,2), no)
+                
+
+                
         exp_samples.append(node_data)
     return exp_samples
 

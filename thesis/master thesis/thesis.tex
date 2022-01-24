@@ -4,6 +4,7 @@
 
 \documentclass{mpaper}
 % \usepackage{natbib}
+\usepackage{multirow}
 
 \begin{document}
 \title{Model Reuse Framework for Edge Computing}
@@ -127,65 +128,65 @@ where $Q$ is the kernel matrix and $a$ the Lagrange multipliers. Using the above
 \end{equation}
 For OCSVM we've utilised the RBF kernel as defined by Equation \ref{eqn:rbf}.
 
-\subsection{Support Vector Regression Machines}
+% \subsection{Support Vector Regression Machines}
 
-A version of SVM for regression was proposed by Vapnik et al. \cite{OriginalSVR} called Support Vector Regression (SVR). The adaptation is accomplished by introducing an $\epsilon$-insensitive region around the function, called the $\epsilon$-tube as shown in Figure \ref{fig-SVRex}. Similarly to other SVM methods, the hyperplane is represented in terms of support vectors, which are training samples that lie outside the boundary of the tube. Support vectors are the most influential instances that affect the shape of the tube, and the training and test data are assumed to be i.i.d., drawn from the same fixed but unknown probability distribution function in a supervised-learning context.
+% A version of SVM for regression was proposed by Vapnik et al. \cite{OriginalSVR} called Support Vector Regression (SVR). The adaptation is accomplished by introducing an $\epsilon$-insensitive region around the function, called the $\epsilon$-tube as shown in Figure \ref{fig-SVRex}. Similarly to other SVM methods, the hyperplane is represented in terms of support vectors, which are training samples that lie outside the boundary of the tube. Support vectors are the most influential instances that affect the shape of the tube, and the training and test data are assumed to be i.i.d., drawn from the same fixed but unknown probability distribution function in a supervised-learning context.
 
-The optimization problem objective is to find the tube that best approximates the continuous-valued function, while balancing model complexity and prediction error. Therefore, the goal is to first minimise an $\epsilon$-insensitive loss function and find the flattest tube that contains most of the training instances. The $\epsilon$-insensitive loss function $L_1$ ($L_1=L(y_i, f(x_i,w))$) is defined as:
-\begin{equation}\label{eqn:10}
-    L_1 = 
-    \begin{cases}
-        0, & if\ |y_i- f(x_i, w)| - \epsilon \\
-        |y_i- f(x_i,w)|- \epsilon, & otherwise
-    \end{cases}
-\end{equation}
-where $y_i$ represents the true value and $f(x_i,w)$ the predicted value for a given input $x_i$ respectively. if $f(x_i,w)$ is within the tube the loss is zero, otherwise the loss is the magnitude of the difference between the predicted value and the radius $\epsilon$ of the tube.
+% The optimization problem objective is to find the tube that best approximates the continuous-valued function, while balancing model complexity and prediction error. Therefore, the goal is to first minimise an $\epsilon$-insensitive loss function and find the flattest tube that contains most of the training instances. The $\epsilon$-insensitive loss function $L_1$ ($L_1=L(y_i, f(x_i,w))$) is defined as:
+% \begin{equation}\label{eqn:10}
+%     L_1 = 
+%     \begin{cases}
+%         0, & if\ |y_i- f(x_i, w)| - \epsilon \\
+%         |y_i- f(x_i,w)|- \epsilon, & otherwise
+%     \end{cases}
+% \end{equation}
+% where $y_i$ represents the true value and $f(x_i,w)$ the predicted value for a given input $x_i$ respectively. if $f(x_i,w)$ is within the tube the loss is zero, otherwise the loss is the magnitude of the difference between the predicted value and the radius $\epsilon$ of the tube.
 
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.45]{SVR_representation.jpg}
-\end{center}
-\caption{\label{fig-SVRex}Visual Representation of an SVR}
-\end{figure}
+% \begin{figure}
+% \begin{center}
+% \includegraphics[scale=0.45]{SVR_representation.jpg}
+% \end{center}
+% \caption{\label{fig-SVRex}Visual Representation of an SVR}
+% \end{figure}
 
-A multi-objective function is constructed from the loss function and the geometrical properties of the tube:
+% A multi-objective function is constructed from the loss function and the geometrical properties of the tube:
 
-\begin{equation}\label{eqn:11}
-    \min_{w, \xi, \hat{\xi} \in \mathbb{R}}{\frac{\parallel{w}\parallel^2}{2} + C\sum_{i=1}^n (\xi_i + \hat{\xi_i})}
-\end{equation}
-\begin{center}
-subject to $\xi, \hat{\xi} \geq 0$, i=1,...,n \\ 
-$w^T \cdot \Phi(x_i) + b - y_i \leq \epsilon + \xi_i$\\ 
-$y_i - w^T \cdot \Phi(x_i) - b \leq  \epsilon + \hat{\xi_i} $ \\
-\end{center}
-where $\Phi(.)$ is the transformation to a kernel space and C is a regularization parameter which controls the strength of the penalty. C acts as an inverse regularization parameter since when it is large, more emphasis is placed on the error and when the opposite is true, more emphasis is placed on the norm of the weights. The values of $\xi$ and $\hat{\xi}$ follow a similar pattern as Equation \ref{eqn:10} where their values are zero if $y_i$ is inside the tube, otherwise $\xi$ is the positive difference between $y_i$ and $\epsilon$ and $\hat{\xi}$ will be nonzero if $y_i$ is below the tube. 
+% \begin{equation}\label{eqn:11}
+%     \min_{w, \xi, \hat{\xi} \in \mathbb{R}}{\frac{\parallel{w}\parallel^2}{2} + C\sum_{i=1}^n (\xi_i + \hat{\xi_i})}
+% \end{equation}
+% \begin{center}
+% subject to $\xi, \hat{\xi} \geq 0$, i=1,...,n \\ 
+% $w^T \cdot \Phi(x_i) + b - y_i \leq \epsilon + \xi_i$\\ 
+% $y_i - w^T \cdot \Phi(x_i) - b \leq  \epsilon + \hat{\xi_i} $ \\
+% \end{center}
+% where $\Phi(.)$ is the transformation to a kernel space and C is a regularization parameter which controls the strength of the penalty. C acts as an inverse regularization parameter since when it is large, more emphasis is placed on the error and when the opposite is true, more emphasis is placed on the norm of the weights. The values of $\xi$ and $\hat{\xi}$ follow a similar pattern as Equation \ref{eqn:10} where their values are zero if $y_i$ is inside the tube, otherwise $\xi$ is the positive difference between $y_i$ and $\epsilon$ and $\hat{\xi}$ will be nonzero if $y_i$ is below the tube. 
 
-The corresponding Langrarian ($L_2=L(w,\xi,\hat{\xi},\lambda,\hat{\lambda},\alpha,\hat{\alpha})$) of Equation \ref{eqn:11}:
+% The corresponding Langrarian ($L_2=L(w,\xi,\hat{\xi},\lambda,\hat{\lambda},\alpha,\hat{\alpha})$) of Equation \ref{eqn:11}:
 
-\begin{equation}\label{eqn:12}
-\begin{aligned}
-        L_2 = &  {\frac{\parallel{w}\parallel^2}{2} + C\sum_{i=1}^n (\xi_i + \hat{\xi_i})} - \\
-        & {\sum_{i=1}^N\hat{\alpha_i}(y_i- w^T \cdot \Phi(x_i) -b + \epsilon + \hat{\xi_i})} - \\
-        & {\sum_{i=1}^N\alpha_i(w^T \cdot \Phi(x_i) + b - y_i + \epsilon + \xi_i)} - \\
-        & \sum_{i=1}^N(\lambda_i\xi_i+ \hat{\lambda_i}\hat{\xi_i})
-\end{aligned}
-\end{equation}
-where $\lambda,\hat{\lambda},\alpha,\hat{\alpha}$ are the Lagrange multipliers and are all non-negative real numbers. The minimum of Equation \ref{eqn:12} can be found by differentiating with respect to the parameters ($w, b, \xi$) which results in the equivalent maximization of the following dual objective function:
+% \begin{equation}\label{eqn:12}
+% \begin{aligned}
+%         L_2 = &  {\frac{\parallel{w}\parallel^2}{2} + C\sum_{i=1}^n (\xi_i + \hat{\xi_i})} - \\
+%         & {\sum_{i=1}^N\hat{\alpha_i}(y_i- w^T \cdot \Phi(x_i) -b + \epsilon + \hat{\xi_i})} - \\
+%         & {\sum_{i=1}^N\alpha_i(w^T \cdot \Phi(x_i) + b - y_i + \epsilon + \xi_i)} - \\
+%         & \sum_{i=1}^N(\lambda_i\xi_i+ \hat{\lambda_i}\hat{\xi_i})
+% \end{aligned}
+% \end{equation}
+% where $\lambda,\hat{\lambda},\alpha,\hat{\alpha}$ are the Lagrange multipliers and are all non-negative real numbers. The minimum of Equation \ref{eqn:12} can be found by differentiating with respect to the parameters ($w, b, \xi$) which results in the equivalent maximization of the following dual objective function:
 
-\begin{equation}
-\begin{aligned}
-    \max_{\alpha,\hat{\alpha}}{y^T (\hat{\alpha} -\alpha) - \epsilon e^T(\hat{\alpha} +\alpha)  - \frac{1}{2}{(\alpha+\hat{\alpha})^TQ(\alpha-\hat{\alpha})}}
-\end{aligned}
-\end{equation}
-\begin{center}
-    subject to $e^T(\alpha-\hat{\alpha})=0$, $0 \leq \alpha_i,\hat{\alpha_i} \leq C, i=1,...,n$
-\end{center}
-where $e$ is a vector of all ones and $Q$ is the kernel matrix ($Q_{ij}=k(x_i,x_j) = (\Phi(x_i)^T \cdot \Phi(x_i))$. Assuming we have a new input $x_p$ we can use the following function to get its prediction value $y_p$:
+% \begin{equation}
+% \begin{aligned}
+%     \max_{\alpha,\hat{\alpha}}{y^T (\hat{\alpha} -\alpha) - \epsilon e^T(\hat{\alpha} +\alpha)  - \frac{1}{2}{(\alpha+\hat{\alpha})^TQ(\alpha-\hat{\alpha})}}
+% \end{aligned}
+% \end{equation}
+% \begin{center}
+%     subject to $e^T(\alpha-\hat{\alpha})=0$, $0 \leq \alpha_i,\hat{\alpha_i} \leq C, i=1,...,n$
+% \end{center}
+% where $e$ is a vector of all ones and $Q$ is the kernel matrix ($Q_{ij}=k(x_i,x_j) = (\Phi(x_i)^T \cdot \Phi(x_i))$. Assuming we have a new input $x_p$ we can use the following function to get its prediction value $y_p$:
 
-\begin{equation}
-    y_p = \sum_{i=1}^{N_{SV}}(\alpha_i-\hat{\alpha})k(x_i,x_p) + b
-\end{equation}
-where $N_{SV}$ denotes the number of support vectors and $k(x_i,$ $x_p)$ the kernel. In our experiments, we've set the SVR kernel to either be a linear or an RBF kernel (Equations \ref{eqn:linear} and \ref{eqn:rbf} respectively).
+% \begin{equation}
+%     y_p = \sum_{i=1}^{N_{SV}}(\alpha_i-\hat{\alpha})k(x_i,x_p) + b
+% \end{equation}
+% where $N_{SV}$ denotes the number of support vectors and $k(x_i,$ $x_p)$ the kernel. In our experiments, we've set the SVR kernel to either be a linear or an RBF kernel (Equations \ref{eqn:linear} and \ref{eqn:rbf} respectively).
 
 \section{Related Work}
 
@@ -235,22 +236,18 @@ In conclusion, reusing models results in significant reduction in compute usage 
 
 % \end{lstlisting}
 
-\section{The Similar Pairs Algorithms}
-
-In our experiments we've utilised two methods to determine pair similarity, one based on MMD and the other on OCSVM. In both cases we need to examine every pair combination and determine which of those pairs are similar based on a threshold. 
-
 % NOTE: line ends are denoted by \; in algorithm2e
 
-\SetInd{0.1em}{0.75em}
-\SetNlSkip{0.5em}
+\SetInd{0.1em}{0.5em}
+\SetNlSkip{0.3em}
 
 \begin{algorithm}
     \DontPrintSemicolon
     \caption{Calculates the average similarity MMD (ASMMD) between the given nodes.
     }\label{alg:asmmd}
     
-    \KwData{$\boldsymbol{samples}$: dictionary associating each node (pi2-pi5) with a sample used for the MMD calculation, $\boldsymbol{similar\_nodes}$: nodes which we have visually identified as similar to each other, $\boldsymbol{other\_nodes}$: the rest of the nodes, $\boldsymbol{kernel}, \boldsymbol{bandwidth}$: the kernel type and scalar value to be used for the MMD calculation.}
-    \KwResult{ASMMD}
+    \KwData{$\boldsymbol{kernel}, \boldsymbol{bandwidth}$: the kernel type and scalar value to be used for the MMD calculation, $\boldsymbol{samples}$: dictionary associating each node with a sample, $\boldsymbol{similar\_nodes}$: nodes identified as similar to each other, $\boldsymbol{other\_nodes}$: the rest of the nodes.}
+    \KwResult{$\boldsymbol{ASMMD}$}
 
     \Begin{ 
         \tcp{Calculating the baseline ASMMD}
@@ -262,24 +259,24 @@ In our experiments we've utilised two methods to determine pair similarity, one 
             $mmd \longleftarrow MMD(sx, sy, kernel, bandwidth)$ \;
             $similar\_mmds.append(mmd)$ \;
         }
-        \tcp{Compare whether any of the other\_nodes are similar to any of the similar\_nodes using the baseline ASMMD}
+        \tcp{Compare which of the the other\_nodes are similar to the similar\_nodes using the current ASMMD in each iteration}
         \For{$x$ \KwTo $other\_nodes$}{
             $sx \longleftarrow samples[x]$ \;
             \For{$y$ \KwTo $similar\_nodes$}{
                 $sy \longleftarrow samples[y]$ \;
                 $mmd \longleftarrow MMD(sx, sy, kernel, bandwidth)$ \;
-                $current\_asmmd \longleftarrow \boldsymbol{mean}(similar\_mmds)$ \;
-                \If{$mmd < (current\_asmmd + 1) * 0.05$}{
+                $asmmd \longleftarrow \boldsymbol{mean}(similar\_mmds)$ \;
+                \If{$mmd < (asmmd + 1) * 0.05$}{
                     $similar\_mmds.append(mmd)$}
             }
         }
-        \tcp{Compare whether any of the other\_nodes are similar to each other using the current ASMMD}
+        \tcp{Which the other\_nodes are similar to each other}
         \If{$\boldsymbol{len}(other\_nodes>1)$}{
             \For{$x, y$ \KwTo $get\_pair\_combos(other\_nodes)$}{
                 $sx \longleftarrow samples[x]$, $sy \longleftarrow samples[y]$ \;
                 $mmd \longleftarrow MMD(sx, sy, kernel, bandwidth)$ \;
-                $current\_asmmd \longleftarrow \boldsymbol{mean}(similar\_mmds)$ \;
-                \If{$mmd < (current\_asmmd + 1) * 0.05$}{
+                $asmmd \longleftarrow \boldsymbol{mean}(similar\_mmds)$ \;
+                \If{$mmd < (asmmd + 1) * 0.05$}{
                     $similar\_mmds.append(mmd)$}
             }
         }
@@ -287,21 +284,29 @@ In our experiments we've utilised two methods to determine pair similarity, one 
     }
 \end{algorithm}
 
-For the MMD method this threshold is called the average similarity MMD (ASMMD), a value calculated using Algorithm \ref{alg:asmmd}. Algorithm \ref{alg:asmmd} requires that we categorise nodes into two sets, one where all nodes are similar to each other and the rest of them. We calculate a baseline ASMMD by calculating the MMD of all pair combinations of the similar nodes. Then, we use ASMMD (allowing for a 5\% variation) to judge whether the rest of the nodes are similar to each other or to the similar nodes. If they are we calculate the new ASMMD and we use this to judge the next pair. Using the result of this process we can then judge which pairs are similar for a given experiment as demonstrated in Algorithm  \ref{alg:mmd_pairs}. 
+\section{The Framework}\label{chap:framework}
+
+In this section we elaborate and provide a detailed implementation of the framework. Our online model reuse framework needs to be able to determine two things given a pair of nodes. First and foremost, the pairs of nodes which have similar datasets and then the direction of reusability. 
+
+
+
+The first objective is achieved using MMD, which measures the difference domains and hence theoretically when the MMD value is zero this means the two datasets are drawn from the same distribution. However, as discussed in section \ref{chap2:MMD} in practise we utilise an estimation of MMD squared. As a consequence, the value is not actually zero and we need to define a threshold below which a pair would be considered similar. We've dubbed the threshold to be the average similarity MMD (ASMMD), a value calculated using Algorithm \ref{alg:asmmd}. 
+
+Algorithm \ref{alg:asmmd} requires that we categorise nodes into two sets, one where all nodes are similar to each other and the rest of them. Categorising nodes in these categories differs when using a regression and classification dataset. We discuss this further in section \ref{chap:asmmd_parameters}. Once we've identified these two sets, we calculate a baseline ASMMD by calculating the MMD of all pair combinations of the similar nodes. Then, we use ASMMD (allowing for a 5\% variation) to judge whether the rest of the nodes are similar to each other or to the similar nodes. If they are we calculate the new ASMMD and we use this to judge the next pair. Using the result of this process we can then judge which pairs are similar for a given experiment as demonstrated in Algorithm  \ref{alg:similar_pairs}. It is worth highlighting that for the MMD implementation to work and by extension all of the algorithms that utilize it (Algorithms \ref{alg:asmmd} \& \ref{alg:similar_pairs}), the samples of each node need to be of equal size.
 
 \begin{algorithm}
     \DontPrintSemicolon
-    \caption{Finds the MMD based similar pairs
-    }\label{alg:mmd_pairs}
+    \caption{Finds the similar pairs of the dataset using MMD
+    }\label{alg:similar_pairs}
     
-    \KwData{$\boldsymbol{samples}$: dictionary associating each node (pi2-pi5) with a sample, $\boldsymbol{asmmd}$: average similarity (ASMMD) calculated using Algorithm \ref{alg:asmmd}, $\boldsymbol{kernel}, \boldsymbol{bandwidth}$: the kernel type and scalar value to be used for the MMD calculation.}
+    \KwData{$\boldsymbol{samples}$: dictionary associating each node with a sample, $\boldsymbol{asmmd}$: average similarity (ASMMD) calculated using Algorithm \ref{alg:asmmd}, $\boldsymbol{kernel}, \boldsymbol{bandwidth}$: the kernel type and scalar value to be used for the MMD calculation.}
     \KwResult{$similar\_pairs, pair\_mmds$}
     
     \Begin{
         $similar\_pairs \longleftarrow []$ \;
         % $similar\_nodes \longleftarrow []$ \;
         $pair\_mmds \longleftarrow []$\;
-        $nodes \longleftarrow ["pi2", "pi3", "pi4", "pi5"]$ \; 
+        $nodes \longleftarrow samples.keys()$ \; 
         \SetAlgoLined
         \SetKw{KwTo}{in}
         \For{x, y \KwTo $get\_pair\_combos(nodes)$}{
@@ -315,99 +320,162 @@ For the MMD method this threshold is called the average similarity MMD (ASMMD), 
                 %     $similar\_nodes.append(y)$
                 % }
                 $similar\_pairs.append((x,y))$ \;
-                $pair\_mmds.append((mmd,mmd))$ \;
+                $pair\_mmds.append(mmd )$ \;
             }
         }
     }
 \end{algorithm}
 
-In the OCSVM method on the other hand this threshold is set by the user. Assuming we have two nodes $x$ and $y$, the threshold represents the minimum probability that the OCSVM model of node $x$, can correctly predict that the points of node $y$ are inliers and vice versa. In Algorithm \ref{alg:ocsvm_pairs} we calculate the probabilities in both directions and if at least one of them is higher than the threshold we deem that the pair of nodes is similar. 
+Once we identify the similar pairs in the network we can then calculate the OCSVM scores of each node in each pair and hence determine the direction of reusability per pair. The OCSVM score is essentially the probability of detecting the inliers of the node by using the other node's model.  Therefore, given two nodes $x$ and $y$, and their corresponding OCSVM models, we use each OCSVM model to predict the other node's inliers and then we calculate the number of points that were identified as inliers and divide by the number points in the dataset, hence the probability. The reason we divide by the number of points in the dataset is because we expect to do some form of filtering prior and remove the outliers if they exist, hence all the points in the dataset are inliers. We calculate the OCSVM score for both directions and whichever is higher is the node for which we should train the model for. Algorithm \ref{alg:ocsvm_scores} calculates of the OCSVM scores of each node per pair.
 
 \begin{algorithm}
     \DontPrintSemicolon
-    \caption{Finds the OCSVM based similar pairs
-    }\label{alg:ocsvm_pairs}
+    \caption{Calculates the OCSVM score of each node per pair
+    }\label{alg:ocsvm_scores}
     
-    \KwData{$\boldsymbol{samples}$: dictionary associating each node (pi2-pi5) with a sample, $\boldsymbol{models}$: dictionary associating each node with its OCSVM node model, $\boldsymbol{threshold}$: the minimum probability value for nodes to be considered similar}
-    \KwResult{$similar\_pairs, pair\_prob$}
+    \KwData{$\boldsymbol{samples}$: dictionary associating each node with a sample, $\boldsymbol{models}$: dictionary associating each node with its OCSVM node model, $\boldsymbol{similar\_pairs}$: the MMD identified  similar pairs}
+    \KwResult{$pair\_prob$}
     
     \Begin{
-        $similar\_pairs \longleftarrow []$ \;
-        % $similar\_nodes \longleftarrow []$ \;
         $pair\_prob \longleftarrow []$\;
-        $nodes \longleftarrow ["pi2", "pi3", "pi4", "pi5"]$ \;  \SetAlgoLined
         \SetKw{KwTo}{in}
-        \For{x, y \KwTo $get\_pair\_combos(nodes)$}{
+        \SetAlgoLined
+        \For{x, y \KwTo $similar\_pairs$}{
             $sx \longleftarrow samples[x]$, $sy \longleftarrow samples[y]$ \;
+            
             $pred\_y\_inliers \longleftarrow get\_inliers(models[x], sy)$, 
             $pred\_x\_inliers \longleftarrow get\_inliers(models[y], sx)$  \;
+            
             $x\_y\_overlap \longleftarrow \boldsymbol{len}(pred\_y\_inliers)/\boldsymbol{len}(sy)$,
             $y\_x\_overlap \longleftarrow \boldsymbol{len}(pred\_x\_inliers)/\boldsymbol{len}(sx)$ \;
-            \If{$\boldsymbol{max}$(x\_y\_overlap, y\_x\_overlap) > threshold}{
-                % \If{x $\boldsymbol{not\ in}$ similar\_nodes}{
-                %     $similar\_nodes.append(x)$
-                % }
-                % \If{y $\boldsymbol{not\ in}$ similar\_nodes}{
-                %     $similar\_nodes.append(y)$
-                % }
-                $similar\_pairs.append((x,y))$ \;
-                $pair\_prob.append((x\_y\_overlap,y\_x\_overlap))$ \;
-            }
+   
+            $pair\_prob.append((x\_y\_overlap,y\_x\_overlap))$ \;
+            
         }
     }
 \end{algorithm}
 
-The idea behind the OCSVM-based method is that if the OCSVM model of node $x$ yields a high probability of correctly predicting inliers for node $y$, then potentially the model of node $x$ can be reused as a model for node $y$. Therefore, since we can have separate values per direction (forward (x,y), backward (y,x)) determining the degree of similarity between the two nodes we can also determine the direction of reusability. This an advantage of the OCSVM method compared to the MMD one as it can not only point towards the pairs that are similar but it can also determine which node model to reuse. 
+\section{Experimental Setup}
 
+\subsection{Training Data}\label{chap:training_data}
 
+We've evaluated our framework for both regression and classification. 
 
-% \subsection{User Interface}
+For regression, we've used the \textbf{\textit{GNFUV Unmanned Surface Vehicles Sensor Data Set}} \cite{GNFUV} which includes data from three experiments. In each experiment there are four sets of mobile sensor readings data recorded by the Raspberry Pi's corresponding to four Unmanned Surface Vehicles (USVs). Each node (USV) dataset contains the humidity and temperature recorded when they were floating over the sea surface in a GPS pre-defined trajectory in a coastal area of Athens (Greece). The data description can be found in Table \ref{tab:gnfuv}. 
 
-% Blah blah blah
-% Blah blah blah
-% Blah blah blah
-% Blah blah blah
+For classification we've used the \textbf{\textit{UCI Bank Marketing Dataset}} (BM) \cite{BMDataset} which consists of four files of which we've used the bank-additional-full.csv one which contains 41188 records and 20 attributes. The data was collected by a banking institution through phone calls as part of a direct marketing campaign. The dataset is a binary classification dataset of classes "yes" or "no", to subscribe to the product (bank term deposit). To get a yes from a client often more than one contact was required hence class imbalance is present. More specifically there are 4640 yes instances and 36548 no instances. 
 
-% % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% \subsection{Foo}
+As mentioned above the dataset has 20 attributes hence we've applied Principal Component Analysis (PCA) to reduce the number of dimensions. We've transformed data through PCA and kept 3 of the 20 dimensions and then subsequently used these data to execute the hypothesis testing. In comparison to the GNFUV dataset the BM dataset has no inherent network-node like structure and hence it was constructed by us. We trained a K-means classifier with an equal number of yes and no instances (9280 total) to split data into four clusters. This was done to avoid class imbalance from influencing the clustering algorithm. However, we wanted to have more available samples to split into more nodes so instead of clustering equal amounts of instances per class, we used three times the number of yes instances for no instances (4640 (yes) 13920 (no)). We left cluster 3 shown in Figure \ref{fig-BMcl}, which was large enough and has a good class balance, untouched and merged the other three clusters together to create a larger cluster. From these clusters we then created 5 nodes in total and the node data description can be found in Table \ref{tab:BMnodes}. 
 
-% Blah blah blah
-% Blah blah blah
-% Blah blah blah
+It is worth mentioning we've used two data configurations per dataset. For the GNFUV dataset the two configurations were the original data and a standardised version of them. While for the BM Dataset we used the node data created from the process above as well as a balanced version of them, by under sampling the majority class (no) to have an equal number of instances as the minority class (yes). In each case this was done to explore the effect of the data configuration change on the effectiveness of the framework. 
 
-% \subsubsection{Bar}
-% \textsf{Blah} \textit{blah} \textbf{blah}
-
-\section{Evaluation}
-
-\subsection{Training Data}
-
-For the purposes of our model we've experimented with the \textbf{\textit{GNFUV Unmanned Surface Vehicles Sensor Data Set}} \cite{Dataset} which includes data from three experiments. In each experiment there are four sets of mobile sensor readings data recorded by the Raspberry Pi's corresponding to four Unmanned Surface Vehicles (USVs). Each node (USV) dataset contains the humidity and temperature recorded when they were floating over the sea surface in a GPS pre-defined trajectory in a coastal area of Athens (Greece). The data description can be found in Table \ref{tab:Data Description}.
+Lastly, we've drawn 100 unique samples per network, in each of which the node data have an equal number of examples in order to comply with the MMD implementation constraint discussed in section \ref{chap:framework}. The sample size of each node dataset is determined by the minimum sample size (MSS) of the network i.e. the node with the minimum number of entries. If the two thirds of the MSS is more than 500 instances the sample size is the two-thirds of the MSS, otherwise it is 500, unless the MSS is less than that in which case the sample size is equal to the it. Even though for some nodes we're not really creating a sample but simply taking all or most the points of the node, the remainder of the nodes will be samples and therefore we're testing a different relationship between nodes with each sample and hence we do not compromise the validity of our experiment.
 
 \begin{table*}[]
 \centering
-\begin{tabular}{|cccccccccc|}
+\begin{tabular}{|ccc|cccc|}
 \hline
-\multicolumn{10}{|c|}{\textbf{Experiment 1}}                                                                                                                                   \\ \hline
-\multicolumn{1}{|c|}{\textbf{Node}} & \multicolumn{1}{c|}{\textbf{No. of Entries}} & \multicolumn{4}{c|}{\textbf{Humidity}}        & \multicolumn{4}{c|}{\textbf{Temperature}} \\ \hline
-\multicolumn{1}{|c|}{\textbf{}}     & \multicolumn{1}{c|}{\textbf{}}               & Min & Max & Avg   & \multicolumn{1}{c|}{Std}  & Min     & Max     & Avg       & Std       \\
-\multicolumn{1}{|c|}{pi2}           & \multicolumn{1}{c|}{1532}                    & 3   & 45  & 35.85 & \multicolumn{1}{c|}{6.57} & 15      & 57      & 27.6      & 11.08     \\
-\multicolumn{1}{|c|}{pi3}           & \multicolumn{1}{c|}{899}                     & 19  & 33  & 28.53 & \multicolumn{1}{c|}{4.39} & 34      & 59      & 43.04     & 6.17      \\
-\multicolumn{1}{|c|}{pi4}           & \multicolumn{1}{c|}{1766}                    & 18  & 45  & 35.47 & \multicolumn{1}{c|}{6.55} & 0       & 64      & 28.2      & 11.71     \\
-\multicolumn{1}{|c|}{pi5}           & \multicolumn{1}{c|}{2078}                    & 18  & 37  & 27.51 & \multicolumn{1}{c|}{5.1}  & 20      & 63      & 39.78     & 6.9       \\ \hline
-\multicolumn{10}{|c|}{\textbf{Experiment 2}}                                                                                                                                   \\ \hline
-\multicolumn{1}{|c|}{pi2}           & \multicolumn{1}{c|}{580}                     & 26  & 56  & 48.48 & \multicolumn{1}{c|}{6.6}  & 21      & 49      & 28.42     & 3.86      \\
-\multicolumn{1}{|c|}{pi3}           & \multicolumn{1}{c|}{807}                     & 27  & 49  & 41.73 & \multicolumn{1}{c|}{4.14} & 17      & 46      & 23.41     & 5.66      \\
-\multicolumn{1}{|c|}{pi4}           & \multicolumn{1}{c|}{1021}                    & 30  & 59  & 50.56 & \multicolumn{1}{c|}{6.4}  & 16      & 36      & 22.76     & 2.76      \\
-\multicolumn{1}{|c|}{pi5}           & \multicolumn{1}{c|}{1407}                    & 30  & 48  & 40.13 & \multicolumn{1}{c|}{2.73} & 20      & 49      & 28.05     & 3.36      \\ \hline
-\multicolumn{10}{|c|}{\textbf{Experiment 3}}                                                                                                                                   \\ \hline
-\multicolumn{1}{|c|}{pi2}           & \multicolumn{1}{c|}{342}                     & 33  & 42  & 38.39 & \multicolumn{1}{c|}{2.39} & 17      & 31      & 23.44     & 4.09      \\
-\multicolumn{1}{|c|}{pi3}           & \multicolumn{1}{c|}{264}                     & 27  & 33  & 31.95 & \multicolumn{1}{c|}{0.77} & 34      & 43      & 38.63     & 1.26      \\
-\multicolumn{1}{|c|}{pi4}           & \multicolumn{1}{c|}{488}                     & 20  & 39  & 31.24 & \multicolumn{1}{c|}{5.31} & 23      & 59      & 38.28     & 10.56     \\
-\multicolumn{1}{|c|}{pi5}           & \multicolumn{1}{c|}{555}                     & 21  & 37  & 25.23 & \multicolumn{1}{c|}{3.91} & 20      & 47      & 38.13     & 4.65      \\ \hline
+\multicolumn{1}{|c|}{\textbf{Dataset}}                & \multicolumn{1}{c|}{\textbf{Experiment}} & \textbf{Data Configuration} & \multicolumn{4}{c|}{\textbf{ASMMD Algorithm Parameters}}                                                                                              \\ \hline
+\multicolumn{1}{|l}{}                                 & \textbf{}                                & \textbf{}          & \multicolumn{1}{c|}{\textbf{similar\_nodes}} & \multicolumn{1}{c|}{\textbf{other\_nodes}} & \multicolumn{1}{c|}{\textbf{kernel}} & \textbf{bandwidth} \\ \hline
+\multicolumn{1}{|c|}{\multirow{6}{*}{\textbf{GNFUV}}} & \multicolumn{1}{c|}{\multirow{2}{*}{1}}  & standardised       & \multicolumn{1}{c|}{pi2, pi3, pi4}           & \multicolumn{1}{c|}{pi5}                   & \multicolumn{1}{c|}{rbf}             & 0.5                \\
+\multicolumn{1}{|c|}{}                                & \multicolumn{1}{c|}{}                    & original           & \multicolumn{1}{c|}{pi2, pi4}                & \multicolumn{1}{c|}{pi3, pi5}              & \multicolumn{1}{c|}{rbf}             & 10                 \\ \cline{2-7} 
+\multicolumn{1}{|c|}{}                                & \multicolumn{1}{c|}{\multirow{2}{*}{2}}  & standardised       & \multicolumn{1}{c|}{pi2, pi3, pi5}           & \multicolumn{1}{c|}{pi4}                   & \multicolumn{1}{c|}{rbf}             & 1                  \\
+\multicolumn{1}{|c|}{}                                & \multicolumn{1}{c|}{}                    & original           & \multicolumn{1}{c|}{pi3, pi5}                & \multicolumn{1}{c|}{pi2, pi4}              & \multicolumn{1}{c|}{rbf}             & 100                \\ \cline{2-7} 
+\multicolumn{1}{|c|}{}                                & \multicolumn{1}{c|}{\multirow{2}{*}{3}}  & standardised       & \multicolumn{1}{c|}{pi2, pi4}                & \multicolumn{1}{c|}{pi3, pi5}              & \multicolumn{1}{c|}{rbf}             & 1                  \\
+\multicolumn{1}{|c|}{}                                & \multicolumn{1}{c|}{}                    & original           & \multicolumn{1}{c|}{pi2, pi4}                & \multicolumn{1}{c|}{pi3, pi5}              & \multicolumn{1}{c|}{rbf}             & 5                  \\ \hline
+\multicolumn{1}{|c|}{\multirow{2}{*}{\textbf{BM}}}    & \multicolumn{1}{c|}{}                    & balanced           & \multicolumn{1}{c|}{pi1, pi2, pi3}           & \multicolumn{1}{c|}{pi4, pi5}              & \multicolumn{1}{c|}{linear}          & 0.001              \\
+\multicolumn{1}{|c|}{}                                & \multicolumn{1}{c|}{}                    & unbalanced         & \multicolumn{1}{c|}{pi4, pi5}                & \multicolumn{1}{c|}{pi1, pi2, pi3}         & \multicolumn{1}{c|}{linear}          & 0.001              \\ \hline
 \end{tabular}
-\caption{\label{tab:Data Description}Dataset Description}
+\caption{\label{tab:asmmd_parameters} ASMMD Algorithm Parameters per Dataset}
 \end{table*}
+
+\subsection{ASMMD Algorithm Parameters}\label{chap:asmmd_parameters}
+
+As discussed in Section \ref{chap:framework}, the ASMMD Algorithm  takes four arguments, the sample of each node, the kernel, bandwidth, the similar and other nodes. In this section we discuss how we set and what the kernel, bandwidth and similar and other nodes are per dataset (and experiment in the case of the GNFUV dataset). 
+
+The approach to identifying the similar and other nodes for each dataset differed due to the nature of each dataset. Since the GNFUV is a regression dataset of only two dimensions, we plotted the points of each experiment and visually identified the pairs which we deemed as similar per experiment. Then we used Algorithms \ref{alg:asmmd} (ASMMD Algorithm) \& \ref{alg:similar_pairs} to confirm our inferences and if our initial groupings were off, we adjusted the similar and other nodes sets. As discussed in the previous section (\ref{chap:training_data}), the nodes were created out of two clusters, in each of which the nodes are similar to each other. Therefore, the similar nodes are either the nodes of the newly merged cluster or cluster 3. Similarly, we tested both possible similar nodes sets for each data configuration (balanced and unbalanced) to determine which one was best. 
+
+Once we had an initial idea of the similar and other nodes sets, we could then use them to determine the kernel and bandwidth. As discussed above, we've used the ASMMD Algorithm to refine our similar and other nodes sets. However, we cannot determine these sets in isolation and we need to consider them in conjunction with the bandwidth and kernel and what similar pairs they produce. The two kernels we considered were the radial basis function (rbf) and linear kernel. We aimed to choose the parameters which would most effectively separate the similar from dissimilar pairs. The full parameter configuration of each dataset (, experiment) and data configuration is found in Table \ref{tab:asmmd_parameters}.
+
+
+
+\subsection{Classifiers of Choice}
+
+\begin{itemize}
+    \item what classifiers we use per dataset
+    \item what parameters we optimise and why
+\end{itemize}
+
+Using the humidity and temperature attributes of the dataset we have trained regression models to capture the relationship between humidity and temperature. The classifier of choice is Support Vector Regression Machine's (SVRs). SVRs are a version of SVM for regression proposed by Vapnik et al. \cite{OriginalSVR}. The adaptation is accomplished by introducing an $\epsilon$-insensitive region around the function, called the $\epsilon$-tube as shown in Figure \ref{fig-SVRex}. Similarly to other SVM methods, the hyperplane is represented in terms of support vectors, which are training samples that lie outside the boundary of the tube.  The optimization problem objective is to find the tube that best approximates the continuous-valued function, while balancing model complexity and prediction error. Therefore, the goal is to first minimise an $\epsilon$-insensitive loss function and find the flattest tube that contains most of the training instances. SVRs have a few variables of interest we want to optimise for each node model. It is worth nothing that we experiment with both the linear and rbf kernels in order to evaluate how different kernels interact with our framework. We optimise the regularization parameter and the epsilon in the epsilon-SVR model using grid search given a node's dataset.
+
+\subsection{Model Reusability Metrics}
+
+\begin{itemize}
+    \item how exactly do we measure the performance time and why
+    \item define discrepancy and explain how it relates to precision
+\end{itemize}
+
+Investigating the effectiveness of the framework, requires that we examine two aspects, the speedup we benefit from when we avoid training models for some nodes and the network, and the precision of the framework in terms of the recommendations it makes. We've defined both speedup and precision in the context of model reusability.
+
+Starting off with the latter, precision needs to be assessed across three different levels. The precision of MMD at identifying good pairs for reusability, the precision of OCSVM at identifying the correct node to reuse it's model and lastly the combined precision of the framework. In order for MMD precision to be a meaningful measure to use, it is expressed in terms of how close the performance of using a proxy model is to the true model. We then consider this ratio with regards with a threshold and if it is above that threshold it is correct. The thresholds we considered were 0.85, 0.9 and 0.95. The OCSVM precision is either calculated strictly or with a 0.05 margin, that is if the node pointed by the direction of reusability does not yield the optimal performance, but it's performance is equal or less than 0.05 from the optimal, we consider that the framework has made the right decision. Then like the MMD precision, we consider the framework made the right decision if the ratio is above a threshold it is correct. For the combined precision we utilized lower values for the threshold, namely values 0.6 and 0.8. The reason that we assess precision in this way is to be able to gauge how effective each component of the framework is in isolation but also combined. Consequently, we can provide a more holistic evaluation of the framework. 
+
+In terms of the speedup, we need to be able to quantify how much time did we save by not training some models with respect to what time we would need if we trained all of them. This requires that we first identify the nodes for which we won't train a model for. Our framework provides reusability solutions at the pair level but not at the network one. For this purpose we've defined a naive algorithm which given a set of pairs and the direction of reusability per pair it can provide us with the nodes which we do not need to train a model for, the model-less nodes. The algorithm is naive in the sense it simply aims to reduce the number of nodes for which we need to train models for. This does not necessarily translate into the "optimal solution" as it does not take into account any other variables of interest. The full solution is found under Algorithm \ref{alg:modelless_nodes}. It is worth noting that the speedup potential varies across datasets and samples. Hence, one sample may have the potential for a maximum of 40\% speedup, while another much more or less. Since we're using 100 samples per dataset it is impossible to know the exact speedup potential per sample hence we simply report it as a number. 
+
+\begin{algorithm}
+    \DontPrintSemicolon
+    \caption{Finds nodes that can use a reused model based on the results of the framework
+    }\label{alg:modelless_nodes}
+    
+    \KwData{$\boldsymbol{pair\_results}$: dictionary associating each pair with the node whose model to be reused i.e. the direction of reusability, $\boldsymbol{nodes}$: the list of nodes from the MMD identified pairs}
+    \KwResult{$\boldsymbol{mns}$: modelless nodes i.e. nodes that do not require that a model is trained for them}
+    
+    \Begin{
+    \SetKw{KwTo}{in}
+         $similar\_pairs \longleftarrow pair\_results.keys()$ \;
+         \tcp{model\_mns associates each modelless node (mn) with a list of potential replacement node models}
+         $mns \longleftarrow nodes.copy()$, $model\_mns \longleftarrow \{\}$ \;
+         \SetAlgoLined
+         \For{node \KwTo nodes}{
+            $model\_mns[node] \longleftarrow []$ \; 
+         }
+         \For{node \KwTo nodes}{
+            $node\_similar\_pairs \longleftarrow get\_node\_similar\_pairs(node, similar\_pairs)$ \;
+            \For{x, y \KwTo $node\_similar\_pairs$}{
+                $model\_node \longleftarrow pair\_results[(x,y)]$ \;
+                $mn \longleftarrow difference(model\_node, (x,y))$ \;
+                \If{model   \_node \KwTo mns}{
+                    $mns.remove(model\_node)$ \;
+                }
+                $model\_mns[mn].append(model\_node)$ \;
+                \tcp{ensures we don't encounter the pair again}
+                $similar\_pairs.pop((x,y))$\;
+            }
+         }
+         \tcp{Replacement options for an mn that can be replaced themselves are not considered}
+         \For{node \KwTo nodes}{
+           \If{model\_mns[node].count() > 1}{
+                \For{model\_node \KwTo model\_mns[node]}{
+                    \If{model\_mns[node] not empty}{
+                        $model\_mns[node].remove(model\_node)$ \;
+                        $mns.append(model\_node)$
+                    }
+                }
+           }
+         }
+            
+    }
+    
+\end{algorithm}
+
+
+
+\section{Results}
+
+Explain how in addition to the model reusability metrics we'll use some figures based on the aggregated data from all samples.
+
+\section{Discussion}
+
+
 
 % Graphs are always good. I recommend getting to grips with Matlab, R or
 % gnuplot rather than exporting horribly Excel bitmapped graphs.
@@ -436,6 +504,62 @@ This is optional; it is a location for you to thank people
 
 \bibliographystyle{acm}
 \bibliography{thesis}
+
+% \newpage
+% \usepackage{appendix}
+\clearpage
+\appendix
+\begin{table*}[]
+\centering
+\begin{tabular}{|cccccccccc|}
+\hline
+\multicolumn{10}{|c|}{\textbf{Experiment 1}}                                                                                                                                   \\ \hline
+\multicolumn{1}{|c|}{\textbf{Node}} & \multicolumn{1}{c|}{\textbf{No. of Entries}} & \multicolumn{4}{c|}{\textbf{Humidity}}        & \multicolumn{4}{c|}{\textbf{Temperature}} \\ \hline
+\multicolumn{1}{|c|}{\textbf{}}     & \multicolumn{1}{c|}{\textbf{}}               & Min & Max & Avg   & \multicolumn{1}{c|}{Std}  & Min     & Max     & Avg       & Std       \\
+\multicolumn{1}{|c|}{pi2}           & \multicolumn{1}{c|}{1532}                    & 3   & 45  & 35.85 & \multicolumn{1}{c|}{6.57} & 15      & 57      & 27.6      & 11.08     \\
+\multicolumn{1}{|c|}{pi3}           & \multicolumn{1}{c|}{899}                     & 19  & 33  & 28.53 & \multicolumn{1}{c|}{4.39} & 34      & 59      & 43.04     & 6.17      \\
+\multicolumn{1}{|c|}{pi4}           & \multicolumn{1}{c|}{1766}                    & 18  & 45  & 35.47 & \multicolumn{1}{c|}{6.55} & 0       & 64      & 28.2      & 11.71     \\
+\multicolumn{1}{|c|}{pi5}           & \multicolumn{1}{c|}{2078}                    & 18  & 37  & 27.51 & \multicolumn{1}{c|}{5.1}  & 20      & 63      & 39.78     & 6.9       \\ \hline
+\multicolumn{10}{|c|}{\textbf{Experiment 2}}                                                                                                                                   \\ \hline
+\multicolumn{1}{|c|}{pi2}           & \multicolumn{1}{c|}{580}                     & 26  & 56  & 48.48 & \multicolumn{1}{c|}{6.6}  & 21      & 49      & 28.42     & 3.86      \\
+\multicolumn{1}{|c|}{pi3}           & \multicolumn{1}{c|}{807}                     & 27  & 49  & 41.73 & \multicolumn{1}{c|}{4.14} & 17      & 46      & 23.41     & 5.66      \\
+\multicolumn{1}{|c|}{pi4}           & \multicolumn{1}{c|}{1021}                    & 30  & 59  & 50.56 & \multicolumn{1}{c|}{6.4}  & 16      & 36      & 22.76     & 2.76      \\
+\multicolumn{1}{|c|}{pi5}           & \multicolumn{1}{c|}{1407}                    & 30  & 48  & 40.13 & \multicolumn{1}{c|}{2.73} & 20      & 49      & 28.05     & 3.36      \\ \hline
+\multicolumn{10}{|c|}{\textbf{Experiment 3}}                                                                                                                                   \\ \hline
+\multicolumn{1}{|c|}{pi2}           & \multicolumn{1}{c|}{342}                     & 33  & 42  & 38.39 & \multicolumn{1}{c|}{2.39} & 17      & 31      & 23.44     & 4.09      \\
+\multicolumn{1}{|c|}{pi3}           & \multicolumn{1}{c|}{264}                     & 27  & 33  & 31.95 & \multicolumn{1}{c|}{0.77} & 34      & 43      & 38.63     & 1.26      \\
+\multicolumn{1}{|c|}{pi4}           & \multicolumn{1}{c|}{488}                     & 20  & 39  & 31.24 & \multicolumn{1}{c|}{5.31} & 23      & 59      & 38.28     & 10.56     \\
+\multicolumn{1}{|c|}{pi5}           & \multicolumn{1}{c|}{555}                     & 21  & 37  & 25.23 & \multicolumn{1}{c|}{3.91} & 20      & 47      & 38.13     & 4.65      \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv}GNFUV Dataset Description}
+\end{table*}
+
+% Please add the following required packages to your document preamble:
+\begin{table*}[]
+\centering
+\begin{tabular}{|c|c|cc|c|}
+\hline
+\textbf{\begin{tabular}[c]{@{}c@{}}Originating \\ Cluster\end{tabular}}             & \textbf{Node} & \textbf{yes} & \textbf{no} & \textbf{Total} \\ \hline
+\multirow{3}{*}{\begin{tabular}[c]{@{}c@{}}Newly \\ Merged \\ Cluster\end{tabular}} & pi1           & 696          & 3510        & 4206           \\
+                                                                                    & pi2           & 619          & 3587        & 4206           \\
+                                                                                    & pi3           & 658          & 3548        & 4206           \\ \hline
+\multirow{2}{*}{Cluster 3}                                                          & pi4           & 801          & 1224        & 2025           \\
+                                                                                    & pi5           & 765          & 1258        & 2023           \\ \hline
+\end{tabular}
+\caption{\label{tab:BMnodes}BM Dataset Node Data Description}
+\end{table*}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+
+
+\begin{figure*}
+\centering
+\begin{center}
+\includegraphics[scale=0.8]{BM Clustering.JPG}
+\end{center}
+\caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
+\end{figure*}
 
 
 \end{document}

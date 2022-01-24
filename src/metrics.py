@@ -135,7 +135,7 @@ def ocsvm_precision(data, per_model_type=False):
         print_ocsvm_precision(data, precision_fun)
 
 def print_mmd_precision(data, precision_fun):
-    for threshold in [0.85, 0.9, 0.95]:                
+    for threshold in [0.8, 0.85, 0.9]:                
         print(f"{threshold}: {precision_fun(data, threshold)}")
     print()
     

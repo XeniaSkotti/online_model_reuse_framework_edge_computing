@@ -5,32 +5,32 @@ from itertools import combinations as comb
 import numpy as np
 import pandas as pd
 
-def get_mmd_args(experiment, standardised=False):
-    if isinstance(experiment, bool):
-        mmd_args = ("linear", 0.001)
-    elif isinstance(experiment, int):
+def get_mmd_args(similar_args):
+    if isinstance(similar_args, list):
+        experiment, std = similar_args
         if experiment ==1:
-            if standardised:
+            if std:
                 mmd_args = ("rbf", 0.5)
             else:
                 mmd_args = ("rbf", 10)
         elif experiment == 2:
-            if standardised:
+            if std:
                 mmd_args = ("rbf", 1)
             else:
                 mmd_args = ("rbf", 100)
         elif experiment == 3:
-            if standardised:
+            if std:
                 mmd_args = ("rbf", 1)
             else:
                 mmd_args = ("rbf", 5)
+    else:
+        mmd_args = ("linear", 0.001)
+    
     return mmd_args
 
-def get_similar_other_nodes_sets(experiment, std=False):
-    if experiment == False:
-        similar_nodes = ["pi4", "pi5"]
-        other_nodes = ["pi1", "pi2", "pi3"]
-    if isinstance(experiment, int):
+def get_similar_other_nodes_sets(similar_args):
+    if isinstance(similar_args, list):
+        experiment, std = similar_args
         if experiment == 1:
             if std:
                 similar_nodes = ["pi2","pi3","pi4"]
@@ -48,7 +48,15 @@ def get_similar_other_nodes_sets(experiment, std=False):
         elif experiment == 3:
             similar_nodes = ["pi2", "pi4"]
             other_nodes = ["pi3", "pi5"]
-
+    else:
+        balanced = similar_args
+        if balanced:
+            similar_nodes = ["pi1", "pi2", "pi3"]
+            other_nodes = ["pi4", "pi5"]
+        else:
+            similar_nodes = ["pi4", "pi5"]
+            other_nodes = ["pi1", "pi2", "pi3"]
+        
     return similar_nodes, other_nodes
 
 def is_similar_pair(x,y, asdmmd, kernel, kernel_bandwidth):
@@ -144,16 +152,17 @@ def calculate_ocsvm_scores(node_data, similar_pairs, models):
     
     return pair_thresholds
 
-def get_similar_pairs_nodes(data, standardised=False, experiment = False):
-    if isinstance(experiment, bool):
-        raw_node_data = data.copy()
-    else:
+def get_similar_pairs_nodes(data, similar_args):
+    if isinstance(data, dict):
+        experiment = similar_args[0]
         raw_node_data = data[experiment].copy()
+    else:
+        raw_node_data = data.copy()
     node_data, models = remove_outliers(raw_node_data, return_models = True)
   
-    kernel, kernel_bandwidth =  get_mmd_args(experiment, standardised)
+    kernel, kernel_bandwidth =  get_mmd_args(similar_args)
     tensor_samples = get_tensor_samples(node_data, sample_size=min([df.shape[0] for df in node_data]))
-    similar_nodes, other_nodes = get_similar_other_nodes_sets(experiment, standardised)
+    similar_nodes, other_nodes = get_similar_other_nodes_sets(similar_args)
     asmmd = ASDMMD(tensor_samples, similar_nodes, other_nodes, kernel, kernel_bandwidth, return_tables = False)
     
     similar_pairs, similar_nodes, mmd_scores = find_similar_pairs_mmd(node_data, asmmd, kernel, kernel_bandwidth)

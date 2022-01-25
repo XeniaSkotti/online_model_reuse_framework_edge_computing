@@ -30,6 +30,8 @@ def select_model_data(node_data, similar_nodes):
 def instantiate_clf(name):
     if name == "lr":
         return LogisticRegression(max_iter = 100000)
+    elif name == "lr_balanced":
+        return LogisticRegression(max_iter = 100000, class_weight = "balanced")
     elif name == "svr":
         return SVR()
     elif name == "lsvr":
@@ -59,7 +61,7 @@ def score_clf(clf, test):
     return score
 
 def get_clf_param_grid(name):
-    if name == "lr":
+    if name == "lr" or name == "lr_balanced":
         param_grid = {"C" :  [0.01, 0.1,  1, 10],
                       "solver" : ["lbfgs","liblinear", "saga", "sag"],
                      }
@@ -81,7 +83,7 @@ def grid_search_models(clf_name, model_data, selected_nodes):
     
     for node in selected_nodes:
         train = model_data[node]
-        
+      
         baseline_model = instantiate_clf(clf_name)
         start_time = time.time()
         baseline_score = fit_clf(baseline_model, train)

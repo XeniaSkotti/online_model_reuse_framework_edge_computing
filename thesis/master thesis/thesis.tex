@@ -355,33 +355,21 @@ Once we identify the similar pairs in the network we can then calculate the OCSV
     }
 \end{algorithm}
 
-\section{Experimental Setup}
+\section{Experimental Evaluation}
 
-\subsection{Training Data}\label{chap:training_data}
+\subsection{Experimental Setup}
+
+\subsubsection{Datasets}\label{chap:training_data}
 
 We've evaluated our framework for both regression and classification. 
 
-% \begin{figure}
-% \centering
-%     \begin{subfigure}
-%       \includegraphics[width=1\linewidth]{experiment_1_pairplot.png}
-%     \end{subfigure}
-%     \begin{subfigure}
-%       \includegraphics[width=1\linewidth]{experiment_2_pairplot.png}
-%     \end{subfigure}   
-%     \begin{subfigure}
-%       \includegraphics[width=1\linewidth]{experiment_3_pairplot.png}
-%     \end{subfigure}
-%     \caption{\label{fig:gnfuv_pairplots} The relationship between humidity and temperature per experiment alongside their distribution plots}
-% \end{figure}
-
-For regression, we've used the \textbf{\textit{GNFUV Unmanned Surface Vehicles Sensor Data Set}} \cite{GNFUV} which includes data from three experiments. In each experiment there are four sets of mobile sensor readings data recorded by the Raspberry Pi's corresponding to four Unmanned Surface Vehicles (USVs). Each node (USV) dataset contains the humidity and temperature recorded when they were floating over the sea surface in a GPS pre-defined trajectory in a coastal area of Athens (Greece). The data description can be found in Table \ref{tab:gnfuv}. 
+For regression, we've used the \textbf{\textit{GNFUV Unmanned Surface Vehicles Sensor Data Set}} \cite{GNFUV} which includes data from three experiments. In each experiment there are four sets of mobile sensor readings data recorded by the Raspberry Pi's corresponding to four Unmanned Surface Vehicles (USVs). Each node (USV) dataset contains the humidity and temperature recorded when they were floating over the sea surface in a GPS pre-defined trajectory in a coastal area of Athens (Greece). The data description and visualisation can be found in Table \ref{tab:gnfuv} and Figure \ref{fig:gnfuv_pairplots} respectively. 
 
 For classification we've used the \textbf{\textit{UCI Bank Marketing Dataset}} (BM) \cite{BMDataset} which consists of four files of which we've used the bank-additional-full.csv one which contains 41188 records and 20 attributes. The data was collected by a banking institution through phone calls as part of a direct marketing campaign. The dataset is a binary classification dataset of classes "yes" or "no", to subscribe to the product (bank term deposit). To get a yes from a client often more than one contact was required hence class imbalance is present. More specifically there are 4640 yes instances and 36548 no instances. 
 
 As mentioned above the dataset has 20 attributes hence we've applied Principal Component Analysis (PCA) to reduce the number of dimensions. We've transformed data through PCA and kept 3 of the 20 dimensions and then subsequently used these data to execute the hypothesis testing. In comparison to the GNFUV dataset the BM dataset has no inherent network-node like structure and hence it was constructed by us. We trained a K-means classifier with an equal number of yes and no instances (9280 total) to split data into four clusters. This was done to avoid class imbalance from influencing the clustering algorithm. However, we wanted to have more available samples to split into more nodes so instead of clustering equal amounts of instances per class, we used three times the number of yes instances for no instances (4640 (yes) 13920 (no)). We left cluster 3 shown in Figure \ref{fig-BMcl}, which was large enough and has a good class balance, untouched and merged the other three clusters together to create a larger cluster. From these clusters we then created 5 nodes in total and the node data description can be found in Table \ref{tab:BMnodes}. 
 
-It is worth mentioning we've used two data configurations per dataset. For the GNFUV dataset the two configurations were the original data and a standardised version of them. While for the BM Dataset we used the node data created from the process above as well as a balanced version of them, by under sampling the majority class (no) to have an equal number of instances as the minority class (yes). In each case this was done to explore the effect of the data configuration change on the effectiveness of the framework. 
+It is worth mentioning we've used two data configurations per dataset. For the GNFUV dataset the two configurations were the original data and a standardised version of them (see Figure \ref{fig:gnfuv_pairplots_std} for the data visualisation). While for the BM Dataset we used the node data created from the process above as well as a balanced version of them, by under sampling the majority class (no) to have an equal number of instances as the minority class (yes). In each case this was done to explore the effect of the data configuration change on the effectiveness of the framework. 
 
 Lastly, we've drawn 100 unique samples per network, in each of which the node data have an equal number of examples in order to comply with the MMD implementation constraint discussed in section \ref{chap:framework}. The sample size of each node dataset is determined by the minimum sample size (MSS) of the network i.e. the node with the minimum number of entries. If the two thirds of the MSS is more than 500 instances the sample size is the two-thirds of the MSS, otherwise it is 500, unless the MSS is less than that in which case the sample size is equal to the it. Even though for some nodes we're not really creating a sample but simply taking all or most the points of the node, the remainder of the nodes will be samples and therefore we're testing a different relationship between nodes with each sample and hence we do not compromise the validity of our experiment.
 
@@ -398,7 +386,7 @@ Lastly, we've drawn 100 unique samples per network, in each of which the node da
 \begin{center}
 \includegraphics[scale=0.65]{gnfuv_pairplots_std.JPG}
 \end{center}
-\caption{\label{fig:gnfuv_pairplots} The relationship between humidity and temperature per experiment alongside their distribution plots for the standardised GNFUV data}
+\caption{\label{fig:gnfuv_pairplots_std} The relationship between humidity and temperature per experiment alongside their distribution plots for the standardised GNFUV data}
 \end{figure}
 
 \begin{figure}
@@ -427,7 +415,8 @@ Lastly, we've drawn 100 unique samples per network, in each of which the node da
 \caption{\label{tab:asmmd_parameters} ASMMD Algorithm Parameters per Dataset}
 \end{table*}
 
-\subsection{ASMMD Algorithm Parameters}\label{chap:asmmd_parameters}
+
+\subsubsection{ASMMD Algorithm Parameters}\label{chap:asmmd_parameters}
 
 As discussed in Section \ref{chap:framework}, the ASMMD Algorithm  takes four arguments, the sample of each node, the kernel, bandwidth, the similar and other nodes. In this section we discuss how we set and what the kernel, bandwidth and similar and other nodes are per dataset (and experiment in the case of the GNFUV dataset). 
 
@@ -435,27 +424,39 @@ The approach to identifying the similar and other nodes for each dataset differe
 
 Once we had an initial idea of the similar and other nodes sets, we could then use them to determine the kernel and bandwidth. As discussed above, we've used the ASMMD Algorithm to refine our similar and other nodes sets. However, we cannot determine these sets in isolation and we need to consider them in conjunction with the bandwidth and kernel and what similar pairs they produce. The two kernels we considered were the radial basis function (rbf) and linear kernel. We aimed to choose the parameters which would most effectively separate the similar from dissimilar pairs. The full parameter configuration of each dataset (, experiment) and data configuration is found in Table \ref{tab:asmmd_parameters}.
 
+\begin{table*}[]
+\centering
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{tabular}{|c|c|ccc|}
+\hline
+\textbf{Dataset}       & \textbf{Classifier}  & \multicolumn{3}{c|}{\textbf{Classifier Parameters}}                                                 \\ \cline{3-5} 
+                       &                      & \multicolumn{1}{c|}{\textbf{Fixed}}         & \multicolumn{2}{c|}{\textbf{Gird Search Optimised}}   \\ \hline
+\multirow{3}{*}{GNFUV} & \multirow{3}{*}{SVR} & \multicolumn{1}{c|}{\textbf{kernel}}        & \textbf{C}       & \textbf{epsilon}                   \\ \cline{3-5} 
+                       &                      & \multicolumn{1}{c|}{linear}                 & 0.01, 0.1, 1, 10 & 0.1, 0.5, 1, 2, 5                  \\
+                       &                      & \multicolumn{1}{c|}{non-linear}             & 0.01, 0.1, 1, 10 & 0.1, 0.5, 1, 2, 5                  \\ \hline
+\multirow{3}{*}{BM}    & \multirow{3}{*}{LR}  & \multicolumn{1}{c|}{\textbf{class\_weight}} & \textbf{C}       & \textbf{solver}                    \\ \cline{3-5} 
+                       &                      & \multicolumn{1}{c|}{balanced}               & 0.01, 0.1, 1, 10 & "lbfgs","liblinear", "saga", "sag" \\
+                       &                      & \multicolumn{1}{c|}{None}                   & 0.01, 0.1, 1, 10 & "lbfgs","liblinear", "saga", "sag" \\ \hline
+\end{tabular}
+\caption{\label{tab:classifier_parameters} Classifier parameter values that are fixed and optimised per dataset}
+\end{table*}
 
+\subsubsection{Classifiers}
 
-\subsection{Classifiers of Choice}
+For each problem type we chose distinct classifiers, namely Support Vector Regression (SVR) and Logistic Regression (LR) for regression and classification respectively.
 
-\begin{itemize}
-    \item what classifiers we use per dataset
-    \item what parameters we optimise and why
-\end{itemize}
+Starting off with regression, we have trained SVRs to capture the relationship between the humidity and temperature attributes of the dataset. SVRs are a version of SVM for regression proposed by Vapnik et al. \cite{OriginalSVR}. The adaptation is accomplished by introducing an $\epsilon$-insensitive region around the function, called the $\epsilon$-tube as shown in Figure \ref{fig-SVRex}. The goal is to first minimise an $\epsilon$-insensitive loss function and find the flattest tube that contains most of the training instances. Therefore, SVRs have a few variables that should be optimised for each node model. First, we experiment with both the linear and rbf kernels in order to evaluate how different kernels interact with our framework. Moreover, we optimise the regularization parameter and the epsilon in the epsilon-SVR model using grid search given a node's dataset to ensure we find the best $\epsilon$-insensitive region for the data. It is worth noting that the SVR implementaion in scikit-learn reports the performance of the classifier in terms of the coefficient of determination $R^2$. 
 
-Using the humidity and temperature attributes of the dataset we have trained regression models to capture the relationship between humidity and temperature. The classifier of choice is Support Vector Regression Machine's (SVRs). SVRs are a version of SVM for regression proposed by Vapnik et al. \cite{OriginalSVR}. The adaptation is accomplished by introducing an $\epsilon$-insensitive region around the function, called the $\epsilon$-tube as shown in Figure \ref{fig-SVRex}. Similarly to other SVM methods, the hyperplane is represented in terms of support vectors, which are training samples that lie outside the boundary of the tube.  The optimization problem objective is to find the tube that best approximates the continuous-valued function, while balancing model complexity and prediction error. Therefore, the goal is to first minimise an $\epsilon$-insensitive loss function and find the flattest tube that contains most of the training instances. SVRs have a few variables of interest we want to optimise for each node model. It is worth nothing that we experiment with both the linear and rbf kernels in order to evaluate how different kernels interact with our framework. We optimise the regularization parameter and the epsilon in the epsilon-SVR model using grid search given a node's dataset.
+Our classification dataset, has two classes yes and no and we've used LR specifically because it is usually a good baseline for binary classification. LR \cite{OriginalLR} is a statistical model that in its basic form uses a logistic function to model the conditional probability, of two classes in our case. Hence, the scikit-learn implementation of LR reports performance in terms of the mean accuracy on the test dataset. As mentioned in section \ref{chap:training_data}, the BM Dataset exhibits severe class imbalance which is why we experiment with two data configurations, one which data are balanced and another in which they are not. For the case in which the data are not balanced, we configured the class weight parameter of LR to be balanced to deal with the imbalance. The other parameter which we control for both data configurations is the regularization parameter. Lastly, the scikit learn implementation offers a variety of solver options hence we optimise it as well. Table \ref{tab:classifier_parameters} summarises all of the information discussed in the section for both classifiers. 
 
-\subsection{Model Reusability Metrics}
-
-\begin{itemize}
-    \item how exactly do we measure the performance time and why
-    \item define discrepancy and explain how it relates to precision
-\end{itemize}
+\subsubsection{Model Reusability Metrics}
 
 Investigating the effectiveness of the framework, requires that we examine two aspects, the speedup we benefit from when we avoid training models for some nodes and the network, and the precision of the framework in terms of the recommendations it makes. We've defined both speedup and precision in the context of model reusability.
 
-Starting off with the latter, precision needs to be assessed across three different levels. The precision of MMD at identifying good pairs for reusability, the precision of OCSVM at identifying the correct node to reuse it's model and lastly the combined precision of the framework. In order for MMD precision to be a meaningful measure to use, it is expressed in terms of how close the performance of using a proxy model is to the true model. We then consider this ratio with regards with a threshold and if it is above that threshold it is correct. The thresholds we considered were 0.85, 0.9 and 0.95. The OCSVM precision is either calculated strictly or with a 0.05 margin, that is if the node pointed by the direction of reusability does not yield the optimal performance, but it's performance is equal or less than 0.05 from the optimal, we consider that the framework has made the right decision. Then like the MMD precision, we consider the framework made the right decision if the ratio is above a threshold it is correct. For the combined precision we utilized lower values for the threshold, namely values 0.6 and 0.8. The reason that we assess precision in this way is to be able to gauge how effective each component of the framework is in isolation but also combined. Consequently, we can provide a more holistic evaluation of the framework. 
+Before, we continue to define precision and speedup it is important to mention first how we assess the proxy model's performance and how we measure a model's training time. We assess the proxy model on the non-native node data by subtracting the discrepancy from the model's performance score on the native dataset. We define discrepancy as the difference between the model's performance score on the native dataset and the model's performance score on the non-native dataset. Therefore, essentially we simply use the performance of the model on the non-native dataset. The model's training time is the sum of the time required to train and optimise the model. The reason that we include the optimisation time is that some form of optimisation would take place in a real world scenario.
+
+Starting off with precision, precision needs to be assessed across three different levels. The precision of MMD at identifying good pairs for reusability, the precision of OCSVM at identifying the correct node to reuse it's model and lastly the combined precision of the framework. In order for MMD precision to be a meaningful measure to use, it is expressed in terms of the ratio between the performance of using a proxy model and the true model. It is worth mentioning, that the ratio retains the same meaning across regression and classification since it measures how close the proxy model is to the true performance regardless of whether the performance is reported in terms of $R^2$ or accuracy. We then consider this ratio with regards with a threshold and if it is above that threshold it is correct. The thresholds we considered were 0.85, 0.9 and 0.95. The OCSVM precision is either calculated strictly or with a 0.05 margin, that is if the node pointed by the direction of reusability does not yield the optimal performance, but it's performance is equal or less than 0.05 from the optimal, we consider that the framework has made the right decision. Then like the MMD precision, we consider the framework made the right decision if the ratio is above a threshold it is correct. For the combined precision we utilized lower values for the threshold, namely values 0.6 and 0.8. The reason that we assess precision in this way is to be able to gauge how effective each component of the framework is in isolation but also combined. Consequently, we can provide a more holistic evaluation of the framework. 
 
 In terms of the speedup, we need to be able to quantify how much time did we save by not training some models with respect to what time we would need if we trained all of them. This requires that we first identify the nodes for which we won't train a model for. Our framework provides reusability solutions at the pair level but not at the network one. For this purpose we've defined a naive algorithm which given a set of pairs and the direction of reusability per pair it can provide us with the nodes which we do not need to train a model for, the model-less nodes. The algorithm is naive in the sense it simply aims to reduce the number of nodes for which we need to train models for. This does not necessarily translate into the "optimal solution" as it does not take into account any other variables of interest. The full solution is found under Algorithm \ref{alg:modelless_nodes}. It is worth noting that the speedup potential varies across datasets and samples. Hence, one sample may have the potential for a maximum of 40\% speedup, while another much more or less. Since we're using 100 samples per dataset it is impossible to know the exact speedup potential per sample hence we simply report it as a number. 
 
@@ -505,18 +506,9 @@ In terms of the speedup, we need to be able to quantify how much time did we sav
     
 \end{algorithm}
 
-
-
-\section{Results}
+\subsection{Performance Evaluation}
 
 Explain how in addition to the model reusability metrics we'll use some figures based on the aggregated data from all samples.
-
-\section{Discussion}
-
-
-
-% Graphs are always good. I recommend getting to grips with Matlab, R or
-% gnuplot rather than exporting horribly Excel bitmapped graphs.
 
 
 % \begin{quotation}
@@ -586,6 +578,22 @@ This is optional; it is a location for you to thank people
 \end{tabular}
 \caption{\label{tab:BMnodes}BM Dataset Node Data Description}
 \end{table*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[scale=0.5]{SVR_representation.jpg}
+\end{center}
+\caption{\label{fig-SVRex}Visual Representation of an SVR}
+\end{figure*}
+
+% \begin{figure}
+% \centering
+% \begin{center}
+% \includegraphics[scale=0.7]{BM Clustering.JPG}
+% \end{center}
+% \caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
+% \end{figure}
+
 
 % Please add the following required packages to your document preamble:
 % \usepackage{multirow}

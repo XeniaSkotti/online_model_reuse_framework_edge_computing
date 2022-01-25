@@ -43,17 +43,7 @@ def create_experiment_samples(n_samples, raw_data, standardised=False, experimen
     for sample_id in range(n_samples):
         node_data = raw_node_data.copy()
         for i in range(no_nodes):
-            node_data[i] = raw_node_data[i].sample(m).reset_index(drop=True)
-#             if "label" in node_data[i].columns:
-#                 yes = node_data[i].loc[node_data[i].label == "yes"].shape[0]
-#                 no = node_data[i].loc[node_data[i].label == "no"].shape[0]
-#                 raw_yes = raw_node_data[i].loc[raw_node_data[i].label == "yes"].shape[0]
-#                 raw_no = raw_node_data[i].loc[raw_node_data[i].label == "no"].shape[0]
-#                 percentage_of_dataset = round(m/raw_node_data[i].shape[0],2)
-#                 print(percentage_of_dataset, round(percentage_of_dataset * raw_yes,2), yes,  round(percentage_of_dataset * raw_no,2), no)
-                
-
-                
+            node_data[i] = raw_node_data[i].sample(m).reset_index(drop=True)       
         exp_samples.append(node_data)
     return exp_samples
 

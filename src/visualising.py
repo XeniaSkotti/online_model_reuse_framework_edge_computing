@@ -5,6 +5,7 @@ from node import get_node_data
 from results_helper_functions import find_similar_pairs, get_pair_df
 import pandas as pd
 import numpy as np
+import seaborn as sns
 
 kernel_colors = {"linear" : "r", "rbf" : "b"}
 balanced_colors = {True : "k", False : "c"}
@@ -122,33 +123,35 @@ def plot_r2_discrepancy(directory, df, stats):
             axs.add_artist(l2)
             pdf.savefig(fig)
             plt.show()
+            
+def pairplot_experiment(node_data):
+    if "std" in node_data[0].columns:
+        label = "pi_std"
+        alpha = ".5"
+    else:
+        label = "pi"
+        alpha = ".9"
+    df = pd.concat(node_data)[["humidity", "temperature", label]]
 
-def visualise_train_test_data(node_data):
-    plt.rcParams["figure.figsize"] = (9,5)
+    g = sns.PairGrid(df, hue=label, corner = True, height = 4)
+    g.map_diag(sns.histplot, multiple="stack", element="step", color= alpha)
+    g.map_offdiag(sns.scatterplot)
+    experiment = node_data[0].experiment.values[0]
+    g.add_legend(title="Experiment "+str(experiment), fontsize = 12,
+                 adjust_subtitles=True, bbox_to_anchor=(0.75,0.7))
     
-    a,b,c,d = node_data
-    
-    plt.scatter(a[0].humidity, a[0].temperature, marker= ".", label="pi2-train", alpha =0.3)
-    plt.scatter(b[0].humidity, b[0].temperature, marker = "v", label="pi3-train", alpha=0.3)
-    plt.scatter(c[0].humidity, c[0].temperature, marker = "<", label="pi4-train", alpha=0.3)
-    plt.scatter(d[0].humidity, d[0].temperature, marker = "*", label="pi5-train", alpha=0.3)
-    
-    plt.scatter(a[1].humidity, a[1].temperature, marker= "o", label="pi2-test", alpha =0.3)
-    plt.scatter(b[1].humidity, b[1].temperature, marker = "^", label="pi3-test", alpha=0.3)
-    plt.scatter(c[1].humidity, c[1].temperature, marker = ">", label="pi4-test", alpha=0.3)
-    plt.scatter(d[1].humidity, d[1].temperature, marker = "+", label="pi5-test", alpha=0.3)
-    
-    plt.legend()
-    plt.title(label="Experiment "+str(a.experiment.values[0])+ " Data")
-    plt.xlabel(xlabel="Humidity")
-    plt.ylabel(ylabel="Temperature")
+    if "std" in node_data[0].columns:
+        directory = f'results/GNFUV/figures/experiment_{experiment}_pairplot_std.png' 
+    else:
+        directory = f'results/GNFUV/figures/experiment_{experiment}_pairplot.png' 
+    plt.savefig(directory)
     plt.show()
     
 def visualise_experiment(node_data):
     plt.rcParams["figure.figsize"] = (8,5)
     
     a,b,c,d = node_data
-    
+    plt.matshow(corr)
     plt.scatter(a.humidity, a.temperature, marker= ".", label="pi2", alpha =0.5)
     plt.scatter(b.humidity, b.temperature, marker = "v", label="pi3", alpha=0.5)
     plt.scatter(c.humidity, c.temperature, marker = "<", label="pi4", alpha=0.5)

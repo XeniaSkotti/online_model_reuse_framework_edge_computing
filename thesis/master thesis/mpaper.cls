@@ -10,6 +10,7 @@
 \usepackage{array} % Drop-in replacement for 'tabular' environment, with more options
 \usepackage{color}
 \usepackage[linesnumbered,ruled, noline]{algorithm2e}
+\usepackage{multirow}
 % \usepackage[T1]{fontenc} 
 \usepackage{graphicx}
 \usepackage{epsfig}
@@ -18,9 +19,14 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{listings} % nice code listings
+
 \usepackage[a4paper]{geometry}
 \usepackage[breaklinks,colorlinks,citecolor=black,urlcolor=black,linkcolor=black,pdfpagelabels=false,pdfusetitle]{hyperref}
 \usepackage{flushend} % Automatically balances columns on the last page
+
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{compatibility=false}
 
 % % Settings for code listing environment
 \definecolor{lightgray}{rgb}{.9,.9,.9}
@@ -61,6 +67,8 @@
     tabsize=4,
     captionpos=b
 }
+
+
 
 %%% The main features of this style are:
 %%%

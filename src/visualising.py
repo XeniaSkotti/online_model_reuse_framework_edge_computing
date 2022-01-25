@@ -133,7 +133,7 @@ def pairplot_experiment(node_data):
         alpha = ".9"
     df = pd.concat(node_data)[["humidity", "temperature", label]]
 
-    g = sns.PairGrid(df, hue=label, corner = True, height = 4)
+    g = sns.PairGrid(df, hue=label, corner = True, height = 3.2)
     g.map_diag(sns.histplot, multiple="stack", element="step", color= alpha)
     g.map_offdiag(sns.scatterplot)
     experiment = node_data[0].experiment.values[0]

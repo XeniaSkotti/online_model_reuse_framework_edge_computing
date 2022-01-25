@@ -4,7 +4,7 @@
 
 \documentclass{mpaper}
 % \usepackage{natbib}
-\usepackage{multirow}
+
 
 \begin{document}
 \title{Model Reuse Framework for Edge Computing}
@@ -15,11 +15,11 @@
 
 \begin{abstract}
 
-% According to Simon Peyton Jones, an abstract should address
-% four key questions. First, what is the problem that this
-% paper tackles? Second, why is this an interesting problem?
-% Third, what is the solution this paper proposes?
-% Finally, why is the proposed solution a good one?
+According to Simon Peyton Jones, an abstract should address
+four key questions. First, what is the problem that this
+paper tackles? Second, why is this an interesting problem?
+Third, what is the solution this paper proposes?
+Finally, why is the proposed solution a good one?
 \end{abstract}
 
 % Sharing models in a pool raises concerns including user privacy \cite{ComputeReuse}\cite{Learnware} and intellectual property (IP) considerations \cite{DNNSimilarity}. These are legitimate concerns and one of the ways this can be eliminated is by not sharing the data used to train the models and instead creating a proxy for them \cite{DNNSimilarity}\cite{KernelMMD}.
@@ -361,6 +361,20 @@ Once we identify the similar pairs in the network we can then calculate the OCSV
 
 We've evaluated our framework for both regression and classification. 
 
+% \begin{figure}
+% \centering
+%     \begin{subfigure}
+%       \includegraphics[width=1\linewidth]{experiment_1_pairplot.png}
+%     \end{subfigure}
+%     \begin{subfigure}
+%       \includegraphics[width=1\linewidth]{experiment_2_pairplot.png}
+%     \end{subfigure}   
+%     \begin{subfigure}
+%       \includegraphics[width=1\linewidth]{experiment_3_pairplot.png}
+%     \end{subfigure}
+%     \caption{\label{fig:gnfuv_pairplots} The relationship between humidity and temperature per experiment alongside their distribution plots}
+% \end{figure}
+
 For regression, we've used the \textbf{\textit{GNFUV Unmanned Surface Vehicles Sensor Data Set}} \cite{GNFUV} which includes data from three experiments. In each experiment there are four sets of mobile sensor readings data recorded by the Raspberry Pi's corresponding to four Unmanned Surface Vehicles (USVs). Each node (USV) dataset contains the humidity and temperature recorded when they were floating over the sea surface in a GPS pre-defined trajectory in a coastal area of Athens (Greece). The data description can be found in Table \ref{tab:gnfuv}. 
 
 For classification we've used the \textbf{\textit{UCI Bank Marketing Dataset}} (BM) \cite{BMDataset} which consists of four files of which we've used the bank-additional-full.csv one which contains 41188 records and 20 attributes. The data was collected by a banking institution through phone calls as part of a direct marketing campaign. The dataset is a binary classification dataset of classes "yes" or "no", to subscribe to the product (bank term deposit). To get a yes from a client often more than one contact was required hence class imbalance is present. More specifically there are 4640 yes instances and 36548 no instances. 
@@ -370,6 +384,30 @@ As mentioned above the dataset has 20 attributes hence we've applied Principal C
 It is worth mentioning we've used two data configurations per dataset. For the GNFUV dataset the two configurations were the original data and a standardised version of them. While for the BM Dataset we used the node data created from the process above as well as a balanced version of them, by under sampling the majority class (no) to have an equal number of instances as the minority class (yes). In each case this was done to explore the effect of the data configuration change on the effectiveness of the framework. 
 
 Lastly, we've drawn 100 unique samples per network, in each of which the node data have an equal number of examples in order to comply with the MMD implementation constraint discussed in section \ref{chap:framework}. The sample size of each node dataset is determined by the minimum sample size (MSS) of the network i.e. the node with the minimum number of entries. If the two thirds of the MSS is more than 500 instances the sample size is the two-thirds of the MSS, otherwise it is 500, unless the MSS is less than that in which case the sample size is equal to the it. Even though for some nodes we're not really creating a sample but simply taking all or most the points of the node, the remainder of the nodes will be samples and therefore we're testing a different relationship between nodes with each sample and hence we do not compromise the validity of our experiment.
+
+\begin{figure}
+\centering
+\begin{center}
+\includegraphics[scale=0.65]{gnfuv_pairplots.JPG}
+\end{center}
+\caption{\label{fig:gnfuv_pairplots} The relationship between humidity and temperature per experiment alongside their distribution plots for the original GNFUV data}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{center}
+\includegraphics[scale=0.65]{gnfuv_pairplots_std.JPG}
+\end{center}
+\caption{\label{fig:gnfuv_pairplots} The relationship between humidity and temperature per experiment alongside their distribution plots for the standardised GNFUV data}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{center}
+\includegraphics[scale=0.7]{BM Clustering.JPG}
+\end{center}
+\caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
+\end{figure}
 
 \begin{table*}[]
 \centering
@@ -553,13 +591,7 @@ This is optional; it is a location for you to thank people
 % \usepackage{multirow}
 
 
-\begin{figure*}
-\centering
-\begin{center}
-\includegraphics[scale=0.8]{BM Clustering.JPG}
-\end{center}
-\caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
-\end{figure*}
+
 
 
 \end{document}

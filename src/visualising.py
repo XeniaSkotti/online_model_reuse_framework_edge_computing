@@ -39,7 +39,10 @@ def plot_r2_discrepancy(directory, df, stats):
         n_pairs = len(pair_dfs)
 
         xlabel = "Discrepancy"
-        ylabel = "Coefficient of Determination"
+        if "bank" in directory:
+            ylabel = "Accuracy"
+        else:
+            ylabel = "Coefficient of Determination"
 
         for pair_index in range(n_pairs):
             forward_pair, backward_pair = pair_dfs[pair_index].keys()

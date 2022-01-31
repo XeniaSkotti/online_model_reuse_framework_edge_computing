@@ -288,8 +288,6 @@ In conclusion, reusing models results in significant reduction in compute usage 
 
 In this section we elaborate and provide a detailed implementation of the framework. Our online model reuse framework needs to be able to determine two things given a pair of nodes. First and foremost, the pairs of nodes which have similar datasets and then the direction of reusability. 
 
-
-
 The first objective is achieved using MMD, which measures the difference domains and hence theoretically when the MMD value is zero this means the two datasets are drawn from the same distribution. However, as discussed in section \ref{chap2:MMD} in practise we utilise an estimation of MMD squared. As a consequence, the value is not actually zero and we need to define a threshold below which a pair would be considered similar. We've dubbed the threshold to be the average similarity MMD (ASMMD), a value calculated using Algorithm \ref{alg:asmmd}. 
 
 Algorithm \ref{alg:asmmd} requires that we categorise nodes into two sets, one where all nodes are similar to each other and the rest of them. Categorising nodes in these categories differs when using a regression and classification dataset. We discuss this further in section \ref{chap:asmmd_parameters}. Once we've identified these two sets, we calculate a baseline ASMMD by calculating the MMD of all pair combinations of the similar nodes. Then, we use ASMMD (allowing for a 5\% variation) to judge whether the rest of the nodes are similar to each other or to the similar nodes. If they are we calculate the new ASMMD and we use this to judge the next pair. Using the result of this process we can then judge which pairs are similar for a given experiment as demonstrated in Algorithm  \ref{alg:similar_pairs}. It is worth highlighting that for the MMD implementation to work and by extension all of the algorithms that utilize it (Algorithms \ref{alg:asmmd} \& \ref{alg:similar_pairs}), the samples of each node need to be of equal size.
@@ -508,6 +506,221 @@ In terms of the speedup, we need to be able to quantify how much time did we sav
 
 \subsection{Performance Evaluation}
 
+\begin{table*}[]
+\centering
+\begin{tabular}{|c|cccc|}
+\hline
+\textbf{Data Configuration} & \multicolumn{4}{c|}{\textbf{Combined Precision}}                                                                                \\ \hline
+\textbf{}                   & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{\textbf{Threshold}} & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{2-5} 
+                            & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{}                   & \textbf{True}    & \textbf{False}    \\ \cline{2-5} 
+                            & \multicolumn{1}{c|}{\multirow{2}{*}{1}}        & \multicolumn{1}{c|}{0.6}                & 1.00             & 1.00              \\
+                            & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00             & 1.00              \\ \cline{2-5} 
+                            & \multicolumn{1}{c|}{\multirow{2}{*}{2}}        & \multicolumn{1}{c|}{0.6}                & 0.89             & 0.90              \\
+\textbf{original}           & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.46             & 0.47              \\ \cline{2-5} 
+                            & \multicolumn{1}{c|}{\multirow{2}{*}{3}}        & \multicolumn{1}{c|}{0.6}                & 0.38             & 0.98              \\
+                            & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.38             & 0.98              \\ \cline{2-5} 
+                            & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.6}                & 0.77             & 0.95              \\
+                            & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.59             & 0.77              \\ \hline
+                            & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{}                   &                  &                   \\ \cline{2-5} 
+                            & \multicolumn{1}{c|}{\multirow{2}{*}{1}}        & \multicolumn{1}{c|}{0.6}                & 0.39             & 0.80              \\
+                            & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.39             & 0.80              \\ \cline{2-5} 
+                            & \multicolumn{1}{c|}{\multirow{2}{*}{2}}        & \multicolumn{1}{c|}{0.6}                & 0.27             & 0.29              \\
+\textbf{standardised}       & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.25             & 0.25              \\ \cline{2-5} 
+                            & \multicolumn{1}{c|}{\multirow{2}{*}{3}}        & \multicolumn{1}{c|}{0.6}                & 1.00             & 1.00              \\
+                            & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00             & 1.00              \\ \cline{2-5} 
+                            & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.6}                & 0.46             & 0.63              \\
+                            & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.45             & 0.61              \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_results} GNFUV Data Combined Precision Results}
+\end{table*}
+
+\begin{table*}[]
+\centering
+\begin{tabular}{|c|ccc|}
+\hline
+\multicolumn{1}{|l|}{\textbf{Data Configuration}} & \multicolumn{3}{c|}{\textbf{MMD Precision}}                                                                   \\ \hline
+\multirow{13}{*}{\textbf{original}}               & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                                  & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.47               \\
+                                                  & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.28               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.12               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                                  & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.78               \\
+                                                  & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.70               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.63               \\ \hline
+\multirow{13}{*}{\textbf{standardised}}           & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{}                   & \textbf{}          \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                                  & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.56               \\
+                                                  & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.51               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.42               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                                  & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.82               \\
+                                                  & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.80               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.76               \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_mmd_precision}GNFUV Data MMD Precision Results}
+\end{table*}
+
+\begin{table}[]
+\centering
+\begin{tabular}{|c|ccc|}
+\hline
+\textbf{Data Configuration}            & \multicolumn{3}{c|}{\textbf{OCSVM Precision}}                                         \\ \hline
+\multirow{6}{*}{\textbf{original}}     & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{2-4} 
+                                       & \multicolumn{1}{l|}{}                          & \textbf{True}    & \textbf{False}    \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{1}                         & 1.00             & 1.00              \\
+                                       & \multicolumn{1}{c|}{2}                         & 0.94             & 0.95              \\
+                                       & \multicolumn{1}{c|}{3}                         & 0.38             & 0.98              \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.79             & 0.97              \\ \hline
+\multirow{5}{*}{\textbf{standardised}} & \multicolumn{1}{c|}{\textbf{Experiment}}       &                  &                   \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{1}                         & 0.39             & 0.80              \\
+                                       & \multicolumn{1}{c|}{2}                         & 0.29             & 0.33              \\
+                                       & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.47             & 0.65              \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_ocsvm_precision} GNFUV Data OCSVM Precision Results}
+\end{table}
+
+\begin{table}[]
+\centering
+\begin{tabular}{|c|ccc|}
+\hline
+\textbf{Data Configuration} & \multicolumn{3}{c|}{\textbf{Combined Precision}}                                              \\ \hline
+                              & \multicolumn{1}{c|}{\textbf{Threshold}} & \multicolumn{2}{c|}{\textbf{Strict}}                \\ \cline{2-4} 
+                              & \multicolumn{1}{c|}{\textbf{}}          & \textbf{True} & \multicolumn{1}{l|}{\textbf{False}} \\ \hline
+\multirow{2}{*}{combined}     & \multicolumn{1}{c|}{0.6}                & 0.55          & 0.98                                \\
+                              & \multicolumn{1}{c|}{0.8}                & 0.55          & 0.98                                \\ \hline
+\multirow{2}{*}{balanced}     & \multicolumn{1}{c|}{0.6}                & 0.58          & 0.99                                \\
+                              & \multicolumn{1}{c|}{0.8}                & 0.58          & 0.99                                \\ \hline
+\multirow{2}{*}{unbalanced}   & \multicolumn{1}{c|}{0.6}                & 0.56          & 1.00                                \\
+                              & \multicolumn{1}{c|}{0.8}                & 0.56          & 1.00                                \\ \hline
+\end{tabular}
+\caption{\label{tab:bm_combined_precision}BM Data Combined Precision Results}
+\end{table}
+
+\begin{table}[]
+\centering
+\begin{tabular}{|c|cc|}
+\hline
+\textbf{Data Configuration} & \multicolumn{2}{c|}{\textbf{MMD Precision}}                  \\ \hline
+\textbf{}                   & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \hline
+                            & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+combined                    & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                            & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
+                            & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+balanced                    & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                            & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
+                            & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+unbalanced                  & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                            & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
+\end{tabular}
+\caption{\label{tab:bm_mmd_precision}BM Dataset MMD Precision Results}
+\end{table}
+
+\begin{table}[]
+\centering
+\begin{tabular}{|c|cc|}
+\hline
+\textbf{Data   Configuration} & \multicolumn{2}{c|}{\textbf{OCSVM Precision}} \\ \hline
+\textbf{}                     & \multicolumn{2}{c|}{\textbf{Strict}}          \\ \cline{2-3} 
+\textbf{}                     & \textbf{True}         & \textbf{False}        \\ \hline
+\textbf{combined}             & 0.55                  & 0.98                  \\
+\textbf{balanced}             & 0.58                  & 0.99                  \\
+\textbf{unbalanced}           & 0.56                  & 1.00                  \\ \hline
+\end{tabular}
+\caption{\label{tab:bm_ocsvm_precision}BM Dataset OCSVM Precision Results}
+\end{table}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table}[]
+\centering
+\begin{tabular}{|c|ccc|}
+\hline
+\textbf{Dataset}             & \multicolumn{3}{c|}{\textbf{Speedup}}                                                             \\ \hline
+                             & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{2}{c|}{\textbf{Data Configuration}} \\ \cline{2-4} 
+                             & \multicolumn{1}{l|}{}                          & \textbf{standardised}     & \textbf{original}    \\ \cline{2-4} 
+                             & \multicolumn{1}{c|}{1}                         & 0.23                      & 0.26                 \\
+\textbf{GNFUV}               & \multicolumn{1}{c|}{2}                         & 0.3                       & 0.28                 \\
+                             & \multicolumn{1}{c|}{3}                         & 0.24                      & 0.23                 \\ \cline{2-4} 
+                             & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.26                      & 0.26                 \\ \hline
+\multirow{2}{*}{\textbf{BM}} & \multicolumn{1}{l|}{}                          & \textbf{unbalanced}       & \textbf{balanced}    \\ \cline{3-4} 
+                             & \multicolumn{1}{c|}{\textbf{}}                 & 0.29                      & 0.41                 \\ \hline
+\end{tabular}
+\caption{\label{tab:speedup}Speedup Results}
+\end{table}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale = 0.7]{experiment_1_std.jpg}
+    \caption{GNFUV Experiment 1 Standardised Data Results}
+    \label{fig:gnfuv_exp1_std}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale = 0.08]{experiment_1.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 1 Original Data Results}
+    \label{fig:gnfuv_exp1}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale = 0.6]{experiment_2.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 2 Original Data Results}
+    \label{fig:gnfuv_exp2}
+\end{figure}
+
+\begin{figure*}
+    \begin{center}
+        \includegraphics[scale = 0.5]{experiment_2_std.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 2 Standardised Data Results}
+    \label{fig:gnfuv_exp2_std}
+\end{figure*}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale = 0.09]{experiment_3_std.jpg}
+    \caption{GNFUV Experiment 3 Standardised Data Results}
+    \label{fig:gnfuv_exp3_std}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale = 0.09]{experiment_3.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 3 Original Data Results}
+    \label{fig:gnfuv_exp3}
+\end{figure}
+
+\begin{figure*}
+    \centering
+    \includegraphics[scale= 0.5]{bm_results.JPG}
+    \caption{BM Data Results}
+    \label{fig:bm_results}
+\end{figure*}
+
+
+
+% \begin{figure}
+% \centering
+% \begin{center}
+% \includegraphics[scale=0.7]{BM Clustering.JPG}
+% \end{center}
+% \caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
+% \end{figure}
+
 Explain how in addition to the model reusability metrics we'll use some figures based on the aggregated data from all samples.
 
 
@@ -585,6 +798,174 @@ This is optional; it is a location for you to thank people
 \end{center}
 \caption{\label{fig-SVRex}Visual Representation of an SVR}
 \end{figure*}
+
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table*}[]
+\centering
+\begin{tabular}{|cccc|ccccc|}
+\hline
+\multicolumn{1}{|c|}{\multirow{3}{*}{\textbf{Dataset}}} & \multicolumn{1}{c|}{\multirow{3}{*}{\textbf{Classifer}}} & \multicolumn{1}{c|}{\multirow{3}{*}{\textbf{Experiment}}} & \multirow{3}{*}{\textbf{Data Configuration}} & \multicolumn{5}{c|}{\textbf{Node Performance}}                                                    \\ \cline{5-9} 
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     &                                              & \multicolumn{1}{c|}{}                & \multicolumn{4}{c|}{\textbf{Coefficient of Determination}} \\ \cline{5-9} 
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     &                                              & \multicolumn{1}{c|}{\textbf{kernel}} & \textbf{pi2}  & \textbf{pi3} & \textbf{pi4} & \textbf{pi5} \\ \hline
+\multicolumn{1}{|c|}{\multirow{12}{*}{\textbf{GNFUV}}}  & \multicolumn{1}{c|}{\multirow{12}{*}{SVR}}               & \multicolumn{1}{c|}{\multirow{4}{*}{1}}                   & \multirow{2}{*}{original}                    & \multicolumn{1}{c|}{linear}          & 0.99          & -            & 0.92         & -            \\
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     &                                              & \multicolumn{1}{c|}{rbf}             & 0.99          & -            & 0.96         & -            \\ \cline{4-9} 
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     & \multirow{2}{*}{standardised}                & \multicolumn{1}{c|}{linear}          & 0.99          & 0.94         & 0.91         & -            \\
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     &                                              & \multicolumn{1}{c|}{rbf}             & 0.99          & 0.98         & 0.96         & -            \\ \cline{3-9} 
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{\multirow{4}{*}{2}}                   & \multirow{2}{*}{original}                    & \multicolumn{1}{c|}{linear}          & 0.24          & 0.47         & 0.08         & 0.66         \\
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     &                                              & \multicolumn{1}{c|}{rbf}             & 0.35          & 0.57         & 0.51         & 0.77         \\ \cline{4-9} 
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     & \multirow{2}{*}{standardised}                & \multicolumn{1}{c|}{linear}          & 0.46          & 0.54         & 0.05         & 0.51         \\
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     &                                              & \multicolumn{1}{c|}{rbf}             & 0.53          & 0.66         & 0.52         & 0.61         \\ \cline{3-9} 
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{\multirow{4}{*}{3}}                   & \multirow{2}{*}{original}                    & \multicolumn{1}{c|}{linear}          & 0.94          & -            & 0.99         & -            \\
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     &                                              & \multicolumn{1}{c|}{rbf}             & 0.94          & -            & 0.99         & -            \\ \cline{4-9} 
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     & \multirow{2}{*}{standardised}                & \multicolumn{1}{c|}{linear}          & 0.96          & -            & 0.98         & -            \\
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     &                                              & \multicolumn{1}{c|}{rbf}             & 0.96          & -            & 0.99         & -            \\ \hline
+                                                        &                                                          &                                                           &                                              & \multicolumn{5}{c|}{\textbf{Accuracy}}                                                            \\ \cline{5-9} 
+                                                        &                                                          &                                                           &                                              & \textbf{pi1}                         & \textbf{pi2}  & \textbf{pi3} & \textbf{pi4} & \textbf{pi5} \\ \hline
+\multicolumn{1}{|c|}{\multirow{2}{*}{\textbf{BM}}}      & \multicolumn{1}{c|}{\multirow{2}{*}{LR}}                 & \multicolumn{1}{c|}{}                                     & balanced                                     & 0.87                                 & 0.86          & 0.86         & 0.72         & 0.72         \\ \cline{4-9} 
+\multicolumn{1}{|c|}{}                                  & \multicolumn{1}{c|}{}                                    & \multicolumn{1}{c|}{}                                     & unbalanced                                   & 0.84                                 & 0.83          & 0.83         & -            & -            \\ \hline
+\end{tabular}
+\caption{\label{tab:node_performance}The average performance of node models on their native dataset}
+\end{table*}
+
+\begin{table*}[]
+\centering
+\begin{tabular}{|c|c|cccc|}
+\hline
+\textbf{Data Configuration}     & \textbf{Kernel}       & \multicolumn{4}{c|}{\textbf{Combined Precision}}                                                                                                                                    \\ \hline
+\textbf{}                       & \multicolumn{1}{l|}{} & \multicolumn{1}{c|}{\textbf{Experiment}}                        & \multicolumn{1}{c|}{\textbf{Threshold}} & \multicolumn{2}{c|}{\textbf{Strict}}                                    \\ \cline{3-6} 
+\multicolumn{1}{|l|}{\textbf{}} & \textbf{}             & \multicolumn{1}{l|}{\textbf{}}                                  & \multicolumn{1}{l|}{\textbf{}}          & \multicolumn{1}{l}{\textbf{True}} & \multicolumn{1}{l|}{\textbf{False}} \\ \cline{3-6} 
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{\multirow{2}{*}{1}}                         & \multicolumn{1}{c|}{0.6}                & 0.99                              & 1.00                                \\
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.99                              & 1.00                                \\ \cline{3-6} 
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{\multirow{2}{*}{2}}                         & \multicolumn{1}{c|}{0.6}                & 0.01                              & 0.01                                \\
+\textbf{}                       & \textbf{rbf}          & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.00                              & 0.00                                \\ \cline{3-6} 
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{\multirow{2}{*}{3}}                         & \multicolumn{1}{c|}{0.6}                & 0.36                              & 0.36                                \\
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.34                              & 0.34                                \\ \cline{3-6} 
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{\multirow{2}{*}{\textbf{Weighted Average}}} & \multicolumn{1}{c|}{0.6}                & 0.40                              & 0.40                                \\
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.39                              & 0.39                                \\ \cline{2-6} 
+\textbf{original}               & \textbf{}             & \multicolumn{1}{c|}{\textbf{Experiment}}                        & \multicolumn{1}{c|}{}                   & \multicolumn{1}{l}{}              & \multicolumn{1}{l|}{}               \\ \cline{3-6} 
+                                & \multicolumn{1}{l|}{} & \multicolumn{1}{c|}{\multirow{2}{*}{1}}                         & \multicolumn{1}{c|}{0.6}                & 1.00                              & 1.00                                \\
+                                &                       & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 1.00                              & 1.00                                \\ \cline{3-6} 
+                                &                       & \multicolumn{1}{c|}{\multirow{2}{*}{2}}                         & \multicolumn{1}{c|}{0.6}                & 0.90                              & 0.90                                \\
+\multicolumn{1}{|l|}{}          & \textbf{linear}       & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.46                              & 0.47                                \\ \cline{3-6} 
+                                &                       & \multicolumn{1}{c|}{\multirow{2}{*}{3}}                         & \multicolumn{1}{c|}{0.6}                & 0.38                              & 0.98                                \\
+                                &                       & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.38                              & 0.98                                \\ \cline{3-6} 
+                                &                       & \multicolumn{1}{c|}{\multirow{2}{*}{\textbf{Weighted Average}}} & \multicolumn{1}{c|}{0.6}                & 0.78                              & 0.95                                \\
+                                &                       & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.59                              & 0.77                                \\ \hline
+                                &                       & \multicolumn{1}{c|}{\textbf{Experiment}}                        & \multicolumn{1}{c|}{}                   &                                   &                                     \\ \cline{3-6} 
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{\multirow{2}{*}{1}}                         & \multicolumn{1}{c|}{0.6}                & 0.58                              & 1.00                                \\
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.58                              & 1.00                                \\ \cline{3-6} 
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{\multirow{2}{*}{2}}                         & \multicolumn{1}{c|}{0.6}                & 0.19                              & 0.25                                \\
+\textbf{}                       & \textbf{rbf}          & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.12                              & 0.16                                \\ \cline{3-6} 
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{\multirow{2}{*}{3}}                         & \multicolumn{1}{c|}{0.6}                & 1.00                              & 1.00                                \\
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 1.00                              & 1.00                                \\ \cline{3-6} 
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{\multirow{2}{*}{\textbf{Weighted Average}}} & \multicolumn{1}{c|}{0.6}                & 0.50                              & 0.69                                \\
+\textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.48                              & 0.66                                \\ \cline{2-6} 
+\textbf{standardised}           &                       & \multicolumn{1}{c|}{\textbf{Experiment}}                        & \multicolumn{1}{c|}{}                   & \multicolumn{1}{l}{}              & \multicolumn{1}{l|}{}               \\ \cline{3-6} 
+                                & \multicolumn{1}{l|}{} & \multicolumn{1}{c|}{\multirow{2}{*}{1}}                         & \multicolumn{1}{c|}{0.6}                & 0.32                              & 0.80                                \\
+                                &                       & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.32                              & 0.80                                \\ \cline{3-6} 
+                                &                       & \multicolumn{1}{c|}{\multirow{2}{*}{2}}                         & \multicolumn{1}{c|}{0.6}                & 0.26                              & 0.27                                \\
+\multicolumn{1}{|l|}{}          & \textbf{linear}       & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.25                              & 0.26                                \\ \cline{3-6} 
+                                &                       & \multicolumn{1}{c|}{\multirow{2}{*}{3}}                         & \multicolumn{1}{c|}{0.6}                & 1.00                              & 1.00                                \\
+                                &                       & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 1.00                              & 1.00                                \\ \cline{3-6} 
+                                &                       & \multicolumn{1}{c|}{\multirow{2}{*}{\textbf{Weighted Average}}} & \multicolumn{1}{c|}{0.6}                & 0.43                              & 0.62                                \\
+                                &                       & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.43                              & 0.62                                \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_combined_precision_per_kernel} GNFUV Data Combined Precision Results per kernel}
+\end{table*}
+
+\begin{table*}[]
+\centering
+\begin{tabular}{|l|c|ccc|}
+\hline
+\textbf{Data   Configuration}               & \textbf{Kernel} & \multicolumn{3}{c|}{\textbf{MMD Precision}}                                                                   \\ \hline
+                                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.00               \\
+                                            & \textbf{}       & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.00               \\
+                                            & \textbf{rbf}    & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.00               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.34               \\
+                                            &                 & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 0.27               \\
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.04               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.49               \\
+                                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.37               \\
+                                            &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.30               \\ \cline{2-5} 
+\multicolumn{1}{|c|}{\textbf{original}}     &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{\textbf{}}          & \textbf{}          \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.48               \\
+                                            &                 & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.28               \\
+                                            & \textbf{linear} & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.12               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.78               \\
+                                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.70               \\
+                                            &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.63               \\ \hline
+                                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{}                   & \textbf{}          \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.15               \\
+                                            & \textbf{}       & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.10               \\
+                                            & \textbf{rbf}    & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.06               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.65               \\
+                                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.63               \\
+\multicolumn{1}{|c|}{\textbf{standardised}} &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.62               \\ \hline
+                                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{}                   & \textbf{}          \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.63               \\
+                                            &                 & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.56               \\
+                                            & \textbf{linear} & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.46               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                            &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{3-5} 
+                                            &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.85               \\
+                                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.82               \\
+                                            &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.78               \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_mmd_precision_per_kernel} GNFUV Data MMD Precision Results per kernel}
+\end{table*}
+
+\begin{table*}[]
+\centering
+\begin{tabular}{|c|c|ccc|}
+\hline
+\textbf{Data Configuration} & \textbf{Kernel} & \multicolumn{3}{c|}{\textbf{OCSVM Precision}}                                         \\ \hline
+\multicolumn{1}{|l|}{}      & \textbf{}       & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{l|}{}                          & \textbf{True}    & \textbf{False}    \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{1}                         & 0.99             & 1.00              \\
+\multicolumn{1}{|l|}{}      & \textbf{rbf}    & \multicolumn{1}{c|}{2}                         & 0.23             & 0.26              \\
+                            &                 & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{3-5} 
+\textbf{original}           &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.68             & 0.69              \\ \cline{2-5} 
+                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{1}                         & 1.00             & 1.00              \\
+                            & \textbf{linear} & \multicolumn{1}{c|}{2}                         & 0.96             & 0.96              \\
+                            &                 & \multicolumn{1}{c|}{3}                         & 0.38             & 0.98              \\
+                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.80             & 0.98              \\ \hline
+                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{1}                         & 0.58             & 1.00              \\
+                            & \textbf{rbf}    & \multicolumn{1}{c|}{2}                         & 0.28             & 0.37              \\
+                            &                 & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{3-5} 
+\textbf{standardised}       &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.54             & 0.74              \\ \cline{2-5} 
+                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{1}                         & 0.32             & 0.80              \\
+\multicolumn{1}{|l|}{}      & \textbf{linear} & \multicolumn{1}{c|}{2}                         & 0.28             & 0.30              \\
+                            &                 & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.44             & 0.64              \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_ocsvm_precision_per_kernel} GNFUV Data OCSVM Precision Results per kernel}
+\end{table*}
 
 % \begin{figure}
 % \centering

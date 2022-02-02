@@ -236,6 +236,9 @@ In conclusion, reusing models results in significant reduction in compute usage 
 
 % \end{lstlisting}
 
+
+\section{The Framework}\label{chap:framework}
+
 % NOTE: line ends are denoted by \; in algorithm2e
 
 \SetInd{0.1em}{0.5em}
@@ -284,13 +287,9 @@ In conclusion, reusing models results in significant reduction in compute usage 
     }
 \end{algorithm}
 
-\section{The Framework}\label{chap:framework}
-
 In this section we elaborate and provide a detailed implementation of the framework. Our online model reuse framework needs to be able to determine two things given a pair of nodes. First and foremost, the pairs of nodes which have similar datasets and then the direction of reusability. 
 
 The first objective is achieved using MMD, which measures the difference domains and hence theoretically when the MMD value is zero this means the two datasets are drawn from the same distribution. However, as discussed in section \ref{chap2:MMD} in practise we utilise an estimation of MMD squared. As a consequence, the value is not actually zero and we need to define a threshold below which a pair would be considered similar. We've dubbed the threshold to be the average similarity MMD (ASMMD), a value calculated using Algorithm \ref{alg:asmmd}. 
-
-Algorithm \ref{alg:asmmd} requires that we categorise nodes into two sets, one where all nodes are similar to each other and the rest of them. Categorising nodes in these categories differs when using a regression and classification dataset. We discuss this further in section \ref{chap:asmmd_parameters}. Once we've identified these two sets, we calculate a baseline ASMMD by calculating the MMD of all pair combinations of the similar nodes. Then, we use ASMMD (allowing for a 5\% variation) to judge whether the rest of the nodes are similar to each other or to the similar nodes. If they are we calculate the new ASMMD and we use this to judge the next pair. Using the result of this process we can then judge which pairs are similar for a given experiment as demonstrated in Algorithm  \ref{alg:similar_pairs}. It is worth highlighting that for the MMD implementation to work and by extension all of the algorithms that utilize it (Algorithms \ref{alg:asmmd} \& \ref{alg:similar_pairs}), the samples of each node need to be of equal size.
 
 \begin{algorithm}
     \DontPrintSemicolon
@@ -324,7 +323,7 @@ Algorithm \ref{alg:asmmd} requires that we categorise nodes into two sets, one w
     }
 \end{algorithm}
 
-Once we identify the similar pairs in the network we can then calculate the OCSVM scores of each node in each pair and hence determine the direction of reusability per pair. The OCSVM score is essentially the probability of detecting the inliers of the node by using the other node's model.  Therefore, given two nodes $x$ and $y$, and their corresponding OCSVM models, we use each OCSVM model to predict the other node's inliers and then we calculate the number of points that were identified as inliers and divide by the number points in the dataset, hence the probability. The reason we divide by the number of points in the dataset is because we expect to do some form of filtering prior and remove the outliers if they exist, hence all the points in the dataset are inliers. We calculate the OCSVM score for both directions and whichever is higher is the node for which we should train the model for. Algorithm \ref{alg:ocsvm_scores} calculates of the OCSVM scores of each node per pair.
+Algorithm \ref{alg:asmmd} requires that we categorise nodes into two sets, one where all nodes are similar to each other and the rest of them. Categorising nodes in these categories differs when using a regression and classification dataset. We discuss this further in section \ref{chap:asmmd_parameters}. Once we've identified these two sets, we calculate a baseline ASMMD by calculating the MMD of all pair combinations of the similar nodes. Then, we use ASMMD (allowing for a 5\% variation) to judge whether the rest of the nodes are similar to each other or to the similar nodes. If they are we calculate the new ASMMD and we use this to judge the next pair. Using the result of this process we can then judge which pairs are similar for a given experiment as demonstrated in Algorithm  \ref{alg:similar_pairs}. It is worth highlighting that for the MMD implementation to work and by extension all of the algorithms that utilize it (Algorithms \ref{alg:asmmd} \& \ref{alg:similar_pairs}), the samples of each node need to be of equal size.
 
 \begin{algorithm}
     \DontPrintSemicolon
@@ -344,14 +343,16 @@ Once we identify the similar pairs in the network we can then calculate the OCSV
             $pred\_y\_inliers \longleftarrow get\_inliers(models[x], sy)$, 
             $pred\_x\_inliers \longleftarrow get\_inliers(models[y], sx)$  \;
             
-            $x\_y\_overlap \longleftarrow \boldsymbol{len}(pred\_y\_inliers)/\boldsymbol{len}(sy)$,
-            $y\_x\_overlap \longleftarrow \boldsymbol{len}(pred\_x\_inliers)/\boldsymbol{len}(sx)$ \;
+            $x\_y\_overlap \longleftarrow \boldsymbol{size}(pred\_y\_inliers)/\boldsymbol{size}(sy)$
+            $y\_x\_overlap \longleftarrow \boldsymbol{size}(pred\_x\_inliers)/\boldsymbol{size}(sx)$ \;
    
             $pair\_prob.append((x\_y\_overlap,y\_x\_overlap))$ \;
             
         }
     }
 \end{algorithm}
+
+Once we identify the similar pairs in the network we can then calculate the OCSVM scores of each node in each pair and hence determine the direction of reusability per pair. The OCSVM score is essentially the probability of detecting the inliers of the node by using the other node's model.  Therefore, given two nodes $x$ and $y$, and their corresponding OCSVM models, we use each OCSVM model to predict the other node's inliers and then we calculate the number of points that were identified as inliers and divide by the number points in the dataset, hence the probability. The reason we divide by the number of points in the dataset is because we expect to do some form of filtering prior and remove the outliers if they exist, hence all the points in the dataset are inliers. We calculate the OCSVM score for both directions and whichever is higher is the node for which we should train the model for. Algorithm \ref{alg:ocsvm_scores} calculates of the OCSVM scores of each node per pair.
 
 \section{Experimental Evaluation}
 
@@ -382,15 +383,7 @@ Lastly, we've drawn 100 unique samples per network, in each of which the node da
 \begin{figure}
 \centering
 \begin{center}
-\includegraphics[scale=0.65]{gnfuv_pairplots_std.JPG}
-\end{center}
-\caption{\label{fig:gnfuv_pairplots_std} The relationship between humidity and temperature per experiment alongside their distribution plots for the standardised GNFUV data}
-\end{figure}
-
-\begin{figure}
-\centering
-\begin{center}
-\includegraphics[scale=0.7]{BM Clustering.JPG}
+\includegraphics[scale=0.45]{bm_clustering.png}
 \end{center}
 \caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
 \end{figure}
@@ -424,8 +417,6 @@ Once we had an initial idea of the similar and other nodes sets, we could then u
 
 \begin{table*}[]
 \centering
-% Please add the following required packages to your document preamble:
-% \usepackage{multirow}
 \begin{tabular}{|c|c|ccc|}
 \hline
 \textbf{Dataset}       & \textbf{Classifier}  & \multicolumn{3}{c|}{\textbf{Classifier Parameters}}                                                 \\ \cline{3-5} 
@@ -448,15 +439,19 @@ Starting off with regression, we have trained SVRs to capture the relationship b
 
 Our classification dataset, has two classes yes and no and we've used LR specifically because it is usually a good baseline for binary classification. LR \cite{OriginalLR} is a statistical model that in its basic form uses a logistic function to model the conditional probability, of two classes in our case. Hence, the scikit-learn implementation of LR reports performance in terms of the mean accuracy on the test dataset. As mentioned in section \ref{chap:training_data}, the BM Dataset exhibits severe class imbalance which is why we experiment with two data configurations, one which data are balanced and another in which they are not. For the case in which the data are not balanced, we configured the class weight parameter of LR to be balanced to deal with the imbalance. The other parameter which we control for both data configurations is the regularization parameter. Lastly, the scikit learn implementation offers a variety of solver options hence we optimise it as well. Table \ref{tab:classifier_parameters} summarises all of the information discussed in the section for both classifiers. 
 
-\subsubsection{Model Reusability Metrics}
+\subsubsection{Model Reusability Metrics}\label{chap:metrics}
 
-Investigating the effectiveness of the framework, requires that we examine two aspects, the speedup we benefit from when we avoid training models for some nodes and the network, and the precision of the framework in terms of the recommendations it makes. We've defined both speedup and precision in the context of model reusability.
+Investigating the effectiveness of the framework, requires that we examine two aspects, the \textbf{speedup} we benefit from when we avoid training models for some nodes and the network, and the \textbf{precision} of the framework in terms of the recommendations it makes. We've defined both speedup and precision in the context of model reusability.
 
-Before, we continue to define precision and speedup it is important to mention first how we assess the proxy model's performance and how we measure a model's training time. We assess the proxy model on the non-native node data by subtracting the discrepancy from the model's performance score on the native dataset. We define discrepancy as the difference between the model's performance score on the native dataset and the model's performance score on the non-native dataset. Therefore, essentially we simply use the performance of the model on the non-native dataset. The model's training time is the sum of the time required to train and optimise the model. The reason that we include the optimisation time is that some form of optimisation would take place in a real world scenario.
+Before, we continue to define precision and speedup it is important to mention first how we assess the proxy model's performance and how we measure a model's training time. We assess the proxy model on the non-native node data by subtracting the \textit{discrepancy} from the model's performance score on the native dataset. We define discrepancy as the difference between the model's performance score on the native dataset and the model's performance score on the non-native dataset. Therefore, essentially we simply use the performance of the model on the non-native dataset. The model's training time is the sum of the time required to train and optimise the model. The reason that we include the optimisation time is that some form of optimisation would take place in a real world scenario.
 
-Starting off with precision, precision needs to be assessed across three different levels. The precision of MMD at identifying good pairs for reusability, the precision of OCSVM at identifying the correct node to reuse it's model and lastly the combined precision of the framework. In order for MMD precision to be a meaningful measure to use, it is expressed in terms of the ratio between the performance of using a proxy model and the true model. It is worth mentioning, that the ratio retains the same meaning across regression and classification since it measures how close the proxy model is to the true performance regardless of whether the performance is reported in terms of $R^2$ or accuracy. We then consider this ratio with regards with a threshold and if it is above that threshold it is correct. The thresholds we considered were 0.85, 0.9 and 0.95. The OCSVM precision is either calculated strictly or with a 0.05 margin, that is if the node pointed by the direction of reusability does not yield the optimal performance, but it's performance is equal or less than 0.05 from the optimal, we consider that the framework has made the right decision. Then like the MMD precision, we consider the framework made the right decision if the ratio is above a threshold it is correct. For the combined precision we utilized lower values for the threshold, namely values 0.6 and 0.8. The reason that we assess precision in this way is to be able to gauge how effective each component of the framework is in isolation but also combined. Consequently, we can provide a more holistic evaluation of the framework. 
+Starting off with precision, precision needs to be assessed across three different levels. The precision of MMD at identifying good pairs for reusability, the precision of OCSVM at identifying the correct node to reuse it's model and lastly the combined precision of the framework. In order for the \textbf{\textit{MMD Precision}} to be a meaningful measure to use, it is expressed in terms of the ratio between the performance of using a proxy model and the true model. It is worth mentioning, that the ratio retains the same meaning across regression and classification since it measures how close the proxy model is to the true performance regardless of whether the performance is reported in terms of $R^2$ or accuracy. We then consider this ratio with regards with a threshold and if it is above that threshold it is correct. The thresholds we considered were 0.85, 0.9 and 0.95. The \textbf{\textit{OCSVM Precision}} is either calculated strictly or with a 0.05 margin, that is if the node pointed by the direction of reusability does not yield the optimal performance, but it's performance is equal or less than 0.05 from the optimal, we consider that the framework has made the right decision. Then like the MMD precision, we consider the framework made the right decision if the ratio is above a threshold it is correct. For the \textbf{\textit{Combined Precision}} we utilized lower values for the threshold, namely values 0.6 and 0.8 since we want to assess the framework with a higher tolerance when the components are combined. The reason that we assess precision across three levels is to be able to gauge how effective each component of the framework is in isolation but also combined. Consequently, we can provide a more holistic evaluation of the framework. 
 
 In terms of the speedup, we need to be able to quantify how much time did we save by not training some models with respect to what time we would need if we trained all of them. This requires that we first identify the nodes for which we won't train a model for. Our framework provides reusability solutions at the pair level but not at the network one. For this purpose we've defined a naive algorithm which given a set of pairs and the direction of reusability per pair it can provide us with the nodes which we do not need to train a model for, the model-less nodes. The algorithm is naive in the sense it simply aims to reduce the number of nodes for which we need to train models for. This does not necessarily translate into the "optimal solution" as it does not take into account any other variables of interest. The full solution is found under Algorithm \ref{alg:modelless_nodes}. It is worth noting that the speedup potential varies across datasets and samples. Hence, one sample may have the potential for a maximum of 40\% speedup, while another much more or less. Since we're using 100 samples per dataset it is impossible to know the exact speedup potential per sample hence we simply report it as a number. 
+
+\subsection{Performance Evaluation}
+
+As discussed in the previous section (\ref{chap:metrics}), we assess the framework across two metrics, precision and speedup. In this section we evaluate these metric results one by one for each dataset and provide a discussion around the effectiveness of the framework.
 
 \begin{algorithm}
     \DontPrintSemicolon
@@ -504,7 +499,44 @@ In terms of the speedup, we need to be able to quantify how much time did we sav
     
 \end{algorithm}
 
-\subsection{Performance Evaluation}
+
+\subsubsection{Precision}
+
+In this section we discuss the precision results across the three levels by looking at a combination of tables and figures. The figures have been created by merging (averaging) the results of the 100 samples to create a single figure for each pair per data configuration (and experiment). 
+
+More specifically, in the case of the GNFUV dataset, we will provide observations pair by pair for each experiment before drawing general conclusions using both the metric results and figures. Finally, we will draw some general conclusions on the applicability of the framework in regression, the effect of the kernel and whether or not we standardised data. Similarly, for the BM dataset we will discuss observations per by pair before drawing conclusions for the dataset, the applicability of the framework in classification and the effect of using balanced and unbalanced data.
+
+Starting off with the GNFUV original data, for Experiments (Exp) 1, 2 \& 3 the framework identifies the pair (pi2, pi4) for all of them and an additional pair, (pi3, pi5) for Exp2. As shown in Figure \ref{fig:gnfuv_exp1} (and confirmed by Table \ref{tab:node_performance}) for Exp1, both nodes have good models and also high OCSVM scores. Both node models could be used as replacement models for the other, since the $R^2 - discrepancy$ is well above the equilibrium line. Overall, the pi4 rbf model, however is the best for this pair. For Exp2, neither of these pairs is a good pair for reusability (see Figure \ref{fig:gnfuv_exp2}). Even though for pair (pi3, pi5) we have instances models above the equilibrium line, the results are still not good.  There is a high difference between the OCSVM scores of the nodes in both pairs. For both Exp1 and Exp2, depending on the direction of reusability i.e. which nodes' model we decide to reuse, different kernels are appropriate. These differences are small for Exp1 and for Exp2 this choice is not important because ultimately the pairs are not good options. Similarly to Exp1, the pair in Exp3 (see Figure \ref{fig:gnfuv_exp3}) both nodes have good models and could be used as replacement models for the other provided the kernel is linear for reasons discussed for Exp1 and the linear pi4 model is the best for this pair. Across all three experiments rbf models perform better on the native dataset but nonetheless have higher discrepancy.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale = 0.085]{experiment_1.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 1 Original Data Results. Both nodes in the pair have good models and both of them could be used as a replacement model for the other, since the $R^2 - discrepancy$ is well above the equilibrium line. The rbf pi4 model is the best for this pair.}
+    \label{fig:gnfuv_exp1}
+\end{figure}
+
+\begin{table}[]
+\centering
+\begin{tabular}{|c|ccc|}
+\hline
+\textbf{Data Configuration}            & \multicolumn{3}{c|}{\textbf{OCSVM Precision}}                                         \\ \hline
+\multirow{6}{*}{\textbf{original}}     & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{2-4} 
+                                       & \multicolumn{1}{l|}{}                          & \textbf{True}    & \textbf{False}    \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{1}                         & 1.00             & 1.00              \\
+                                       & \multicolumn{1}{c|}{2}                         & 0.94             & 0.95              \\
+                                       & \multicolumn{1}{c|}{3}                         & 0.38             & 0.98              \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.79             & 0.97              \\ \hline
+\multirow{5}{*}{\textbf{standardised}} & \multicolumn{1}{c|}{\textbf{Experiment}}       &                  &                   \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{1}                         & 0.39             & 0.80              \\
+                                       & \multicolumn{1}{c|}{2}                         & 0.29             & 0.33              \\
+                                       & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.47             & 0.65              \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_ocsvm_precision} GNFUV Data OCSVM Precision Results. The framework correctly identifies the direction of reusability the OCSVM Precision being as high as 0.97 for the original data and 65\% for the standardised data.}
+\end{table}
+
+The above observations are reflected in the precision measures. The combined precision is almost 1 for Exp1 and Exp3 if we allow a 0.05 margin of tolerance in terms of the OCSVM predictions (non-strict) as discussed in Section \ref{chap:metrics}. The combined precision falls to 0.69 when we're strict about the predictions because of Exp3. The combined precision for Exp2 is low but that's expected considering what we discussed above. Therefore, the framework has a combined precision when the threshold is set to 0.8, at 0.59 with no tolerance and increases to 0.77 when there is. These results are illustrated in Table \ref{tab:gnfuv_combined_preicision_results}. If we analyse combined precision per kernel as shown in Table \ref{tab:gnfuv_combined_precision_per_kernel}, the linear kernel is better suited for original data across all three experiments. Similar trends to those discussed either when we do or do not distinguish per kernel, can be found in the MMD precision (Tables \ref{tab:gnfuv_mmd_precision} \& \ref{tab:gnfuv_mmd_precision_per_kernel}) and OCSVM precision (Tables \ref{tab:gnfuv_ocsvm_precision} \& \ref{tab:gnfuv_ocsvm_precision_per_kernel}), with MMD precision at 0.78 when the threshold is 0.8 and OCSVM precision at 0.79 when we are strict and 0.97 when we are not. It is wroth noting that the OCSVM Precision for Exp2 when the kernel is linear is as high (almost 1) as for the other two experiments which illustrates the importance of the kernel choice. Upon further analysis linear results yield the best results on average for the original GNFUV data and hence the framework's high precision overall. 
 
 \begin{table*}[]
 \centering
@@ -531,63 +563,21 @@ In terms of the speedup, we need to be able to quantify how much time did we sav
                             & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.6}                & 0.46             & 0.63              \\
                             & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.45             & 0.61              \\ \hline
 \end{tabular}
-\caption{\label{tab:gnfuv_results} GNFUV Data Combined Precision Results}
+\caption{\label{tab:gnfuv_combined_preicision_results} GNFUV Data Combined Precision Results. Overall, the framework has good combined precision, but it performs better on the original data. Precision for the original data can get as high as 0.77 at threshold 0.8 and 15\% less for standardised ones.}
 \end{table*}
 
-\begin{table*}[]
-\centering
-\begin{tabular}{|c|ccc|}
-\hline
-\multicolumn{1}{|l|}{\textbf{Data Configuration}} & \multicolumn{3}{c|}{\textbf{MMD Precision}}                                                                   \\ \hline
-\multirow{13}{*}{\textbf{original}}               & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \cline{2-4} 
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
-                                                  & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.47               \\
-                                                  & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.28               \\
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.12               \\ \cline{2-4} 
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
-                                                  & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.78               \\
-                                                  & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.70               \\
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.63               \\ \hline
-\multirow{13}{*}{\textbf{standardised}}           & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{}                   & \textbf{}          \\ \cline{2-4} 
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
-                                                  & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.56               \\
-                                                  & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.51               \\
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.42               \\ \cline{2-4} 
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
-                                                  & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.82               \\
-                                                  & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.80               \\
-                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.76               \\ \hline
-\end{tabular}
-\caption{\label{tab:gnfuv_mmd_precision}GNFUV Data MMD Precision Results}
-\end{table*}
+Moving on to the GNFUV standardised data, the framework identifies three, four and one pair for Experiments 1, 2 \&3 respectively. All three pairs for Exp1 are good reusability pairs on both sides and the nodes of each pair have good performance on their native datasets (see Figure \ref{fig:gnfuv_exp1_std}). Similarly to the original Exp1 data, each node could be used as a replacement model for the other. Overall, the pairs have high OCSVM scores with the exception of the low pi3 score when paired with pi4. None of the pairs identified for Exp2 are good options for reusability despite the fact that most of them are above the equilibrium line. There is a high difference between OCSVM scores of each node in the pair with the exception of the pair (pi3, pi5). The same observations noted for the original data of Exp1 can be made for the Exp3 the only difference would be the best performing node. For both Exp1 and Exp2, depending on the direction of reusability different kernels are appropriate but for the same reasons discussed for the non-standardised data this is not important for neither of the experiments. For all three experiments, depending on the direction of reusability different kernels are appropriate but for the same reasons discussed for the non-standardised data this is not important for neither of the experiments. The same is true for rbf models on standardised data as with the original data in terms of the performance on the native dataset and the discrepancy.
 
-\begin{table}[]
-\centering
-\begin{tabular}{|c|ccc|}
-\hline
-\textbf{Data Configuration}            & \multicolumn{3}{c|}{\textbf{OCSVM Precision}}                                         \\ \hline
-\multirow{6}{*}{\textbf{original}}     & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{2-4} 
-                                       & \multicolumn{1}{l|}{}                          & \textbf{True}    & \textbf{False}    \\ \cline{2-4} 
-                                       & \multicolumn{1}{c|}{1}                         & 1.00             & 1.00              \\
-                                       & \multicolumn{1}{c|}{2}                         & 0.94             & 0.95              \\
-                                       & \multicolumn{1}{c|}{3}                         & 0.38             & 0.98              \\ \cline{2-4} 
-                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.79             & 0.97              \\ \hline
-\multirow{5}{*}{\textbf{standardised}} & \multicolumn{1}{c|}{\textbf{Experiment}}       &                  &                   \\ \cline{2-4} 
-                                       & \multicolumn{1}{c|}{1}                         & 0.39             & 0.80              \\
-                                       & \multicolumn{1}{c|}{2}                         & 0.29             & 0.33              \\
-                                       & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{2-4} 
-                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.47             & 0.65              \\ \hline
-\end{tabular}
-\caption{\label{tab:gnfuv_ocsvm_precision} GNFUV Data OCSVM Precision Results}
-\end{table}
+\begin{figure}
+    \centering
+    \includegraphics[scale = 0.7]{experiment_1_std.jpg}
+    \caption{GNFUV Experiment 1 Standardised Data Results. All three pairs are good reusability pairs on both sides and the nodes of each pair have good performance on their native datasets. Hence, each node could be used as a replacement model for the other. Overall, the pairs have high OCSVM scores with the exception of the low pi3 score when paired with pi4. Rbf models perform better on their native dataset but have higher discrepancy.}
+    \label{fig:gnfuv_exp1_std}
+\end{figure}
+
+As with the original data, the above observations are reflected in the precision measures. The comments made previously for the combined precision of Exp3 when we're strict cease to be true and are instead true for Exp1 and the combined precision is low. Nevertheless, similarly to the original data the combined precision is extremely high for Exp1 and Exp3 we're not strict with OCSVM. The Exp2 combined precision is almost half what it is for the original data at the 0.8 threshold. Consequently, the overall combined precision of the framework drops at the threshold level 0.8 to 0.45 and 0.61 when we are strict and non-strict respectively (Table \ref{tab:gnfuv_combined_preicision_results}). Contrary to the original data where the combined precision per kernel showed that the linear kernel is better suited, for the standardised data the opposite is true, while this difference is not significant. This is also true for the OCSVM precision when analysed per kernel (Table \ref{tab:gnfuv_ocsvm_precision_per_kernel}).  Overall, OCSVM Precision for Exp2 drops (Table \ref{tab:gnfuv_ocsvm_precision}), hence the OCSVM weighted average precision across experiments drops by 30\%. On the other hand, MMD precision increases slightly by \%4 due to an increase in the precision of Exp2 (Table \ref{tab:gnfuv_mmd_precision}). Upon further analysis per kernel, the MMD precision increased 15\% per kernel with the linear kernel providing much better results (Table \ref{tab:gnfuv_mmd_precision_per_kernel}).
+
+Overall, the framework performs better on the original data across all three levels of precision with 0.77 (non-strict) combined precision at threshold 0.8 and a drop of 15\% for standardised ones. The rbf kernel models have higher performance on their native datasets compared to linear ones, but nevertheless have higher discrepancy. Hence, on average linear models provide better results.  
 
 \begin{table}[]
 \centering
@@ -603,33 +593,14 @@ In terms of the speedup, we need to be able to quantify how much time did we sav
 \multirow{2}{*}{unbalanced}   & \multicolumn{1}{c|}{0.6}                & 0.56          & 1.00                                \\
                               & \multicolumn{1}{c|}{0.8}                & 0.56          & 1.00                                \\ \hline
 \end{tabular}
-\caption{\label{tab:bm_combined_precision}BM Data Combined Precision Results}
+\caption{\label{tab:bm_combined_precision}BM Data Combined Precision Results.}
 \end{table}
 
 \begin{table}[]
 \centering
 \begin{tabular}{|c|cc|}
 \hline
-\textbf{Data Configuration} & \multicolumn{2}{c|}{\textbf{MMD Precision}}                  \\ \hline
-\textbf{}                   & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \hline
-                            & \multicolumn{1}{c|}{0.8}                & 1.00               \\
-combined                    & \multicolumn{1}{c|}{0.85}               & 1.00               \\
-                            & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
-                            & \multicolumn{1}{c|}{0.8}                & 1.00               \\
-balanced                    & \multicolumn{1}{c|}{0.85}               & 1.00               \\
-                            & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
-                            & \multicolumn{1}{c|}{0.8}                & 1.00               \\
-unbalanced                  & \multicolumn{1}{c|}{0.85}               & 1.00               \\
-                            & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
-\end{tabular}
-\caption{\label{tab:bm_mmd_precision}BM Dataset MMD Precision Results}
-\end{table}
-
-\begin{table}[]
-\centering
-\begin{tabular}{|c|cc|}
-\hline
-\textbf{Data   Configuration} & \multicolumn{2}{c|}{\textbf{OCSVM Precision}} \\ \hline
+\textbf{Data Configuration} & \multicolumn{2}{c|}{\textbf{OCSVM Precision}} \\ \hline
 \textbf{}                     & \multicolumn{2}{c|}{\textbf{Strict}}          \\ \cline{2-3} 
 \textbf{}                     & \textbf{True}         & \textbf{False}        \\ \hline
 \textbf{combined}             & 0.55                  & 0.98                  \\
@@ -639,8 +610,15 @@ unbalanced                  & \multicolumn{1}{c|}{0.85}               & 1.00    
 \caption{\label{tab:bm_ocsvm_precision}BM Dataset OCSVM Precision Results}
 \end{table}
 
-% Please add the following required packages to your document preamble:
-% \usepackage{multirow}
+\begin{figure*}
+    \centering
+    \includegraphics[scale= 0.5]{bm_results.JPG}
+    \caption{BM Data Results}
+    \label{fig:bm_results}
+\end{figure*}
+
+\subsubsection{Speedup}
+
 \begin{table}[]
 \centering
 \begin{tabular}{|c|ccc|}
@@ -658,70 +636,8 @@ unbalanced                  & \multicolumn{1}{c|}{0.85}               & 1.00    
 \caption{\label{tab:speedup}Speedup Results}
 \end{table}
 
-\begin{figure}
-    \centering
-    \includegraphics[scale = 0.7]{experiment_1_std.jpg}
-    \caption{GNFUV Experiment 1 Standardised Data Results}
-    \label{fig:gnfuv_exp1_std}
-\end{figure}
-
-\begin{figure}
-    \begin{center}
-        \includegraphics[scale = 0.08]{experiment_1.jpg}
-    \end{center}
-    \caption{GNFUV Experiment 1 Original Data Results}
-    \label{fig:gnfuv_exp1}
-\end{figure}
-
-\begin{figure}
-    \begin{center}
-        \includegraphics[scale = 0.6]{experiment_2.jpg}
-    \end{center}
-    \caption{GNFUV Experiment 2 Original Data Results}
-    \label{fig:gnfuv_exp2}
-\end{figure}
-
-\begin{figure*}
-    \begin{center}
-        \includegraphics[scale = 0.5]{experiment_2_std.jpg}
-    \end{center}
-    \caption{GNFUV Experiment 2 Standardised Data Results}
-    \label{fig:gnfuv_exp2_std}
-\end{figure*}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale = 0.09]{experiment_3_std.jpg}
-    \caption{GNFUV Experiment 3 Standardised Data Results}
-    \label{fig:gnfuv_exp3_std}
-\end{figure}
-
-\begin{figure}
-    \begin{center}
-        \includegraphics[scale = 0.09]{experiment_3.jpg}
-    \end{center}
-    \caption{GNFUV Experiment 3 Original Data Results}
-    \label{fig:gnfuv_exp3}
-\end{figure}
-
-\begin{figure*}
-    \centering
-    \includegraphics[scale= 0.5]{bm_results.JPG}
-    \caption{BM Data Results}
-    \label{fig:bm_results}
-\end{figure*}
 
 
-
-% \begin{figure}
-% \centering
-% \begin{center}
-% \includegraphics[scale=0.7]{BM Clustering.JPG}
-% \end{center}
-% \caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
-% \end{figure}
-
-Explain how in addition to the model reusability metrics we'll use some figures based on the aggregated data from all samples.
 
 
 % \begin{quotation}
@@ -777,8 +693,15 @@ This is optional; it is a location for you to thank people
 \caption{\label{tab:gnfuv}GNFUV Dataset Description}
 \end{table*}
 
-% Please add the following required packages to your document preamble:
-\begin{table*}[]
+\begin{figure}
+\centering
+\begin{center}
+\includegraphics[scale=0.65]{gnfuv_pairplots_std.JPG}
+\end{center}
+\caption{\label{fig:gnfuv_pairplots_std} The relationship between humidity and temperature per experiment alongside their distribution plots for the standardised GNFUV data}
+\end{figure}
+
+\begin{table}[]
 \centering
 \begin{tabular}{|c|c|cc|c|}
 \hline
@@ -790,14 +713,14 @@ This is optional; it is a location for you to thank people
                                                                                     & pi5           & 765          & 1258        & 2023           \\ \hline
 \end{tabular}
 \caption{\label{tab:BMnodes}BM Dataset Node Data Description}
-\end{table*}
+\end{table}
 
-\begin{figure*}
+\begin{figure}
 \begin{center}
-\includegraphics[scale=0.5]{SVR_representation.jpg}
+\includegraphics[scale=0.45]{SVR_representation.jpg}
 \end{center}
 \caption{\label{fig-SVRex}Visual Representation of an SVR}
-\end{figure*}
+\end{figure}
 
 
 
@@ -829,6 +752,37 @@ This is optional; it is a location for you to thank people
 \end{tabular}
 \caption{\label{tab:node_performance}The average performance of node models on their native dataset}
 \end{table*}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale = 0.6]{experiment_2.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 2 Original Data Results. Neither of these pairs is a good pair for reusability. Even though for pair (pi3, pi5) we have instances models above the equilibrium line, the results are still not good. The rbf models perform better on the native dataset but nonetheless have higher discrepancy. There is a high difference between the OCSVM scores of the nodes in both pairs.}
+    \label{fig:gnfuv_exp2}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale = 0.09]{experiment_3.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 3 Original Data Results. Both nodes have good models and could be used as replacement models for the other provided the kernel is linear, since the $R^2-discrepancy$ is well above the equilibrium line. The linear pi4 model is the best for this pair and rbf models have higher discrepancy.}
+    \label{fig:gnfuv_exp3}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale = 0.09]{experiment_3_std.jpg}
+    \caption{NFUV Experiment 3 Standardised Data Results. Both nodes in the pair have good models and both of them could be used as a replacement model for the other, since the $R^2 - discrepancy$ is well above the equilibrium line.}
+    \label{fig:gnfuv_exp3_std}
+\end{figure}
+
+\begin{figure*}
+    \begin{center}
+        \includegraphics[scale = 0.5]{experiment_2_std.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 2 Standardised Data Results. None of these pairs are good options for reusability despite the fact that most of them are above the equilibrium line. The rbf models perform better on the native dataset but nonetheless have higher discrepancy. There is a high difference between OCSVM scores of each node in the pair with the exception of the pair (pi3, pi5).}
+    \label{fig:gnfuv_exp2_std}
+\end{figure*}
 
 \begin{table*}[]
 \centering
@@ -878,6 +832,41 @@ This is optional; it is a location for you to thank people
 
 \begin{table*}[]
 \centering
+\begin{tabular}{|c|ccc|}
+\hline
+\multicolumn{1}{|l|}{\textbf{Data Configuration}} & \multicolumn{3}{c|}{\textbf{MMD Precision}}                                                                   \\ \hline
+\multirow{13}{*}{\textbf{original}}               & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                                  & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.47               \\
+                                                  & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.28               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.12               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                                  & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.78               \\
+                                                  & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.70               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.63               \\ \hline
+\multirow{13}{*}{\textbf{standardised}}           & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{}                   & \textbf{}          \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                                  & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.56               \\
+                                                  & \multicolumn{1}{c|}{2}                         & \multicolumn{1}{c|}{0.85}               & 0.51               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.42               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+                                                  & \multicolumn{1}{c|}{3}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{2-4} 
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.82               \\
+                                                  & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.80               \\
+                                                  & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.76               \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_mmd_precision}GNFUV Data MMD Precision Results}
+\end{table*}
+
+\begin{table*}[]
+\centering
 \begin{tabular}{|l|c|ccc|}
 \hline
 \textbf{Data   Configuration}               & \textbf{Kernel} & \multicolumn{3}{c|}{\textbf{MMD Precision}}                                                                   \\ \hline
@@ -919,7 +908,7 @@ This is optional; it is a location for you to thank people
                                             &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \cline{3-5} 
                                             &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.65               \\
                                             &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.63               \\
-\multicolumn{1}{|c|}{\textbf{standardised}} &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.62               \\ \hline
+\multicolumn{1}{|c|}{\textbf{standardised}} &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.62               \\ \cline{3-5}
                                             &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{}                   & \textbf{}          \\ \cline{3-5} 
                                             &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
                                             &                 & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
@@ -937,6 +926,25 @@ This is optional; it is a location for you to thank people
 \caption{\label{tab:gnfuv_mmd_precision_per_kernel} GNFUV Data MMD Precision Results per kernel}
 \end{table*}
 
+\begin{table}[]
+\centering
+\begin{tabular}{|c|cc|}
+\hline
+\textbf{Data Configuration} & \multicolumn{2}{c|}{\textbf{MMD Precision}}                  \\ \hline
+\textbf{}                   & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \hline
+                            & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+combined                    & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                            & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
+                            & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+balanced                    & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                            & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
+                            & \multicolumn{1}{c|}{0.8}                & 1.00               \\
+unbalanced                  & \multicolumn{1}{c|}{0.85}               & 1.00               \\
+                            & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
+\end{tabular}
+\caption{\label{tab:bm_mmd_precision}BM Dataset MMD Precision Results}
+\end{table}
+
 \begin{table*}[]
 \centering
 \begin{tabular}{|c|c|ccc|}
@@ -952,6 +960,7 @@ This is optional; it is a location for you to thank people
                             &                 & \multicolumn{1}{c|}{1}                         & 1.00             & 1.00              \\
                             & \textbf{linear} & \multicolumn{1}{c|}{2}                         & 0.96             & 0.96              \\
                             &                 & \multicolumn{1}{c|}{3}                         & 0.38             & 0.98              \\
+                            \cline{3-5}
                             &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.80             & 0.98              \\ \hline
                             &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
                             &                 & \multicolumn{1}{c|}{1}                         & 0.58             & 1.00              \\

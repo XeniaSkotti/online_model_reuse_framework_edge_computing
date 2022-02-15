@@ -6,35 +6,6 @@
 % \usepackage{natbib}
 
 
-\begin{document}
-\title{Model Reuse Framework for Edge Computing}
-\author{Xenia Skotti}
-\matricnum{2299606s}
-
-\maketitle
-
-\begin{abstract}
-
-According to Simon Peyton Jones, an abstract should address
-four key questions. First, what is the problem that this
-paper tackles? Second, why is this an interesting problem?
-Third, what is the solution this paper proposes?
-Finally, why is the proposed solution a good one?
-\end{abstract}
-
-% Sharing models in a pool raises concerns including user privacy \cite{ComputeReuse}\cite{Learnware} and intellectual property (IP) considerations \cite{DNNSimilarity}. These are legitimate concerns and one of the ways this can be eliminated is by not sharing the data used to train the models and instead creating a proxy for them \cite{DNNSimilarity}\cite{KernelMMD}.
-
-\section{Introduction}
-
-Lee et al. \cite{ComputeReuse} define compute reuse as "the partial or full utilization of already executed computational task results by multiple users to complete a new task while avoiding computation redundancy".  Systems that adopt compute reuse benefit from significant performance gains motivating model reuse in machine learning (ML). Model reuse \cite{Learnware} attempts to construct a model from other pre-existing and pretrained models for other tasks, in order to avoid building a model from scratch. Exploitation of pre-existing models can set a good basis for the training of a new model which translates into a reduced time cost, data amount and expertise required to train a new model. Moreover, model reuse has been used to tackle concept drift \cite{ConceptDrift} and building ad-hoc analytic models \cite{MaterializationReuse}.
-
-Model reusability is compelling and therefore both theoretical \cite{Learnware} and empirical \cite{MaterializationReuse}\cite{KernelMMD}  frameworks have been proposed to take advantage of it. Many of the approaches proposed, involve a two-phased framework of a preprocessing and runtime phase. In the preprocessing phase, the model and its data are shared in a pool from which in the runtime phase the relevant ML models are identified. Consider the case of edge computing, where given a number of nodes and their corresponding datasets we want to decide for which nodes to train a distinct model and for which to reuse one. In this context the reuse comes from the fact that we don’t train a model for all the nodes but instead reuse one of the existing ones. A framework for model reuse in edge computing requires it is online hence, these steps are merged and to the best of our knowledge no such framework has been proposed. 
-
-One of the fundamental requirements of any model reuse framework is to be able to choose the model that best fits the (test) data of the target domain. One of the ways this can be achieved is by finding the model whose source domain (training data) is drawn from the same distribution as the target domain. Therefore, the difference between domains needs to be quantified and minimised to find the best model. This is essentially what the Maximum Mean Discrepancy (MMD) \cite{OriginalMMD} statistic does. In addition to measuring the similarity between two dataset domains, we need to determine the direction of reusability. In other frameworks where the reused model originated from a pool there was no such requirement because there was only one direction of reusability, the pool. In this setting though there are two directions per pair, and we need to define a method to do so. A simple solution to this, is to measure the overlap between the inlier points of two datasets. Any dataset is expected to have a few outliers and a simple filtering technique would be to use One-class Support Vector Machines (OCSVM) \cite{OriginalOCSVM} to determine which points are inliers. Therefore, given two nodes and their corresponding OCSVM models, we can use each OCSVM model to predict the other node's inliers and then find the probability of detecting them, hence their overlap. 
-
-To summarise, our project contributes a novel online framework for model reuse in edge computing, which given a set of nodes and their corresponding datasets can determine for which nodes to train distinct models and for which nodes to reuse one. 
-
-
 % This paper outlines the standard template for an MSci submission.
 % In earlier years, MSci students at the School of Computing
 % Science\footnote{\url{http://www.dcs.gla.ac.uk}},
@@ -53,6 +24,44 @@ To summarise, our project contributes a novel online framework for model reuse i
 % \item Evaluation, qualitative or quantitative as appropriate
 % \item Conclusion, including scope for future work
 % \end{enumerate}
+
+
+\begin{document}
+\title{Model Reuse Framework for Edge Computing}
+\author{Xenia Skotti}
+\matricnum{2299606s}
+
+\maketitle
+
+% According to Simon Peyton Jones, an abstract should address
+% four key questions. First, what is the problem that this
+% paper tackles? Second, why is this an interesting problem?
+% Third, what is the solution this paper proposes?
+% Finally, why is the proposed solution a good one?
+
+\begin{abstract}
+
+The adoption of edge computing continues to grow with edge nodes recording increasingly more data, which inevitably requires that they are processed through Machine Learning (ML) models. However, training these models requires increased amount of resources, which are limited, hence reusing models becomes paramount. Given that we don't have a pool of models to choose from, is it possible to determine which nodes in the network require distinct models and which of them could be reused for the rest of them? In this paper we present a potential solution to this, an online model reuse framework which is evaluated for it's precision and speedup. Our extensive experimental analysis in the context of both regression and classification shows the viability of the solution. 
+
+\end{abstract}
+
+\section{Introduction}
+
+The combination of the rapid expansion of the Internet of Things (IoT) and the success of cloud computing services have contributed to the emergence of a new computing paradigm, edge computing \cite{EdgeComputing}. The paradigm essentially calls for processing data at the edge of the network as a direct consequence of data being increasingly produced at the edge of the network making these nodes both data producers and consumers. Hence, it is more efficient to process the data at the edge of the network as well. Some of the benefits of edge computing compared to traditional cloud-based computing paradigm include, reduced response time for requests \cite{ECBreduced_response_time_wearables, ECBreduced_response_time}, reduced energy consumption \cite{ECBenergy}, reduced latency etc. Consequently, edge computing opportunities have been recognised in a variety of contexts such as smart homes and smart cities.  
+
+As the adoption of edge computing continues to grow and edge nodes record increasingly more data, the need to analyse information through machine learning (ML) methods \cite{ECDeepLearning, ECAI} becomes more and more prevalent. Nevertheless, the main challenges of ML include increased amounts of computation, energy consumption and storage \cite{MLChallenges}.  One of the ways to reduce the burden on the network overall, is to reduce the amount of models needed to be trained in the first place by reusing existing models, a form of compute reuse. 
+
+Lee et al. \cite{ComputeReuse} define compute reuse as "the partial or full utilization of already executed computational task results by multiple users to complete a new task while avoiding computation redundancy".  Systems that adopt compute reuse benefit from significant performance gains motivating model reuse in machine learning (ML). Model reuse \cite{Learnware} attempts to construct a model from other pre-existing and pretrained models for other tasks, in order to avoid building a model from scratch. Exploitation of pre-existing models can set a good basis for the training of a new model which translates into a reduced time cost, data amount and expertise required to train a new model. Moreover, model reuse has been used to tackle concept drift \cite{ConceptDrift} and building ad-hoc analytic models \cite{MaterializationReuse}.
+
+Model reusability is compelling and therefore both theoretical \cite{Learnware} and empirical \cite{MaterializationReuse, KernelMMD}  frameworks have been proposed to take advantage of it. Many of the approaches proposed, involve a two-phased framework of a preprocessing and runtime phase. In the preprocessing phase, the model and its data are shared in a pool from which in the runtime phase the relevant ML models are identified. Consider the case of edge computing, where given a number of nodes and their corresponding datasets we want to decide for which nodes to train a distinct model and for which to reuse one. In this context the reuse comes from the fact that we don’t train a model for all the nodes but instead reuse one of the existing ones. A framework for model reuse in edge computing requires it is online hence, these steps are merged and to the best of our knowledge no such framework has been proposed.
+
+One of the fundamental requirements of any model reuse framework is to be able to choose the model that best fits the (test) data of the target domain. One of the ways this can be achieved is by finding the model whose source domain (training data) is drawn from the same distribution as the target domain. Therefore, the difference between domains needs to be quantified and minimised to find the best model. This is essentially what the Maximum Mean Discrepancy (MMD) \cite{OriginalMMD} statistic does. 
+
+In addition to measuring the similarity between two datasets, we need to determine the direction of reusability. In other frameworks \cite{MaterializationReuse, KernelMMD}, the reused model originated from a pool, hence there was no such requirement because there was only one direction of reusability, the pool. In this setting though there are two directions per pair, and we need to define a method to do so. The method needs to measure the data space overlap between two datasets to determine potentially which would be better suited to be used to train a replacement model for the other. 
+
+The data space overlap can also be defined as the overlap of the inlier data space. A predictor for inlier space overlap is the probability of correctly predicting the non-native inliers of a model. In other words, what is the overlap between the inlier points of two datasets, the native and non-native one with regards to the inlier detection model. The reason behind using inliers to determine the overlap is that any dataset is expected to have a few outliers and hence some filtering needs to be applied anyway. Simultaneously, this can also be leveraged to determine the direction of reusability. We used the One-class Support Vector Machines (OCSVM) \cite{OriginalOCSVM} to determine which points are inliers. Therefore, given two nodes and their corresponding OCSVM models, we can use each OCSVM model to predict the other node's inliers and then find the probability of detecting them, hence their overlap. 
+
+To summarise, this paper contributes a novel online framework for model reuse in edge computing, which given a set of nodes and their corresponding datasets can determine for which nodes to train distinct models and for which nodes to reuse one. We evaluated the framework in the context of classification and regression against precision and speedup which were defined in the context of model reusability.
 
 \section{Background}
 
@@ -89,7 +98,9 @@ where $\sigma \in \mathbb{R}$ is a kernel parameter and $\parallel x - y\paralle
 
 \subsection{One-class Support Vector Machines}
 
-One-class support vector machines (OCSVMs) is a one-class classification technique, which aims to classify instances into one of two classes, the inlier and outlier class. The method, first presented by Schölkopf et. al \cite{OriginalOCSVM},  utilizes a training data set with normal data to learn the boundaries of the normal data points. Therefore, data points which lie outside of the region to be classified as outliers. OCSVMs utilize an implicit transformation function $\phi\left(.\right)$ defined by the kernel to project data to a higher dimensional space. The algorithm learns the decision boundary (a hyperplane) which achieves the maximum separation of the majority of the data points from their origin. Only a small fraction of data points are allowed to lie on the other side of the decision boundary and those data are considered outliers. 
+One-class support vector machines (OCSVMs) is a one-class classification technique, which aims to classify instances into one of two classes, the inlier and outlier class. The method, first presented by Schölkopf et. al \cite{OriginalOCSVM},  utilizes a training data set with normal data to learn the boundaries of the normal data points. Therefore, data points which lie outside of the region to be classified as outliers. 
+
+OCSVMs utilize an implicit transformation function $\phi\left(.\right)$ defined by the kernel to project data to a higher dimensional space. The algorithm learns the decision boundary (a hyperplane) which achieves the maximum separation of the majority of the data points from their origin. Only a small fraction of data points are allowed to lie on the other side of the decision boundary and those data are considered outliers. 
 
 The OCSVM algorithm returns a function $f$ that takes the value +1 for the normal region and -1 elsewhere. Hence, function $f$ is called a decision function and is defined as:
 
@@ -190,21 +201,28 @@ For OCSVM we've utilised the RBF kernel as defined by Equation \ref{eqn:rbf}.
 
 \section{Related Work}
 
-Compute reuse has been investigated in the context of edge computing by \cite{ComputeReuse} to quantify its gain. Executing experiments on three applications: matrix multiplication, face detection, and chess, they found that systems that adopt compute reuse, compared to systems that don't, can finish the same task up to five times faster. In addition to the benefits of compute reuse they also highlight some challenges including task representation and privacy considerations. Model tasks need to have a clear specification detailing their purpose and speciality in order to identify when they can be re-used while also preserving user privacy when they are shared. Motivated by similar concerns a theoretical paradigm named learnware was proposed by Zhou \cite{Learnware}. More specifically, a learnware is a machine learning model that is pretrained and achieves good performance paired with a detailed specification. The vision behind the paradigm was that learnware models can be shared in a pool without their raw data, allowing data scientists to identify pretrained models that satisfy their requirements without concerns over privacy violations. Therefore, the author identified three characteristics: reusable, evolvable and comprehensible as fundamental for a model to be considered a learnware.  
+Compute reuse has been investigated in the context of edge computing by \cite{ComputeReuse} to quantify its gain. Experiments on three applications: matrix multiplication, face detection, and chess, showed that systems that adopt compute reuse, as opposed to those that don't, can finish the same task up to five times faster. In addition to the benefits of compute reuse they also highlight some challenges including task representation and privacy considerations. Model tasks need to have a clear specification detailing their purpose and speciality in order to identify the context in which they can be re-used. Simultaneously, when the model is shared, user privacy should be preserved. Motivated by similar concerns a theoretical paradigm named learnware was proposed by Zhou \cite{Learnware}. More specifically, a learnware is a machine learning model that is pretrained and achieves good performance paired with a detailed specification. The vision behind the paradigm was that learnware models can be shared in a pool without their raw data, allowing data scientists to identify pretrained models that satisfy their requirements without concerns over privacy violations. Therefore, the author identified three characteristics: reusable, evolvable and comprehensible as fundamental for a model to be considered a learnware.  
 
-Based on this paradigm, the reduced kernel mean embedding (RKME) \cite{KernelMMD} was presented, a two phased framework consisting of the upload and deployment phase. During the upload phase, each model is paired with its kernel mean embedding (KME) of the dataset and added to the pool of models. Roughly speaking, a kernel mean embedding is a point in the reproducing Hilbert space (RKHS) which "summarises" the probability distribution. Then in the deployment phase either a single or a combination of models is chosen based on the RKHS distance between the testing (target) mean embedding and reduced (source) embedding of pool models. Therefore, there is no need to access the raw data since KME acts a proxy for them. The RKME method is similar to the MMD  statistic \cite{OriginalMMD}, which is the largest difference between the mean embedding of two populations (source and target) and its aim is to determine if the two populations were drawn from the same distribution. Essentially, this is what the deployment phase of the framework does, it wants to find the model which minimises the difference and thus ensures that the target distribution is the same as the source. The framework was tested in a series of experiments including a real-world project where it outperformed reuse baselines in terms of the root-mean-square error.
+Based on this paradigm, the reduced kernel mean embedding (RKME) \cite{KernelMMD} was presented, a two phased framework consisting of the upload and deployment phase. During the upload phase, each model is paired with its kernel mean embedding (KME) of the dataset and added to the pool of models. Roughly speaking, a kernel mean embedding is a point in the reproducing Hilbert space (RKHS) which "summarises" the probability distribution. Then in the deployment phase either a single or a combination of models is chosen based on the RKHS distance between the testing (target) mean embedding and reduced (source) embedding of pool models. Therefore, there is no need to access the raw data since KME acts a proxy for them. In essence, the RKME's deployment phase, is similar to the MMD statistic \cite{OriginalMMD}, since by quantifiying the distance of the mean embedding of two populations (source and target) it ensures that the target distribution is the same as the source. The framework was tested in a series of experiments including a real-world project where it outperformed reuse baselines in terms of the root-mean-square error.
 
-The author of the learnware paradigm \cite{Learnware} recognises transfer learning as a preliminary attempt to reusability. The aim of transfer learning is to transfer the knowledge of a pretrained model to a new model that is used for a different but related problem. In transfer learning there are three key research issues as identified in \cite{DefinitionTL}: when, how and what to transfer. This corresponds to identifying a source domain that would benefit the target domain, then using an algorithm the transferable knowledge across domains is discovered. A two-stage framework dubbed as Learning to Transfer (L2T) was presented \cite{L2T}, which exploits previous transfer learning experiences to optimize what and how to transfer between domains. In the first stage each transfer learning experience is encoded into three parts: a pair of source and target domains, the transferred knowledge between them represented by latent factors and the performance improvement ratio. Using these transfer learning experiences, L2T learns a reflection function, which approximates the performance improvement ratio and thus encrypts transfer learning skills of deciding what and how to transfer. The improvement ratio in this framework is the difference between domains calculated by MMD further highlighting the similarity to RKME \cite{KernelMMD}. In addition to the MMD between domains, the variance is also calculated since a small MMD paired with an extremely high variance still indicates little overlap. A potential drawback of the RKME \cite{KernelMMD} framework, and by extension the learnware paradigm, is that the variance between pairs cannot be calculated since the raw data are not available during the testing phase. During the second stage, whenever a new pair of domains arrives, L2T optimizes the knowledge to be transferred by maximising the value of the learned reflection function.
-
-Concerns over intellectual property (IP) infringement and vulnerability propagation of deep learning models (DNN) motivated the proposal of ModelDiff \cite{DNNSimilarity}, a testing-based approach to DNN model similarity comparison. They compare the decision logic of models on the test inputs represented by a decision distance vector (DDV),a newly defined data structure in which each value is the distance between the outputs of the model produced by two inputs. These inputs are pairs of normal and corresponding adversarial samples and thus when used to calculate the DDV, the decision boundary is captured. In contrast to RKME \cite{KernelMMD} which is a compute reuse framework, ModelDiff is a model reuse detector. 
+The author of the learnware paradigm \cite{Learnware} recognises transfer learning as a preliminary attempt to reusability. The aim of transfer learning is to transfer the knowledge of a pretrained model to a new model that is used for a different but related problem. In transfer learning there are three key research issues as identified in \cite{DefinitionTL}: when, how and what to transfer. This corresponds to identifying a source domain that would benefit the target domain and then using an algorithm the transferable knowledge across domains is discovered. A two-stage framework dubbed as Learning to Transfer (L2T) was presented \cite{L2T}, which exploits previous transfer learning experiences to optimize what and how to transfer between domains. In the first stage each transfer learning experience is encoded into three parts: a pair of source and target domains, the transferred knowledge between them represented by latent factors and the performance improvement ratio. Using these transfer learning experiences, L2T learns a reflection function, which approximates the performance improvement ratio and thus encrypts transfer learning skills of deciding what and how to transfer. The improvement ratio in this framework is the difference between domains calculated by MMD further highlighting the similarity to RKME \cite{KernelMMD}. In addition to the MMD between domains, the variance is also calculated since a small MMD paired with an extremely high variance still indicates little overlap. A potential drawback of the RKME \cite{KernelMMD} framework, and by extension the learnware paradigm, is that the variance between pairs cannot be calculated since the raw data are not available during the testing phase. During the second stage, whenever a new pair of domains arrives, L2T optimizes the knowledge to be transferred by maximising the value of the learned reflection function.
 
 Model reuse has also been used to handle concept drift, a situation where the distribution of the data (usually stream data) changes. The assumption that previous data contain some useful information, indicates that the models corresponding to the data can be leveraged. Condor was proposed \cite{ConceptDrift} as an approach to handling concept drift through model reuse. Condor consists of two modules, ModelUpdate and WeightUpdate which leverage previous knowledge to build new model, hence updating the model pool and adapt the weights of previous models to reflect current reusability performance respectively. The effectiveness of the approach was validated using both synthetic and real-world datasets. 
 
-Hasani et al. \cite{MaterializationReuse} proposed a two-phased approach, to build faster models for a popular class of analytic queries by leveraging model reuse. Similar to other approaches such as RKME \cite{KernelMMD}, there is a preprocessing and a runtime phase. During the first phase the models, their statistics and some meta-data are stored, while in the second phase relevant models are identified from which an approximate model is constructed. Moreover, they propose two methods for generating approximate models, one which is extremely fast but does not provide a fine-tuning option and another which does at the cost of efficiency. Their approach can achieve speed-ups of several orders on magnitude on very large datasets, however it is only geared towards exploratory analysis purposes and the approach is potentially less robust under concept drift. 
+Hasani et al. \cite{MaterializationReuse} proposed a two-phased approach, to build faster models for a popular class of analytic queries by leveraging model reuse. Similar to the other approaches \cite{L2T, KernelMMD, ConceptDrift}, there is a preprocessing and a runtime phase. During the first phase the models, their statistics and some meta-data are stored, while in the second phase relevant models are identified from which an approximate model is constructed. Moreover, they propose two methods for generating approximate models, one which is extremely fast but does not provide a fine-tuning option and another which does at the cost of efficiency. Their approach can achieve speed-ups of several orders on magnitude on very large datasets, however it is only geared towards exploratory analysis purposes and the approach is potentially less robust under concept drift. 
+
+Concerns over intellectual property (IP) infringement and vulnerability propagation of deep learning models (DNN) motivated the proposal of ModelDiff \cite{DNNSimilarity}, a testing-based approach to DNN model similarity comparison. They compare the decision logic of models on the test inputs represented by a decision distance vector (DDV), a newly defined data structure in which each value is the distance between the outputs of the model produced by two inputs. These inputs are pairs of normal and corresponding adversarial samples and thus when used to calculate the DDV, the decision boundary is captured. In contrast to RKME \cite{KernelMMD} which is a compute reuse framework, ModelDiff is a model reuse detector. 
 
 Lee et al. \cite{ComputeReuse} also discuss alternative approaches and corresponding challenges of compute reuse including in networks. They identify that reuse can be achieved either in a distributed or centralized manner. The distributed approach involves forwarding tasks to the compute reuse node that is responsible for the operation. This adds additional complexity to the forwarding operations of routers resulting in a potential downgrade in performance. Reuse of results in a network setting undoubtedly improves performance, however speeding up the estimation of parameters can also be beneficial in that regard. Nodes in a network can collaborate to estimate parameters as discussed in \cite{DistributedEstimation}. More specifically, their method takes advantage of the joint sparsity of vectors used for computations enhancing estimation performance. Joint sparsity simply means that the indexes of nonzero entries for all nodes are the same, but their values differ.  The authors also adopt an intertask cooperation strategy to consider intertask similarities. Their method assumes that both the vectors of interest and their associated noise follow a zero-mean Gaussian distribution which is a strong assumption for the data to hold. 
 
-In conclusion, reusing models results in significant reduction in compute usage resources. Both theoretical and empirical frameworks have been proposed to take advantage of the performance improvement of model reusability. Nevertheless, model reuse has also been used to tackle concept drift and building ad-hoc analytic models. While model reuse is undoubtedly beneficial many have raised concerns including user privacy and intellectual property considerations.  These are legitimate concerns of model sharing, however  our model reuse  framework is novel and therefore user privacy is not a concern at this stage of development. In the future we could amend the framework to not expose any data outside of the node. At this stage we've investigated whether the framework is feasible. In contrast to previous research in which frameworks required two distinct steps, our framework is online, and they are therefore merged. Our framework includes determining which datasets are similar, but also the direction of reusability.  Similarly, to the L2T \cite{L2T} framework we use MMD to measure the similarity of two dataset domains. In previous research there was no requirement to determine the direction of reusability hence we propose a novel approach, using the OCSVM model of each node to predict other node’s inliers and measuring the overlap.
+In conclusion, reusing models results in significant reduction in compute usage resources. Both theoretical and empirical frameworks have been proposed to take advantage of the performance improvement afforded through model reusability. Nevertheless, model reuse has also been used to tackle concept drift and building ad-hoc analytic models. While model reuse is undoubtedly beneficial many have raised concerns including user privacy and intellectual property considerations. These are legitimate concerns of model sharing, however  our model reuse  framework is novel and therefore user privacy is not a concern at this stage of development. In the future we could amend the framework to not expose any data outside of the node. At this stage we've investigated whether the framework is feasible. 
+
+The contributions of this paper can be summarised as follows:
+\begin{itemize}
+    \item An online model reuse framework for edge computing consisting of two steps, a pair similarity detector (based on MMD) followed by a direction of reusability one (based on the inlier data space overlap). 
+    \item Naive decision making algorithm which given the results of the framework it can maximise the number of nodes which do not require distinct models along with a list of replacement models.
+    \item Extensive experimental evaluation of the framework with both classification and regression datasets.
+\end{itemize}
 
 % \begin{table}
 % \begin{tabular}{l||c||p{2cm}}
@@ -240,6 +258,10 @@ In conclusion, reusing models results in significant reduction in compute usage 
 \section{The Framework}\label{chap:framework}
 
 % NOTE: line ends are denoted by \; in algorithm2e
+
+In this section we elaborate and provide a detailed implementation of the framework. Our online model reuse framework needs to be able to determine two things given a pair of nodes. First and foremost, the pairs of nodes which have similar datasets and then the direction of reusability. 
+
+The first objective is achieved using MMD, which measures the difference domains and hence theoretically when the MMD value is zero this means the two datasets are drawn from the same distribution. However, as discussed in section \ref{chap2:MMD} in practise we utilise an estimation of MMD squared. As a consequence, the value is not actually zero and we need to define a threshold below which a pair would be considered similar. We've dubbed the threshold to be the average similarity MMD (ASMMD), a value calculated using Algorithm \ref{alg:asmmd}. 
 
 \SetInd{0.1em}{0.5em}
 \SetNlSkip{0.3em}
@@ -286,10 +308,6 @@ In conclusion, reusing models results in significant reduction in compute usage 
         $asmmd = \boldsymbol{mean}(similar\_mmds)$ \;
     }
 \end{algorithm}
-
-In this section we elaborate and provide a detailed implementation of the framework. Our online model reuse framework needs to be able to determine two things given a pair of nodes. First and foremost, the pairs of nodes which have similar datasets and then the direction of reusability. 
-
-The first objective is achieved using MMD, which measures the difference domains and hence theoretically when the MMD value is zero this means the two datasets are drawn from the same distribution. However, as discussed in section \ref{chap2:MMD} in practise we utilise an estimation of MMD squared. As a consequence, the value is not actually zero and we need to define a threshold below which a pair would be considered similar. We've dubbed the threshold to be the average similarity MMD (ASMMD), a value calculated using Algorithm \ref{alg:asmmd}. 
 
 \begin{algorithm}
     \DontPrintSemicolon
@@ -354,6 +372,8 @@ Algorithm \ref{alg:asmmd} requires that we categorise nodes into two sets, one w
 
 Once we identify the similar pairs in the network we can then calculate the OCSVM scores of each node in each pair and hence determine the direction of reusability per pair. The OCSVM score is essentially the probability of detecting the inliers of the node by using the other node's model.  Therefore, given two nodes $x$ and $y$, and their corresponding OCSVM models, we use each OCSVM model to predict the other node's inliers and then we calculate the number of points that were identified as inliers and divide by the number points in the dataset, hence the probability. The reason we divide by the number of points in the dataset is because we expect to do some form of filtering prior and remove the outliers if they exist, hence all the points in the dataset are inliers. We calculate the OCSVM score for both directions and whichever is higher is the node for which we should train the model for. Algorithm \ref{alg:ocsvm_scores} calculates of the OCSVM scores of each node per pair.
 
+The framework presented by this point operates on the node level, however in order unify the information to the network level we prose a naive decision making algorithm (Algorithm \ref{alg:modelless_nodes}). The algorithm provides the user with information about which nodes do not require distinct models and the respective potential replacement models. The algorithm is naive and thus simple whose aim is to find the maximum number of nodes for which we don't train a model for. Nevertheless, the algorithm would not take into account any performance optimising considerations. 
+
 \section{Experimental Evaluation}
 
 \subsection{Experimental Setup}
@@ -362,15 +382,68 @@ Once we identify the similar pairs in the network we can then calculate the OCSV
 
 We've evaluated our framework for both regression and classification. 
 
-For regression, we've used the \textbf{\textit{GNFUV Unmanned Surface Vehicles Sensor Data Set}} \cite{GNFUV} which includes data from three experiments. In each experiment there are four sets of mobile sensor readings data recorded by the Raspberry Pi's corresponding to four Unmanned Surface Vehicles (USVs). Each node (USV) dataset contains the humidity and temperature recorded when they were floating over the sea surface in a GPS pre-defined trajectory in a coastal area of Athens (Greece). The data description and visualisation can be found in Table \ref{tab:gnfuv} and Figure \ref{fig:gnfuv_pairplots} respectively. 
+For regression, we've used the \textbf{\textit{GNFUV Unmanned Surface Vehicles Sensor Data Set}} \cite{GNFUV} which includes data from three experiments. In each experiment there are four sets of mobile sensor readings data recorded by the Raspberry Pi's corresponding to four Unmanned Surface Vehicles (USVs). Each node (USV) dataset contains the humidity and temperature recorded when they were floating over the sea surface in a GPS pre-defined trajectory in a coastal area of Athens (Greece). The data description and visualisation can be found in Appendix \ref{apx:datasets} Table \ref{tab:gnfuv} and Figure \ref{fig:gnfuv_pairplots} respectively. 
 
 For classification we've used the \textbf{\textit{UCI Bank Marketing Dataset}} (BM) \cite{BMDataset} which consists of four files of which we've used the bank-additional-full.csv one which contains 41188 records and 20 attributes. The data was collected by a banking institution through phone calls as part of a direct marketing campaign. The dataset is a binary classification dataset of classes "yes" or "no", to subscribe to the product (bank term deposit). To get a yes from a client often more than one contact was required hence class imbalance is present. More specifically there are 4640 yes instances and 36548 no instances. 
 
-As mentioned above the dataset has 20 attributes hence we've applied Principal Component Analysis (PCA) to reduce the number of dimensions. We've transformed data through PCA and kept 3 of the 20 dimensions and then subsequently used these data to execute the hypothesis testing. In comparison to the GNFUV dataset the BM dataset has no inherent network-node like structure and hence it was constructed by us. We trained a K-means classifier with an equal number of yes and no instances (9280 total) to split data into four clusters. This was done to avoid class imbalance from influencing the clustering algorithm. However, we wanted to have more available samples to split into more nodes so instead of clustering equal amounts of instances per class, we used three times the number of yes instances for no instances (4640 (yes) 13920 (no)). We left cluster 3 shown in Figure \ref{fig-BMcl}, which was large enough and has a good class balance, untouched and merged the other three clusters together to create a larger cluster. From these clusters we then created 5 nodes in total and the node data description can be found in Table \ref{tab:BMnodes}. 
+As mentioned above the dataset has 20 attributes hence we've applied Principal Component Analysis (PCA) to reduce the number of dimensions. We've transformed data through PCA and kept 3 of the 20 dimensions and then subsequently used these data to execute the hypothesis testing. In comparison to the GNFUV dataset the BM dataset has no inherent network-node like structure and hence it was constructed. We trained a K-means classifier with an equal number of yes and no instances (9280 total) to split data into four clusters. This was done to avoid class imbalance from influencing the clustering algorithm. However, we wanted to have more available samples to split into more nodes so instead of clustering equal amounts of instances per class, we used three times the number of yes instances for no instances (4640 (yes) 13920 (no)). We left cluster 3 shown in Figure \ref{fig-BMcl}, which was large enough and has a good class balance, untouched and merged the other three clusters together to create a larger cluster. From these clusters we then created 5 nodes in total and the node data description can be found in Appendix \ref{apx:datasets} Table \ref{tab:BMnodes}. 
 
-It is worth mentioning we've used two data configurations per dataset. For the GNFUV dataset the two configurations were the original data and a standardised version of them (see Figure \ref{fig:gnfuv_pairplots_std} for the data visualisation). While for the BM Dataset we used the node data created from the process above as well as a balanced version of them, by under sampling the majority class (no) to have an equal number of instances as the minority class (yes). In each case this was done to explore the effect of the data configuration change on the effectiveness of the framework. 
 
-Lastly, we've drawn 100 unique samples per network, in each of which the node data have an equal number of examples in order to comply with the MMD implementation constraint discussed in section \ref{chap:framework}. The sample size of each node dataset is determined by the minimum sample size (MSS) of the network i.e. the node with the minimum number of entries. If the two thirds of the MSS is more than 500 instances the sample size is the two-thirds of the MSS, otherwise it is 500, unless the MSS is less than that in which case the sample size is equal to the it. Even though for some nodes we're not really creating a sample but simply taking all or most the points of the node, the remainder of the nodes will be samples and therefore we're testing a different relationship between nodes with each sample and hence we do not compromise the validity of our experiment.
+\begin{algorithm}
+    \DontPrintSemicolon
+    \caption{Finds nodes that can use a reused model, along with a list of replacements, based on the results of the framework
+    }\label{alg:modelless_nodes}
+    
+    \KwData{$\boldsymbol{pair\_results}$: dictionary associating each pair with the node whose model to be reused i.e. the direction of reusability, $\boldsymbol{nodes}$: the list of nodes from the MMD identified pairs}
+    \KwResult{$\boldsymbol{mns}$: modelless nodes i.e. nodes that do not require that a model is trained for them, 
+              $\boldsymbol{model\_mns}$: associates each modelless node (mn) with a list of potential replacement node models}
+    
+    \Begin{
+    \SetKw{KwTo}{in}
+         $similar\_pairs \longleftarrow pair\_results.keys()$ \;
+         $mns \longleftarrow nodes.copy()$, $model\_mns \longleftarrow \{\}$ \;
+         \SetAlgoLined
+         \For{node \KwTo nodes}{
+            $model\_mns[node] \longleftarrow []$ \; 
+         }
+         \For{node \KwTo nodes}{
+            $node\_similar\_pairs \longleftarrow get\_node\_similar\_pairs(node, similar\_pairs)$ \;
+            \For{x, y \KwTo $node\_similar\_pairs$}{
+                $model\_node \longleftarrow pair\_results[(x,y)]$ \;
+                $mn \longleftarrow difference(model\_node, (x,y))$ \;
+                \If{model   \_node \KwTo mns}{
+                    $mns.remove(model\_node)$ \;
+                }
+                $model\_mns[mn].append(model\_node)$ \;
+                \tcp{ensures we don't encounter the pair again}
+                $similar\_pairs.pop((x,y))$\;
+            }
+         }
+         \tcp{Remove replacement options for an mn that can be replaced themselves}
+         \For{node \KwTo nodes}{
+           \If{model\_mns[node].count() > 1}{
+                \For{model\_node \KwTo model\_mns[node]}{
+                    \If{model\_mns[node] not empty}{
+                        $model\_mns[node].remove(model\_node)$ \;
+                        $mns.append(model\_node)$
+                    }
+                }
+           }
+         }
+            
+    }
+    
+\end{algorithm}
+
+It is worth mentioning we've used two data configurations per dataset. For the GNFUV dataset the two configurations were the original data and a standardised version of them (see Appendix \ref{apx:datasets} Figure \ref{fig:gnfuv_pairplots_std} for the data visualisation). While for the BM Dataset we used the node data created from the process above as well as a balanced version of them, by under sampling the majority class (no) to have an equal number of instances as the minority class (yes). In each case this was done to explore the effect of the data configuration change on the effectiveness of the framework.
+
+\begin{figure}
+\centering
+\begin{center}
+\includegraphics[scale=0.45]{bm_clustering.png}
+\end{center}
+\caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
+\end{figure}
 
 \begin{figure}
 \centering
@@ -380,13 +453,8 @@ Lastly, we've drawn 100 unique samples per network, in each of which the node da
 \caption{\label{fig:gnfuv_pairplots} The relationship between humidity and temperature per experiment alongside their distribution plots for the original GNFUV data}
 \end{figure}
 
-\begin{figure}
-\centering
-\begin{center}
-\includegraphics[scale=0.45]{bm_clustering.png}
-\end{center}
-\caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
-\end{figure}
+Lastly, we've drawn 100 unique samples per network, in each of which the node data have an equal number of examples in order to comply with the MMD implementation constraint discussed in section \ref{chap:framework}. The sample size of each node dataset is determined by the minimum sample size (MSS) of the network i.e. the node with the minimum number of entries. If the two thirds of the MSS is more than 500 instances the sample size is the two-thirds of the MSS, otherwise it is 500, unless the MSS is less than that in which case the sample size is equal to the it. Even though for some nodes we're not really creating a sample but simply taking all or most the points of the node, the remainder of the nodes will be samples and therefore we're testing a different relationship between nodes with each sample and hence we do not compromise the validity of our experiment.
+
 
 \begin{table*}[]
 \centering
@@ -409,11 +477,11 @@ Lastly, we've drawn 100 unique samples per network, in each of which the node da
 
 \subsubsection{ASMMD Algorithm Parameters}\label{chap:asmmd_parameters}
 
-As discussed in Section \ref{chap:framework}, the ASMMD Algorithm  takes four arguments, the sample of each node, the kernel, bandwidth, the similar and other nodes. In this section we discuss how we set and what the kernel, bandwidth and similar and other nodes are per dataset (and experiment in the case of the GNFUV dataset). 
+As discussed in Section \ref{chap:framework}, the ASMMD Algorithm  takes four arguments, the sample of each node, the kernel, bandwidth, the similar and other nodes. In this section we discuss how we set and what the kernel, bandwidth, similar and other nodes are per dataset (and experiment in the case of the GNFUV dataset). 
 
 The approach to identifying the similar and other nodes for each dataset differed due to the nature of each dataset. Since the GNFUV is a regression dataset of only two dimensions, we plotted the points of each experiment and visually identified the pairs which we deemed as similar per experiment. Then we used Algorithms \ref{alg:asmmd} (ASMMD Algorithm) \& \ref{alg:similar_pairs} to confirm our inferences and if our initial groupings were off, we adjusted the similar and other nodes sets. As discussed in the previous section (\ref{chap:training_data}), the nodes were created out of two clusters, in each of which the nodes are similar to each other. Therefore, the similar nodes are either the nodes of the newly merged cluster or cluster 3. Similarly, we tested both possible similar nodes sets for each data configuration (balanced and unbalanced) to determine which one was best. 
 
-Once we had an initial idea of the similar and other nodes sets, we could then use them to determine the kernel and bandwidth. As discussed above, we've used the ASMMD Algorithm to refine our similar and other nodes sets. However, we cannot determine these sets in isolation and we need to consider them in conjunction with the bandwidth and kernel and what similar pairs they produce. The two kernels we considered were the radial basis function (rbf) and linear kernel. We aimed to choose the parameters which would most effectively separate the similar from dissimilar pairs. The full parameter configuration of each dataset (, experiment) and data configuration is found in Table \ref{tab:asmmd_parameters}.
+Once we had an initial idea of the similar and other nodes sets, we could then use them to determine the kernel and bandwidth. As discussed above, we've used the ASMMD Algorithm to refine our similar and other nodes sets. However, we cannot determine these sets in isolation and we need to consider them in conjunction with the bandwidth and kernel and what similar pairs they produce. The two kernels we considered were the radial basis function (rbf) and linear kernel as defined by Equations \ref{eqn:rbf} and \ref{eqn:linear} respectively. We aimed to choose the parameters which would most effectively separate the similar from dissimilar pairs. The full parameter configuration of each dataset (, experiment) and data configuration is found in Table \ref{tab:asmmd_parameters}.
 
 \begin{table*}[]
 \centering
@@ -435,78 +503,21 @@ Once we had an initial idea of the similar and other nodes sets, we could then u
 
 For each problem type we chose distinct classifiers, namely Support Vector Regression (SVR) and Logistic Regression (LR) for regression and classification respectively.
 
-Starting off with regression, we have trained SVRs to capture the relationship between the humidity and temperature attributes of the dataset. SVRs are a version of SVM for regression proposed by Vapnik et al. \cite{OriginalSVR}. The adaptation is accomplished by introducing an $\epsilon$-insensitive region around the function, called the $\epsilon$-tube as shown in Figure \ref{fig-SVRex}. The goal is to first minimise an $\epsilon$-insensitive loss function and find the flattest tube that contains most of the training instances. Therefore, SVRs have a few variables that should be optimised for each node model. First, we experiment with both the linear and rbf kernels in order to evaluate how different kernels interact with our framework. Moreover, we optimise the regularization parameter and the epsilon in the epsilon-SVR model using grid search given a node's dataset to ensure we find the best $\epsilon$-insensitive region for the data. It is worth noting that the SVR implementaion in scikit-learn reports the performance of the classifier in terms of the coefficient of determination $R^2$. 
+Starting off with regression, we have trained SVRs to capture the relationship between the humidity and temperature attributes of the dataset. SVRs are a version of SVM for regression proposed by Vapnik et al. \cite{OriginalSVR}. The adaptation is accomplished by introducing an $\epsilon$-insensitive region around the function, called the $\epsilon$-tube as shown in Appendix \ref{apx:classifiers} Figure \ref{fig-SVRex}. The goal is to first minimise an $\epsilon$-insensitive loss function and find the flattest tube that contains most of the training instances. Therefore, SVRs have a few variables that should be optimised for each node model. First, we experiment with both the linear and rbf kernels in order to evaluate how different kernels interact with our framework. Moreover, we optimise the regularization parameter and the epsilon in the epsilon-SVR model using grid search given a node's dataset to ensure we find the best $\epsilon$-insensitive region for the data. It is worth noting that the SVR implementation in scikit-learn reports the performance of the classifier in terms of the coefficient of determination ($R^2$). 
 
 Our classification dataset, has two classes yes and no and we've used LR specifically because it is usually a good baseline for binary classification. LR \cite{OriginalLR} is a statistical model that in its basic form uses a logistic function to model the conditional probability, of two classes in our case. Hence, the scikit-learn implementation of LR reports performance in terms of the mean accuracy on the test dataset. As mentioned in section \ref{chap:training_data}, the BM Dataset exhibits severe class imbalance which is why we experiment with two data configurations, one which data are balanced and another in which they are not. For the case in which the data are not balanced, we configured the class weight parameter of LR to be balanced to deal with the imbalance. The other parameter which we control for both data configurations is the regularization parameter. Lastly, the scikit learn implementation offers a variety of solver options hence we optimise it as well. Table \ref{tab:classifier_parameters} summarises all of the information discussed in the section for both classifiers. 
 
 \subsubsection{Model Reusability Metrics}\label{chap:metrics}
 
-Investigating the effectiveness of the framework, requires that we examine two aspects, the \textbf{speedup} we benefit from when we avoid training models for some nodes and the network, and the \textbf{precision} of the framework in terms of the recommendations it makes. We've defined both speedup and precision in the context of model reusability.
+Investigating the effectiveness of the framework, requires that we examine two aspects, the \textbf{speedup} we benefit from when we avoid training models for some nodes in the network, and the \textbf{precision} of the framework in terms of the recommendations it makes. We've defined both speedup and precision in the context of model reusability.
 
 Before, we continue to define precision and speedup it is important to mention first how we assess the proxy model's performance and how we measure a model's training time. We assess the proxy model on the non-native node data by subtracting the \textit{discrepancy} from the model's performance score on the native dataset. We define discrepancy as the difference between the model's performance score on the native dataset and the model's performance score on the non-native dataset. Therefore, essentially we simply use the performance of the model on the non-native dataset. The model's training time is the sum of the time required to train and optimise the model. The reason that we include the optimisation time is that some form of optimisation would take place in a real world scenario.
 
-Starting off with precision, precision needs to be assessed across three different levels. The precision of MMD at identifying good pairs for reusability, the precision of OCSVM at identifying the correct node to reuse it's model and lastly the combined precision of the framework. In order for the \textbf{\textit{MMD Precision}} to be a meaningful measure to use, it is expressed in terms of the ratio between the performance of using a proxy model and the true model. It is worth mentioning, that the ratio retains the same meaning across regression and classification since it measures how close the proxy model is to the true performance regardless of whether the performance is reported in terms of $R^2$ or accuracy. We then consider this ratio with regards with a threshold and if it is above that threshold it is correct. The thresholds we considered were 0.85, 0.9 and 0.95. The \textbf{\textit{OCSVM Precision}} is either calculated strictly or with a 0.05 margin, that is if the node pointed by the direction of reusability does not yield the optimal performance, but it's performance is equal or less than 0.05 from the optimal, we consider that the framework has made the right decision. Then like the MMD precision, we consider the framework made the right decision if the ratio is above a threshold it is correct. For the \textbf{\textit{Combined Precision}} we utilized lower values for the threshold, namely values 0.6 and 0.8 since we want to assess the framework with a higher tolerance when the components are combined. The reason that we assess precision across three levels is to be able to gauge how effective each component of the framework is in isolation but also combined. Consequently, we can provide a more holistic evaluation of the framework. 
+Starting off with precision, precision needs to be assessed across three different levels. The precision of MMD at identifying good pairs for reusability, the precision of OCSVM at identifying the correct node to reuse it's model and lastly the combined precision of the framework. In order for the \textbf{\textit{MMD precision}} to be a meaningful measure to use, it is expressed in terms of the ratio between the performance of using a proxy model and the true model. It is worth mentioning, that the ratio retains the same meaning across regression and classification since it measures how close the proxy model is to the true performance regardless of whether the performance is reported in terms of $R^2$ or accuracy. We then consider this ratio with regards with a threshold and if it is above that threshold it is correct. The thresholds we considered were 0.8, 0.85 and 0.9 and are extremely high. Considering that if the true performance of the model is 0.8 and we use the lowest threshold then the performance on the non-native model should not be lower than 0.64. 
 
-In terms of the speedup, we need to be able to quantify how much time did we save by not training some models with respect to what time we would need if we trained all of them. This requires that we first identify the nodes for which we won't train a model for. Our framework provides reusability solutions at the pair level but not at the network one. For this purpose we've defined a naive algorithm which given a set of pairs and the direction of reusability per pair it can provide us with the nodes which we do not need to train a model for, the model-less nodes. The algorithm is naive in the sense it simply aims to reduce the number of nodes for which we need to train models for. This does not necessarily translate into the "optimal solution" as it does not take into account any other variables of interest. The full solution is found under Algorithm \ref{alg:modelless_nodes}. It is worth noting that the speedup potential varies across datasets and samples. Hence, one sample may have the potential for a maximum of 40\% speedup, while another much more or less. Since we're using 100 samples per dataset it is impossible to know the exact speedup potential per sample hence we simply report it as a number. 
+The \textbf{\textit{OCSVM precision}} is either calculated strictly or with a 0.05 error margin, that is if the node pointed by the direction of reusability does not yield the optimal performance, but it's performance is equal or less than 0.05 from the optimal, we consider that the framework has made the right decision. Then like the MMD precision, we consider the framework made the right decision if the ratio is above a threshold it is correct. 
 
-\subsection{Performance Evaluation}
-
-As discussed in the previous section (\ref{chap:metrics}), we assess the framework across two metrics, precision and speedup. In this section we evaluate these metric results one by one for each dataset and provide a discussion around the effectiveness of the framework.
-
-\begin{algorithm}
-    \DontPrintSemicolon
-    \caption{Finds nodes that can use a reused model based on the results of the framework
-    }\label{alg:modelless_nodes}
-    
-    \KwData{$\boldsymbol{pair\_results}$: dictionary associating each pair with the node whose model to be reused i.e. the direction of reusability, $\boldsymbol{nodes}$: the list of nodes from the MMD identified pairs}
-    \KwResult{$\boldsymbol{mns}$: modelless nodes i.e. nodes that do not require that a model is trained for them}
-    
-    \Begin{
-    \SetKw{KwTo}{in}
-         $similar\_pairs \longleftarrow pair\_results.keys()$ \;
-         \tcp{model\_mns associates each modelless node (mn) with a list of potential replacement node models}
-         $mns \longleftarrow nodes.copy()$, $model\_mns \longleftarrow \{\}$ \;
-         \SetAlgoLined
-         \For{node \KwTo nodes}{
-            $model\_mns[node] \longleftarrow []$ \; 
-         }
-         \For{node \KwTo nodes}{
-            $node\_similar\_pairs \longleftarrow get\_node\_similar\_pairs(node, similar\_pairs)$ \;
-            \For{x, y \KwTo $node\_similar\_pairs$}{
-                $model\_node \longleftarrow pair\_results[(x,y)]$ \;
-                $mn \longleftarrow difference(model\_node, (x,y))$ \;
-                \If{model   \_node \KwTo mns}{
-                    $mns.remove(model\_node)$ \;
-                }
-                $model\_mns[mn].append(model\_node)$ \;
-                \tcp{ensures we don't encounter the pair again}
-                $similar\_pairs.pop((x,y))$\;
-            }
-         }
-         \tcp{Replacement options for an mn that can be replaced themselves are not considered}
-         \For{node \KwTo nodes}{
-           \If{model\_mns[node].count() > 1}{
-                \For{model\_node \KwTo model\_mns[node]}{
-                    \If{model\_mns[node] not empty}{
-                        $model\_mns[node].remove(model\_node)$ \;
-                        $mns.append(model\_node)$
-                    }
-                }
-           }
-         }
-            
-    }
-    
-\end{algorithm}
-
-
-\subsubsection{Precision}
-
-In this section we discuss the precision results across the three levels by looking at a combination of tables and figures. The figures have been created by merging (averaging) the results of the 100 samples to create a single figure for each pair per data configuration (and experiment). 
-
-More specifically, in the case of the GNFUV dataset, we will provide observations pair by pair for each experiment before drawing general conclusions using both the metric results and figures. Finally, we will draw some general conclusions on the applicability of the framework in regression, the effect of the kernel and whether or not we standardised data. Similarly, for the BM dataset we will discuss observations per by pair before drawing conclusions for the dataset, the applicability of the framework in classification and the effect of using balanced and unbalanced data.
-
-Starting off with the GNFUV original data, for Experiments (Exp) 1, 2 \& 3 the framework identifies the pair (pi2, pi4) for all of them and an additional pair, (pi3, pi5) for Exp2. As shown in Figure \ref{fig:gnfuv_exp1} (and confirmed by Table \ref{tab:node_performance}) for Exp1, both nodes have good models and also high OCSVM scores. Both node models could be used as replacement models for the other, since the $R^2 - discrepancy$ is well above the equilibrium line. Overall, the pi4 rbf model, however is the best for this pair. For Exp2, neither of these pairs is a good pair for reusability (see Figure \ref{fig:gnfuv_exp2}). Even though for pair (pi3, pi5) we have instances models above the equilibrium line, the results are still not good.  There is a high difference between the OCSVM scores of the nodes in both pairs. For both Exp1 and Exp2, depending on the direction of reusability i.e. which nodes' model we decide to reuse, different kernels are appropriate. These differences are small for Exp1 and for Exp2 this choice is not important because ultimately the pairs are not good options. Similarly to Exp1, the pair in Exp3 (see Figure \ref{fig:gnfuv_exp3}) both nodes have good models and could be used as replacement models for the other provided the kernel is linear for reasons discussed for Exp1 and the linear pi4 model is the best for this pair. Across all three experiments rbf models perform better on the native dataset but nonetheless have higher discrepancy.
+For the \textbf{\textit{combined precision}} we utilized lower values for the threshold, namely values 0.6 and 0.8 since when the components are combined this will likely result in higher errors. Nevertheless, 0.8 is still not only a high threshold but also it is common threshold across the MMD and combined precision allowing us to track their difference. The reason that we assess precision across three levels is to be able to gauge how effective each component of the framework is in isolation but also combined. Consequently, we can provide a more holistic evaluation of the framework. 
 
 \begin{figure}
     \begin{center}
@@ -516,33 +527,27 @@ Starting off with the GNFUV original data, for Experiments (Exp) 1, 2 \& 3 the f
     \label{fig:gnfuv_exp1}
 \end{figure}
 
-\begin{table}[]
-\centering
-\begin{tabular}{|c|ccc|}
-\hline
-\textbf{Data Configuration}            & \multicolumn{3}{c|}{\textbf{OCSVM Precision}}                                         \\ \hline
-\multirow{6}{*}{\textbf{original}}     & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{2-4} 
-                                       & \multicolumn{1}{l|}{}                          & \textbf{True}    & \textbf{False}    \\ \cline{2-4} 
-                                       & \multicolumn{1}{c|}{1}                         & 1.00             & 1.00              \\
-                                       & \multicolumn{1}{c|}{2}                         & 0.94             & 0.95              \\
-                                       & \multicolumn{1}{c|}{3}                         & 0.38             & 0.98              \\ \cline{2-4} 
-                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.79             & 0.97              \\ \hline
-\multirow{5}{*}{\textbf{standardised}} & \multicolumn{1}{c|}{\textbf{Experiment}}       &                  &                   \\ \cline{2-4} 
-                                       & \multicolumn{1}{c|}{1}                         & 0.39             & 0.80              \\
-                                       & \multicolumn{1}{c|}{2}                         & 0.29             & 0.33              \\
-                                       & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{2-4} 
-                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.47             & 0.65              \\ \hline
-\end{tabular}
-\caption{\label{tab:gnfuv_ocsvm_precision} GNFUV Data OCSVM Precision Results. The framework correctly identifies the direction of reusability the OCSVM Precision being as high as 0.97 for the original data and 65\% for the standardised data.}
-\end{table}
+In terms of the speedup, we need to be able to quantify how much time did we save by not training some models with respect to what time we would need if we trained all of them. This requires that we first identify the nodes for which we won't train a model for. As discussed in section \ref{chap:framework}, as part of our framework we proposed a naive decision making algorithm (Algorithm \ref{alg:modelless_nodes}). The algorithm can provide us with the nodes which we do not need to train a model for, the model-less nodes along with a list of potential replacement models. We utilise the list of of model-less nodes to calculate the speedup. It is worth noting that the speedup potential varies across datasets and samples. Hence, one sample may have the potential for a maximum of 40\% speedup, while another much more or less. Since we're using 100 samples per dataset it is impossible to know the exact speedup potential per sample hence we simply report it as a number.
 
-The above observations are reflected in the precision measures. The combined precision is almost 1 for Exp1 and Exp3 if we allow a 0.05 margin of tolerance in terms of the OCSVM predictions (non-strict) as discussed in Section \ref{chap:metrics}. The combined precision falls to 0.69 when we're strict about the predictions because of Exp3. The combined precision for Exp2 is low but that's expected considering what we discussed above. Therefore, the framework has a combined precision when the threshold is set to 0.8, at 0.59 with no tolerance and increases to 0.77 when there is. These results are illustrated in Table \ref{tab:gnfuv_combined_preicision_results}. If we analyse combined precision per kernel as shown in Table \ref{tab:gnfuv_combined_precision_per_kernel}, the linear kernel is better suited for original data across all three experiments. Similar trends to those discussed either when we do or do not distinguish per kernel, can be found in the MMD precision (Tables \ref{tab:gnfuv_mmd_precision} \& \ref{tab:gnfuv_mmd_precision_per_kernel}) and OCSVM precision (Tables \ref{tab:gnfuv_ocsvm_precision} \& \ref{tab:gnfuv_ocsvm_precision_per_kernel}), with MMD precision at 0.78 when the threshold is 0.8 and OCSVM precision at 0.79 when we are strict and 0.97 when we are not. It is wroth noting that the OCSVM Precision for Exp2 when the kernel is linear is as high (almost 1) as for the other two experiments which illustrates the importance of the kernel choice. Upon further analysis linear results yield the best results on average for the original GNFUV data and hence the framework's high precision overall. 
+\begin{figure}
+    \centering
+    \includegraphics[scale = 0.7]{experiment_1_std.jpg}
+    \caption{GNFUV Experiment 1 Standardised Data Results. All three pairs are good reusability pairs on both sides and the nodes of each pair have good performance on their native datasets. Hence, each node could be used as a replacement model for the other. Overall, the pairs have high OCSVM scores with the exception of the low pi3 score when paired with pi4. Rbf models perform better on their native dataset but have higher discrepancy.}
+    \label{fig:gnfuv_exp1_std}
+\end{figure}
+
+
+\subsection{Performance Evaluation}
+
+As discussed in the previous section (\ref{chap:metrics}), we assess the framework across two metrics, precision and speedup. In this section we evaluate these metric results one by one for each dataset and provide a discussion around the effectiveness of the framework.
+
+In the following sections we discuss the precision results across the three levels, followed by speedup, by looking at a combination of tables and figures. The figures have been created by merging (averaging) the results of the 100 samples to create a single figure for each pair per data configuration (and experiment). We will analyse each dataset's precision individually and then discuss the speedup across both datasets simultaneously. More specifically, in the case of the GNFUV dataset precision, we will provide observations pair by pair for each experiment before drawing general conclusions using both the metric results and figures. Finally, we will draw some general conclusions on the applicability of the framework in regression, the effect of the kernel and whether or not we standardised data. Similarly, for the BM dataset precision we will discuss observations per by pair before drawing conclusions for the dataset, the applicability of the framework in classification and the effect of using balanced and unbalanced data.
 
 \begin{table*}[]
 \centering
 \begin{tabular}{|c|cccc|}
 \hline
-\textbf{Data Configuration} & \multicolumn{4}{c|}{\textbf{Combined Precision}}                                                                                \\ \hline
+\textbf{Data Configuration} & \multicolumn{4}{c|}{\textbf{combined precision}}                                                                                \\ \hline
 \textbf{}                   & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{\textbf{Threshold}} & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{2-5} 
                             & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{}                   & \textbf{True}    & \textbf{False}    \\ \cline{2-5} 
                             & \multicolumn{1}{c|}{\multirow{2}{*}{1}}        & \multicolumn{1}{c|}{0.6}                & 1.00             & 1.00              \\
@@ -563,27 +568,45 @@ The above observations are reflected in the precision measures. The combined pre
                             & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.6}                & 0.46             & 0.63              \\
                             & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 0.45             & 0.61              \\ \hline
 \end{tabular}
-\caption{\label{tab:gnfuv_combined_preicision_results} GNFUV Data Combined Precision Results. Overall, the framework has good combined precision, but it performs better on the original data. Precision for the original data can get as high as 0.77 at threshold 0.8 and 15\% less for standardised ones.}
+\caption{\label{tab:gnfuv_combined_preicision_results} GNFUV Data combined precision Results. Overall, the framework has good combined precision, but it performs better on the original data. Precision for the original data can get as high as 0.77 at threshold 0.8 and 15\% less for standardised ones.}
 \end{table*}
 
-Moving on to the GNFUV standardised data, the framework identifies three, four and one pair for Experiments 1, 2 \&3 respectively. All three pairs for Exp1 are good reusability pairs on both sides and the nodes of each pair have good performance on their native datasets (see Figure \ref{fig:gnfuv_exp1_std}). Similarly to the original Exp1 data, each node could be used as a replacement model for the other. Overall, the pairs have high OCSVM scores with the exception of the low pi3 score when paired with pi4. None of the pairs identified for Exp2 are good options for reusability despite the fact that most of them are above the equilibrium line. There is a high difference between OCSVM scores of each node in the pair with the exception of the pair (pi3, pi5). The same observations noted for the original data of Exp1 can be made for the Exp3 the only difference would be the best performing node. For both Exp1 and Exp2, depending on the direction of reusability different kernels are appropriate but for the same reasons discussed for the non-standardised data this is not important for neither of the experiments. For all three experiments, depending on the direction of reusability different kernels are appropriate but for the same reasons discussed for the non-standardised data this is not important for neither of the experiments. The same is true for rbf models on standardised data as with the original data in terms of the performance on the native dataset and the discrepancy.
-
-\begin{figure}
-    \centering
-    \includegraphics[scale = 0.7]{experiment_1_std.jpg}
-    \caption{GNFUV Experiment 1 Standardised Data Results. All three pairs are good reusability pairs on both sides and the nodes of each pair have good performance on their native datasets. Hence, each node could be used as a replacement model for the other. Overall, the pairs have high OCSVM scores with the exception of the low pi3 score when paired with pi4. Rbf models perform better on their native dataset but have higher discrepancy.}
-    \label{fig:gnfuv_exp1_std}
-\end{figure}
-
-As with the original data, the above observations are reflected in the precision measures. The comments made previously for the combined precision of Exp3 when we're strict cease to be true and are instead true for Exp1 and the combined precision is low. Nevertheless, similarly to the original data the combined precision is extremely high for Exp1 and Exp3 we're not strict with OCSVM. The Exp2 combined precision is almost half what it is for the original data at the 0.8 threshold. Consequently, the overall combined precision of the framework drops at the threshold level 0.8 to 0.45 and 0.61 when we are strict and non-strict respectively (Table \ref{tab:gnfuv_combined_preicision_results}). Contrary to the original data where the combined precision per kernel showed that the linear kernel is better suited, for the standardised data the opposite is true, while this difference is not significant. This is also true for the OCSVM precision when analysed per kernel (Table \ref{tab:gnfuv_ocsvm_precision_per_kernel}).  Overall, OCSVM Precision for Exp2 drops (Table \ref{tab:gnfuv_ocsvm_precision}), hence the OCSVM weighted average precision across experiments drops by 30\%. On the other hand, MMD precision increases slightly by \%4 due to an increase in the precision of Exp2 (Table \ref{tab:gnfuv_mmd_precision}). Upon further analysis per kernel, the MMD precision increased 15\% per kernel with the linear kernel providing much better results (Table \ref{tab:gnfuv_mmd_precision_per_kernel}).
-
-Overall, the framework performs better on the original data across all three levels of precision with 0.77 (non-strict) combined precision at threshold 0.8 and a drop of 15\% for standardised ones. The rbf kernel models have higher performance on their native datasets compared to linear ones, but nevertheless have higher discrepancy. Hence, on average linear models provide better results.  
 
 \begin{table}[]
 \centering
 \begin{tabular}{|c|ccc|}
 \hline
-\textbf{Data Configuration} & \multicolumn{3}{c|}{\textbf{Combined Precision}}                                              \\ \hline
+\textbf{Data Configuration}            & \multicolumn{3}{c|}{\textbf{OCSVM precision}}                                         \\ \hline
+\multirow{6}{*}{\textbf{original}}     & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{2-4} 
+                                       & \multicolumn{1}{l|}{}                          & \textbf{True}    & \textbf{False}    \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{1}                         & 1.00             & 1.00              \\
+                                       & \multicolumn{1}{c|}{2}                         & 0.94             & 0.95              \\
+                                       & \multicolumn{1}{c|}{3}                         & 0.38             & 0.98              \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.79             & 0.97              \\ \hline
+\multirow{5}{*}{\textbf{standardised}} & \multicolumn{1}{c|}{\textbf{Experiment}}       &                  &                   \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{1}                         & 0.39             & 0.80              \\
+                                       & \multicolumn{1}{c|}{2}                         & 0.29             & 0.33              \\
+                                       & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{2-4} 
+                                       & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.47             & 0.65              \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_ocsvm_precision} GNFUV Data OCSVM precision Results. The framework correctly identifies the direction of reusability the OCSVM precision being as high as 0.97 for the original data and 65\% for the standardised data.}
+\end{table}
+
+\subsubsection{Regression Precision}
+
+\textit{Original Data:} {} Starting off with the GNFUV original data, for Experiments (Exp) 1, 2 \& 3 the framework identifies the pair (pi2, pi4) for all of them and an additional pair, (pi3, pi5) for Exp2. As shown in Figure \ref{fig:gnfuv_exp1} (and confirmed by Table \ref{tab:node_performance}) for Exp1, both nodes have good models and also high OCSVM scores. Both node models could be used as replacement models for the other, since the $R^2 - discrepancy$ is well above the equilibrium line. Overall, the pi4 rbf model, however is the best for this pair. For Exp2, neither of these pairs is a good pair for reusability (see Figure \ref{fig:gnfuv_exp2}). Even though for pair (pi3, pi5) we have instances models above the equilibrium line, the results are still not good.  There is a high difference between the OCSVM scores of the nodes in both pairs. For both Exp1 and Exp2, depending on the direction of reusability i.e. which nodes' model we decide to reuse, different kernels are appropriate. These differences are small for Exp1 and for Exp2 this choice is not important because ultimately the pairs are not good options. Similarly to Exp1, the pair in Exp3 (see Figure \ref{fig:gnfuv_exp3}) both nodes have good models and could be used as replacement models for the other provided the kernel is linear for reasons discussed for Exp1 and the linear pi4 model is the best for this pair. Across all three experiments rbf models perform better on the native dataset but nonetheless have higher discrepancy.
+
+The above observations are reflected in the precision measures. The combined precision is almost 1 for Exp1 and Exp3 if we allow a 0.05 margin of tolerance in terms of the OCSVM predictions (non-strict) as discussed in Section \ref{chap:metrics}. The combined precision falls to 0.69 when we're strict about the predictions because of Exp3. The combined precision for Exp2 is low but that's expected considering what we discussed above. Therefore, the framework has a combined precision when the threshold is set to 0.8, at 0.59 with no tolerance and increases to 0.77 when there is. These results are illustrated in Table \ref{tab:gnfuv_combined_preicision_results}. If we analyse combined precision per kernel as shown in Table \ref{tab:gnfuv_combined_precision_per_kernel}, the linear kernel is better suited for original data across all three experiments. Similar trends to those discussed either when we do or do not distinguish per kernel, can be found in the MMD precision (Tables \ref{tab:gnfuv_mmd_precision} \& \ref{tab:gnfuv_mmd_precision_per_kernel}) and OCSVM precision (Tables \ref{tab:gnfuv_ocsvm_precision} \& \ref{tab:gnfuv_ocsvm_precision_per_kernel}), with MMD precision at 0.78 when the threshold is 0.8 and OCSVM precision at 0.79 when we are strict and 0.97 when we are not. It is wroth noting that the OCSVM precision for Exp2 when the kernel is linear is as high (almost 1) as for the other two experiments which illustrates the importance of the kernel choice. Upon further analysis linear results yield the best results on average for the original GNFUV data and hence the framework's high precision overall.
+
+\textit{Standardised Data:} {} Moving on to the GNFUV standardised data, the framework identifies three, four and one pair for Experiments 1, 2 \&3 respectively. All three pairs for Exp1 are good reusability pairs on both sides and the nodes of each pair have good performance on their native datasets (see Figure \ref{fig:gnfuv_exp1_std}). Similarly to the original Exp1 data, each node could be used as a replacement model for the other. Overall, the pairs have high OCSVM scores with the exception of the low pi3 score when paired with pi4. None of the pairs identified for Exp2 are good options for reusability despite the fact that most of them are above the equilibrium line. There is a high difference between OCSVM scores of each node in the pair with the exception of the pair (pi3, pi5). The same observations noted for the original data of Exp1 can be made for the Exp3 the only difference would be the best performing node. For both Exp1 and Exp2, depending on the direction of reusability different kernels are appropriate but for the same reasons discussed for the non-standardised data this is not important for neither of the experiments. For all three experiments, depending on the direction of reusability different kernels are appropriate but for the same reasons discussed for the non-standardised data this is not important for neither of the experiments. The same is true for rbf models on standardised data as with the original data in terms of the performance on the native dataset and the discrepancy.
+
+As with the original data, the above observations are reflected in the precision measures. The comments made previously for the combined precision of Exp3 when we're strict cease to be true and are instead true for Exp1 and the combined precision is low. Nevertheless, similarly to the original data the combined precision is extremely high for Exp1 and Exp3 we're not strict with OCSVM. The Exp2 combined precision is almost half what it is for the original data at the 0.8 threshold. Consequently, the overall combined precision of the framework drops at the threshold level 0.8 to 0.45 and 0.61 when we are strict and non-strict respectively (Table \ref{tab:gnfuv_combined_preicision_results}). Contrary to the original data where the combined precision per kernel showed that the linear kernel is better suited, for the standardised data the opposite is true, while this difference is not significant. This is also true for the OCSVM precision when analysed per kernel (Table \ref{tab:gnfuv_ocsvm_precision_per_kernel}).  Overall, OCSVM precision for Exp2 drops (Table \ref{tab:gnfuv_ocsvm_precision}), hence the OCSVM weighted average precision across experiments drops by 30\%. On the other hand, MMD precision increases slightly by \%4 due to an increase in the precision of Exp2 (Table \ref{tab:gnfuv_mmd_precision}). Upon further analysis per kernel, the MMD precision increased 15\% per kernel with the linear kernel providing much better results (Table \ref{tab:gnfuv_mmd_precision_per_kernel}).
+
+\begin{table}[]
+\centering
+\begin{tabular}{|c|ccc|}
+\hline
+\textbf{Data Configuration} & \multicolumn{3}{c|}{\textbf{combined precision}}                                              \\ \hline
                               & \multicolumn{1}{c|}{\textbf{Threshold}} & \multicolumn{2}{c|}{\textbf{Strict}}                \\ \cline{2-4} 
                               & \multicolumn{1}{c|}{\textbf{}}          & \textbf{True} & \multicolumn{1}{l|}{\textbf{False}} \\ \hline
 \multirow{2}{*}{combined}     & \multicolumn{1}{c|}{0.6}                & 0.55          & 0.98                                \\
@@ -593,31 +616,32 @@ Overall, the framework performs better on the original data across all three lev
 \multirow{2}{*}{unbalanced}   & \multicolumn{1}{c|}{0.6}                & 0.56          & 1.00                                \\
                               & \multicolumn{1}{c|}{0.8}                & 0.56          & 1.00                                \\ \hline
 \end{tabular}
-\caption{\label{tab:bm_combined_precision}BM Data Combined Precision Results.}
+\caption{\label{tab:bm_combined_precision}BM Data combined precision Results. The combined precision for the BM Dataset is extremely high whether we distinguish the data configurations or whether we don't. This indicates the framework has good performance across both of it's components and that it is suitable for the classification setting. }
 \end{table}
 
 \begin{table}[]
 \centering
 \begin{tabular}{|c|cc|}
 \hline
-\textbf{Data Configuration} & \multicolumn{2}{c|}{\textbf{OCSVM Precision}} \\ \hline
+\textbf{Data Configuration} & \multicolumn{2}{c|}{\textbf{OCSVM precision}} \\ \hline
 \textbf{}                     & \multicolumn{2}{c|}{\textbf{Strict}}          \\ \cline{2-3} 
 \textbf{}                     & \textbf{True}         & \textbf{False}        \\ \hline
 \textbf{combined}             & 0.55                  & 0.98                  \\
 \textbf{balanced}             & 0.58                  & 0.99                  \\
 \textbf{unbalanced}           & 0.56                  & 1.00                  \\ \hline
 \end{tabular}
-\caption{\label{tab:bm_ocsvm_precision}BM Dataset OCSVM Precision Results}
+\caption{\label{tab:bm_ocsvm_precision}BM Dataset OCSVM precision Results. The strict OCSVM precision is low, however the non-strict one is almost 1 showing the effectiveness of the component on the classification dataset.}
 \end{table}
 
-\begin{figure*}
-    \centering
-    \includegraphics[scale= 0.5]{bm_results.JPG}
-    \caption{BM Data Results}
-    \label{fig:bm_results}
-\end{figure*}
+\textit{GNFUV Precision Performance Overall:} {} Overall, the MMD precision of the framework is high, however it is low for Experiment 2 across both original and standardised data. The difference between the MMD precision of original and standardised is not high when the threshold is set at 0.8 (only at 4\%). However as the threshold increases this difference as well, to 10\% and 13\% for thresholds 0.85 and 0.9 respectively. This is because the performance on Experiment 2 is better on standardised data and as the threshold increases it does not deteriorate in the same way as for the original data. Considering how high of a threshold 0.9 is, having a 0.63 and 0.76 MMD precision is really good performance. The kernel choice is not important for Experiment 1, when it comes to the MMD precision since the performance is perfect regardless of the kernel and data configuration. This is also true for Experiment 3 for the standardised data, while for the original data the linear kernel is better suited for this Experiment. For both data configurations the linear kernel performs better for Experiment 2. Lastly, in terms of the OVSVM Precision when the original data are used, the kernel choice is unimportant for Experiment 1, while for Experiments 2 \& 3 the linear kernel is better, even though for Experiment 3 the difference is not significant. When the standardised data are used, the statements made for Experiments 1 \& 3 are now reversed, with the slight difference that it is the rbf kernel that is better for Experiment 1 instead of the linear one. Similarly, to Experiment 1 the rbf kernel is slightly better for Experiment 2 but the difference is only 0.07.
 
-\subsubsection{Speedup}
+The framework performs better on the original data across all three levels of precision with 0.77 (non-strict) combined precision at threshold 0.8 and a drop of 15\% for standardised ones.  When analysing the combined precision results per kernel, the linear kernel is better suited for the original data, while the opposite is true for standardised data even though this difference is not large. The rbf kernel models have higher performance on their native datasets compared to linear ones, but nevertheless have higher discrepancy. Hence, on average linear models provide better results.
+
+
+\subsubsection{Classification Precision}
+
+In terms of the classification performance of the dataset, the BM Dataset results are very good. All the nodes in the BM Dataset, have good performance on their native dataset, with balanced models having slightly better performance. All pairs identified are good pairs for reusability on both sides and the performance across configurations is almost identical. This is confirmed by the combined precision depicted in Table  \ref{tab:bm_combined_precision} which is extremely high regardless of whether we distinguish between the configurations or not if we are not strict. If we are strict this performance drops at 0.55 on average and this is a direct reflection of the OCSVM precision (Table \ref{tab:bm_ocsvm_precision}). However, considering how good the performance is overall, the real combined precision of the framework is the one given by the non-strict measure. The MMD precision is perfect across configurations which is expected if you consider the results illustrated in Figure \ref{fig:bm_results}. 
+
 
 \begin{table}[]
 \centering
@@ -633,75 +657,84 @@ Overall, the framework performs better on the original data across all three lev
 \multirow{2}{*}{\textbf{BM}} & \multicolumn{1}{l|}{}                          & \textbf{unbalanced}       & \textbf{balanced}    \\ \cline{3-4} 
                              & \multicolumn{1}{c|}{\textbf{}}                 & 0.29                      & 0.41                 \\ \hline
 \end{tabular}
-\caption{\label{tab:speedup}Speedup Results}
+\caption{\label{tab:speedup}Framework Speedup Results. The average regression speedup is 26\% and 29\% to 41\% for classification depending on the data configuration.}
 \end{table}
 
+\begin{figure*}
+    \centering
+    \includegraphics[scale= 0.47]{bm_results.JPG}
+    \caption{BM Data Results. In all the pairs detected for the BM dataset, the nodes have good models and both nodes' models in the pair could be used as replacement models for the other. The OCSVM scores are low for all pairs with the exception of the pair (pi2, pi3). The performance of unbalanced and balanced configuration is almost identical across pairs, however it seems that balanced datasets perform better on their native dataset.}
+    \label{fig:bm_results}
+\end{figure*}
 
 
+\subsubsection{Speedup}
 
-
-% \begin{quotation}
-%  The Assyrian came down like the wolf on the fold,
-%  And his cohorts were gleaming in purple and gold;
-%  And the sheen of their spears was like stars on the sea,
-%  When the blue wave rolls nightly on deep Galilee.
-
-%  Like the leaves of the forest when Summer is green,
-%  That host with their banners at sunset were seen:
-%  Like the leaves of the forest when Autumn hath blown,
-%  That host on the morrow lay withered and strown.
-% \end{quotation}
+Overall, the speedup of the framework for the particular datasets used for regression and classification are 26\% and 29\% to 41\% respectively (Table \ref{tab:speedup}). These results are expected if you consider that for the GNFUV dataset regardless of the data configuration on average there is one good pair for reusability hence one node's model is not trained. The two data clusters created from the BM dataset mean that ideally we would only train two models. If we apply this to the results presented in Figure \ref{fig:bm_results} this holds. Nevertheless the results are lower than this average case due to the fact we use samples of the dataset hence the true reusability differs from sample to sample. Hence, for both the classification and regression case we can argue that the framework if effective in identifying the true number similar pairs. 
 
 \section{Conclusions}
 
-% The standard Lorem Ipsum passage, used since the 1500s
+In this paper, we presented a novel online model reuse framework in edge computing. The framework considers all possible pairs of nodes in the network and infers which are good reusability pairs as well as which of the two nodes' model can be used as a replacement model for the other per pair. We utilise MMD as our dataset similarity measure and we present a newly defined algorithm which calculates a threshold that distinguishes similar from non-similar pairs. The node model that is chosen to be reused in each pair is the one with the highest inlier data space overlap. Experiments in the context of both regression and classification have shown the framework achieves good precision. Lastly, we present a naive algorithm that, given the results of the framework, can maximise the number of nodes which use reused models along with a list of potential replacement models. The source code is available at LINK TO GITHUB REPO!
 
-% ``Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.''
+\section{Limitations \& Future Work}
+
+The framework presented is novel and therefore the results presented in this paper while encouraging they are still preliminary. We experimented with only one model per data domain and a limited range of data configurations. Consequently, the evaluation of the framework needs to be extended to check the compatibility with more domain models and data configurations. Even though this framework in it's current does not preserve user privacy it could be amended to meet this requirement. In this paper, we hypothesise that the inlier space overlap is an indicator for the direction of reusability. However, we only consider one outlier detection model and there many more that could be used. Furthermore, the naive decision making algorithm proposed as part of the framework is maximising the speedup, which does not guarantee that the solution is optimal performance wise. Defining an algorithm which can produce either the performance optimal or partially optimal solution is a different and challenging task altogether.  
+
 \vskip8pt \noindent
 {\bf Acknowledgments.}
-This is optional; it is a location for you to thank people
+This work is done with the supervision of Christos Anagnostopoulos whose guidance was crucial for the development of the framework. 
 
 \bibliographystyle{acm}
 \bibliography{thesis}
 
-% \newpage
-% \usepackage{appendix}
 \clearpage
-\appendix
-\begin{table*}[]
-\centering
-\begin{tabular}{|cccccccccc|}
-\hline
-\multicolumn{10}{|c|}{\textbf{Experiment 1}}                                                                                                                                   \\ \hline
-\multicolumn{1}{|c|}{\textbf{Node}} & \multicolumn{1}{c|}{\textbf{No. of Entries}} & \multicolumn{4}{c|}{\textbf{Humidity}}        & \multicolumn{4}{c|}{\textbf{Temperature}} \\ \hline
-\multicolumn{1}{|c|}{\textbf{}}     & \multicolumn{1}{c|}{\textbf{}}               & Min & Max & Avg   & \multicolumn{1}{c|}{Std}  & Min     & Max     & Avg       & Std       \\
-\multicolumn{1}{|c|}{pi2}           & \multicolumn{1}{c|}{1532}                    & 3   & 45  & 35.85 & \multicolumn{1}{c|}{6.57} & 15      & 57      & 27.6      & 11.08     \\
-\multicolumn{1}{|c|}{pi3}           & \multicolumn{1}{c|}{899}                     & 19  & 33  & 28.53 & \multicolumn{1}{c|}{4.39} & 34      & 59      & 43.04     & 6.17      \\
-\multicolumn{1}{|c|}{pi4}           & \multicolumn{1}{c|}{1766}                    & 18  & 45  & 35.47 & \multicolumn{1}{c|}{6.55} & 0       & 64      & 28.2      & 11.71     \\
-\multicolumn{1}{|c|}{pi5}           & \multicolumn{1}{c|}{2078}                    & 18  & 37  & 27.51 & \multicolumn{1}{c|}{5.1}  & 20      & 63      & 39.78     & 6.9       \\ \hline
-\multicolumn{10}{|c|}{\textbf{Experiment 2}}                                                                                                                                   \\ \hline
-\multicolumn{1}{|c|}{pi2}           & \multicolumn{1}{c|}{580}                     & 26  & 56  & 48.48 & \multicolumn{1}{c|}{6.6}  & 21      & 49      & 28.42     & 3.86      \\
-\multicolumn{1}{|c|}{pi3}           & \multicolumn{1}{c|}{807}                     & 27  & 49  & 41.73 & \multicolumn{1}{c|}{4.14} & 17      & 46      & 23.41     & 5.66      \\
-\multicolumn{1}{|c|}{pi4}           & \multicolumn{1}{c|}{1021}                    & 30  & 59  & 50.56 & \multicolumn{1}{c|}{6.4}  & 16      & 36      & 22.76     & 2.76      \\
-\multicolumn{1}{|c|}{pi5}           & \multicolumn{1}{c|}{1407}                    & 30  & 48  & 40.13 & \multicolumn{1}{c|}{2.73} & 20      & 49      & 28.05     & 3.36      \\ \hline
-\multicolumn{10}{|c|}{\textbf{Experiment 3}}                                                                                                                                   \\ \hline
-\multicolumn{1}{|c|}{pi2}           & \multicolumn{1}{c|}{342}                     & 33  & 42  & 38.39 & \multicolumn{1}{c|}{2.39} & 17      & 31      & 23.44     & 4.09      \\
-\multicolumn{1}{|c|}{pi3}           & \multicolumn{1}{c|}{264}                     & 27  & 33  & 31.95 & \multicolumn{1}{c|}{0.77} & 34      & 43      & 38.63     & 1.26      \\
-\multicolumn{1}{|c|}{pi4}           & \multicolumn{1}{c|}{488}                     & 20  & 39  & 31.24 & \multicolumn{1}{c|}{5.31} & 23      & 59      & 38.28     & 10.56     \\
-\multicolumn{1}{|c|}{pi5}           & \multicolumn{1}{c|}{555}                     & 21  & 37  & 25.23 & \multicolumn{1}{c|}{3.91} & 20      & 47      & 38.13     & 4.65      \\ \hline
-\end{tabular}
-\caption{\label{tab:gnfuv}GNFUV Dataset Description}
-\end{table*}
 
-\begin{figure}
+%                                                           MAIN 
+%                                                           TEXT
+%                                                           ENDS 
+%                                                           HERE
+
+
+\appendix
+
+\section{Datasets}\label{apx:datasets}
+
+\setcounter{figure}{0} 
+\setcounter{table}{0}
+
+\begin{figure}[h]
 \centering
 \begin{center}
-\includegraphics[scale=0.65]{gnfuv_pairplots_std.JPG}
+\includegraphics[scale=0.7]{gnfuv_pairplots_std.JPG}
 \end{center}
 \caption{\label{fig:gnfuv_pairplots_std} The relationship between humidity and temperature per experiment alongside their distribution plots for the standardised GNFUV data}
 \end{figure}
 
-\begin{table}[]
+\begin{table}[h]
+\begin{tabular}{|cccccc|}
+\hline
+\multicolumn{6}{|c|}{\textbf{Experiment 1}}                                                                                             \\ \hline
+\multicolumn{1}{|c|}{\textbf{Node}} & \multicolumn{1}{c|}{\textbf{No. of Entries}} & \multicolumn{2}{c|}{\textbf{Humidity}}     & \multicolumn{2}{c|}{\textbf{Temperature}} \\ \hline
+\multicolumn{1}{|c|}{}     & \multicolumn{1}{c|}{}               & Avg   & \multicolumn{1}{c|}{Std}  & Avg             & Std            \\
+\multicolumn{1}{|c|}{pi2}  & \multicolumn{1}{c|}{1532}           & 35.85 & \multicolumn{1}{c|}{6.57} & 27.6            & 11.08          \\
+\multicolumn{1}{|c|}{pi3}  & \multicolumn{1}{c|}{899}            & 28.53 & \multicolumn{1}{c|}{4.39} & 43.04           & 6.17           \\
+\multicolumn{1}{|c|}{pi4}  & \multicolumn{1}{c|}{1766}           & 35.47 & \multicolumn{1}{c|}{6.55} & 28.2            & 11.71          \\
+\multicolumn{1}{|c|}{pi5}  & \multicolumn{1}{c|}{2078}           & 27.51 & \multicolumn{1}{c|}{5.1}  & 39.78           & 6.9            \\ \hline
+\multicolumn{6}{|c|}{\textbf{Experiment 2}}                                                                                             \\ \hline
+\multicolumn{1}{|c|}{pi2}  & \multicolumn{1}{c|}{580}            & 48.48 & \multicolumn{1}{c|}{6.6}  & 28.42           & 3.86           \\
+\multicolumn{1}{|c|}{pi3}  & \multicolumn{1}{c|}{807}            & 41.73 & \multicolumn{1}{c|}{4.14} & 23.41           & 5.66           \\
+\multicolumn{1}{|c|}{pi4}  & \multicolumn{1}{c|}{1021}           & 50.56 & \multicolumn{1}{c|}{6.4}  & 22.76           & 2.76           \\
+\multicolumn{1}{|c|}{pi5}  & \multicolumn{1}{c|}{1407}           & 40.13 & \multicolumn{1}{c|}{2.73} & 28.05           & 3.36           \\ \hline
+\multicolumn{6}{|c|}{\textbf{Experiment 3}}                                                                                             \\ \hline
+\multicolumn{1}{|c|}{pi2}  & \multicolumn{1}{c|}{342}            & 38.39 & \multicolumn{1}{c|}{2.39} & 23.44           & 4.09           \\
+\multicolumn{1}{|c|}{pi3}  & \multicolumn{1}{c|}{264}            & 31.95 & \multicolumn{1}{c|}{0.77} & 38.63           & 1.26           \\
+\multicolumn{1}{|c|}{pi4}  & \multicolumn{1}{c|}{488}            & 31.24 & \multicolumn{1}{c|}{5.31} & 38.28           & 10.56          \\
+\multicolumn{1}{|c|}{pi5}  & \multicolumn{1}{c|}{555}            & 25.23 & \multicolumn{1}{c|}{3.91} & 38.13           & 4.65           \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv}GNFUV Dataset Description}
+\end{table}
+
+\begin{table}[h]
 \centering
 \begin{tabular}{|c|c|cc|c|}
 \hline
@@ -715,17 +748,28 @@ This is optional; it is a location for you to thank people
 \caption{\label{tab:BMnodes}BM Dataset Node Data Description}
 \end{table}
 
-\begin{figure}
-\begin{center}
-\includegraphics[scale=0.45]{SVR_representation.jpg}
-\end{center}
+\newpage
+
+\section{Classifiers}\label{apx:classifiers}
+
+\setcounter{figure}{0} 
+\setcounter{table}{0}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{SVR_representation.jpg}
 \caption{\label{fig-SVRex}Visual Representation of an SVR}
 \end{figure}
 
+% \clearpage
 
+% \newpage
 
-% Please add the following required packages to your document preamble:
-% \usepackage{multirow}
+\section{Performance Evaluation}\label{apx:performance_evaluation}
+\setcounter{figure}{0} 
+\setcounter{table}{0}
+% \subsection*{Tables}
+
 \begin{table*}[]
 \centering
 \begin{tabular}{|cccc|ccccc|}
@@ -753,42 +797,12 @@ This is optional; it is a location for you to thank people
 \caption{\label{tab:node_performance}The average performance of node models on their native dataset}
 \end{table*}
 
-\begin{figure}
-    \begin{center}
-        \includegraphics[scale = 0.6]{experiment_2.jpg}
-    \end{center}
-    \caption{GNFUV Experiment 2 Original Data Results. Neither of these pairs is a good pair for reusability. Even though for pair (pi3, pi5) we have instances models above the equilibrium line, the results are still not good. The rbf models perform better on the native dataset but nonetheless have higher discrepancy. There is a high difference between the OCSVM scores of the nodes in both pairs.}
-    \label{fig:gnfuv_exp2}
-\end{figure}
-
-\begin{figure}
-    \begin{center}
-        \includegraphics[scale = 0.09]{experiment_3.jpg}
-    \end{center}
-    \caption{GNFUV Experiment 3 Original Data Results. Both nodes have good models and could be used as replacement models for the other provided the kernel is linear, since the $R^2-discrepancy$ is well above the equilibrium line. The linear pi4 model is the best for this pair and rbf models have higher discrepancy.}
-    \label{fig:gnfuv_exp3}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale = 0.09]{experiment_3_std.jpg}
-    \caption{NFUV Experiment 3 Standardised Data Results. Both nodes in the pair have good models and both of them could be used as a replacement model for the other, since the $R^2 - discrepancy$ is well above the equilibrium line.}
-    \label{fig:gnfuv_exp3_std}
-\end{figure}
-
-\begin{figure*}
-    \begin{center}
-        \includegraphics[scale = 0.5]{experiment_2_std.jpg}
-    \end{center}
-    \caption{GNFUV Experiment 2 Standardised Data Results. None of these pairs are good options for reusability despite the fact that most of them are above the equilibrium line. The rbf models perform better on the native dataset but nonetheless have higher discrepancy. There is a high difference between OCSVM scores of each node in the pair with the exception of the pair (pi3, pi5).}
-    \label{fig:gnfuv_exp2_std}
-\end{figure*}
 
 \begin{table*}[]
 \centering
 \begin{tabular}{|c|c|cccc|}
 \hline
-\textbf{Data Configuration}     & \textbf{Kernel}       & \multicolumn{4}{c|}{\textbf{Combined Precision}}                                                                                                                                    \\ \hline
+\textbf{Data Configuration}     & \textbf{Kernel}       & \multicolumn{4}{c|}{\textbf{combined precision}}                                                                                                                                    \\ \hline
 \textbf{}                       & \multicolumn{1}{l|}{} & \multicolumn{1}{c|}{\textbf{Experiment}}                        & \multicolumn{1}{c|}{\textbf{Threshold}} & \multicolumn{2}{c|}{\textbf{Strict}}                                    \\ \cline{3-6} 
 \multicolumn{1}{|l|}{\textbf{}} & \textbf{}             & \multicolumn{1}{l|}{\textbf{}}                                  & \multicolumn{1}{l|}{\textbf{}}          & \multicolumn{1}{l}{\textbf{True}} & \multicolumn{1}{l|}{\textbf{False}} \\ \cline{3-6} 
 \textbf{}                       & \textbf{}             & \multicolumn{1}{c|}{\multirow{2}{*}{1}}                         & \multicolumn{1}{c|}{0.6}                & 0.99                              & 1.00                                \\
@@ -827,14 +841,14 @@ This is optional; it is a location for you to thank people
                                 &                       & \multicolumn{1}{c|}{\multirow{2}{*}{\textbf{Weighted Average}}} & \multicolumn{1}{c|}{0.6}                & 0.43                              & 0.62                                \\
                                 &                       & \multicolumn{1}{c|}{}                                           & \multicolumn{1}{c|}{0.8}                & 0.43                              & 0.62                                \\ \hline
 \end{tabular}
-\caption{\label{tab:gnfuv_combined_precision_per_kernel} GNFUV Data Combined Precision Results per kernel}
+\caption{\label{tab:gnfuv_combined_precision_per_kernel} GNFUV Data combined precision Results per kernel. The linear kernel is better suited for the original data, while the opposite is true for standardised data even though this difference is not large. }
 \end{table*}
 
 \begin{table*}[]
 \centering
 \begin{tabular}{|c|ccc|}
 \hline
-\multicolumn{1}{|l|}{\textbf{Data Configuration}} & \multicolumn{3}{c|}{\textbf{MMD Precision}}                                                                   \\ \hline
+\multicolumn{1}{|l|}{\textbf{Data Configuration}} & \multicolumn{3}{c|}{\textbf{MMD precision}}                                                                   \\ \hline
 \multirow{13}{*}{\textbf{original}}               & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \cline{2-4} 
                                                   & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
                                                   & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
@@ -862,14 +876,45 @@ This is optional; it is a location for you to thank people
                                                   & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.80               \\
                                                   & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.76               \\ \hline
 \end{tabular}
-\caption{\label{tab:gnfuv_mmd_precision}GNFUV Data MMD Precision Results}
+\caption{\label{tab:gnfuv_mmd_precision} GNFUV Data MMD precision Results. Overall the MMD precision of the framework is high, however it is low for Experiment 2 across both original and standardised data. The difference between the MMD precision of original and standardised is not high when the threshold is set at 0.8 (only at 4\%). However as the threshold increases this difference as well to 10\% and 13\% for thresholds 0.85 and 0.9 respectively. This is because the performance on Experiment 2 is better on standardised data and as the threshold increases it does not deteriorate in the same way as for the original data. Considering how high of a threshold 0.9 is, having a 0.63 and 0.76 MMD precision is really good performance.}
+\end{table*}
+
+\begin{table*}[]
+\centering
+\begin{tabular}{|c|c|ccc|}
+\hline
+\textbf{Data Configuration} & \textbf{Kernel} & \multicolumn{3}{c|}{\textbf{OCSVM precision}}                                         \\ \hline
+\multicolumn{1}{|l|}{}      & \textbf{}       & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{l|}{}                          & \textbf{True}    & \textbf{False}    \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{1}                         & 0.99             & 1.00              \\
+\multicolumn{1}{|l|}{}      & \textbf{rbf}    & \multicolumn{1}{c|}{2}                         & 0.23             & 0.26              \\
+                            &                 & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{3-5} 
+\textbf{original}           &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.68             & 0.69              \\ \cline{2-5} 
+                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{1}                         & 1.00             & 1.00              \\
+                            & \textbf{linear} & \multicolumn{1}{c|}{2}                         & 0.96             & 0.96              \\
+                            &                 & \multicolumn{1}{c|}{3}                         & 0.38             & 0.98              \\
+                            \cline{3-5}
+                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.80             & 0.98              \\ \hline
+                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{1}                         & 0.58             & 1.00              \\
+                            & \textbf{rbf}    & \multicolumn{1}{c|}{2}                         & 0.28             & 0.37              \\
+                            &                 & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{3-5} 
+\textbf{standardised}       &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.54             & 0.74              \\ \cline{2-5} 
+                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{1}                         & 0.32             & 0.80              \\
+\multicolumn{1}{|l|}{}      & \textbf{linear} & \multicolumn{1}{c|}{2}                         & 0.28             & 0.30              \\
+                            &                 & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{3-5} 
+                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.44             & 0.64              \\ \hline
+\end{tabular}
+\caption{\label{tab:gnfuv_ocsvm_precision_per_kernel} GNFUV Data OCSVM precision Results per kernel. When the original data are used, the kernel choice is unimportant for Experiment 1, while for Experiments 2 \& 3 the linear kernel is better, even though for Experiment 3 the difference is not significant. When the standardised data are used, the comments made for Experiments 1 \& 3 are now reversed, with the slight difference that it is the rbf kernel that is better for Experiment 1 instead of the linear one. Similarly, to Experiment 1 the rbf kernel is slightly better for Experiment 2 but the difference is only 0.07.}
 \end{table*}
 
 \begin{table*}[]
 \centering
 \begin{tabular}{|l|c|ccc|}
 \hline
-\textbf{Data   Configuration}               & \textbf{Kernel} & \multicolumn{3}{c|}{\textbf{MMD Precision}}                                                                   \\ \hline
+\textbf{Data   Configuration}               & \textbf{Kernel} & \multicolumn{3}{c|}{\textbf{MMD precision}}                                                                   \\ \hline
                                             &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \cline{3-5} 
                                             &                 & \multicolumn{1}{c|}{}                          & \multicolumn{1}{c|}{0.8}                & 1.00               \\
                                             &                 & \multicolumn{1}{c|}{1}                         & \multicolumn{1}{c|}{0.85}               & 1.00               \\
@@ -923,14 +968,14 @@ This is optional; it is a location for you to thank people
                                             &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & \multicolumn{1}{c|}{0.85}               & 0.82               \\
                                             &                 & \multicolumn{1}{l|}{}                          & \multicolumn{1}{c|}{0.9}                & 0.78               \\ \hline
 \end{tabular}
-\caption{\label{tab:gnfuv_mmd_precision_per_kernel} GNFUV Data MMD Precision Results per kernel}
+\caption{\label{tab:gnfuv_mmd_precision_per_kernel} GNFUV Data MMD precision Results per kernel. The kernel choice is not important for Experiment since the performance is perfect regardless of the kernel and data configuration. This is also true for Experiment 3 for the standardised data, while for the original data the linear kernel is better suited for this Experiment. For both data configurations the linear kernel performs better for Experiment 2. }
 \end{table*}
 
 \begin{table}[]
 \centering
 \begin{tabular}{|c|cc|}
 \hline
-\textbf{Data Configuration} & \multicolumn{2}{c|}{\textbf{MMD Precision}}                  \\ \hline
+\textbf{Data Configuration} & \multicolumn{2}{c|}{\textbf{MMD precision}}                  \\ \hline
 \textbf{}                   & \multicolumn{1}{c|}{\textbf{Threshold}} & \textbf{Precision} \\ \hline
                             & \multicolumn{1}{c|}{0.8}                & 1.00               \\
 combined                    & \multicolumn{1}{c|}{0.85}               & 1.00               \\
@@ -942,53 +987,47 @@ balanced                    & \multicolumn{1}{c|}{0.85}               & 1.00    
 unbalanced                  & \multicolumn{1}{c|}{0.85}               & 1.00               \\
                             & \multicolumn{1}{c|}{0.9}                & 1.00               \\ \hline
 \end{tabular}
-\caption{\label{tab:bm_mmd_precision}BM Dataset MMD Precision Results}
+\caption{\label{tab:bm_mmd_precision}BM Dataset MMD precision Results. The MMD precision is perfect across data configurations, this is due to the fact that the if the pairs are detected then they would be good pairs since they originate from the same cluster. }
 \end{table}
 
-\begin{table*}[]
-\centering
-\begin{tabular}{|c|c|ccc|}
-\hline
-\textbf{Data Configuration} & \textbf{Kernel} & \multicolumn{3}{c|}{\textbf{OCSVM Precision}}                                         \\ \hline
-\multicolumn{1}{|l|}{}      & \textbf{}       & \multicolumn{1}{c|}{\textbf{Experiment}}       & \multicolumn{2}{c|}{\textbf{Strict}} \\ \cline{3-5} 
-                            &                 & \multicolumn{1}{l|}{}                          & \textbf{True}    & \textbf{False}    \\ \cline{3-5} 
-                            &                 & \multicolumn{1}{c|}{1}                         & 0.99             & 1.00              \\
-\multicolumn{1}{|l|}{}      & \textbf{rbf}    & \multicolumn{1}{c|}{2}                         & 0.23             & 0.26              \\
-                            &                 & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{3-5} 
-\textbf{original}           &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.68             & 0.69              \\ \cline{2-5} 
-                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
-                            &                 & \multicolumn{1}{c|}{1}                         & 1.00             & 1.00              \\
-                            & \textbf{linear} & \multicolumn{1}{c|}{2}                         & 0.96             & 0.96              \\
-                            &                 & \multicolumn{1}{c|}{3}                         & 0.38             & 0.98              \\
-                            \cline{3-5}
-                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.80             & 0.98              \\ \hline
-                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
-                            &                 & \multicolumn{1}{c|}{1}                         & 0.58             & 1.00              \\
-                            & \textbf{rbf}    & \multicolumn{1}{c|}{2}                         & 0.28             & 0.37              \\
-                            &                 & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{3-5} 
-\textbf{standardised}       &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.54             & 0.74              \\ \cline{2-5} 
-                            &                 & \multicolumn{1}{c|}{\textbf{Experiment}}       & \textbf{}        & \textbf{}         \\ \cline{3-5} 
-                            &                 & \multicolumn{1}{c|}{1}                         & 0.32             & 0.80              \\
-\multicolumn{1}{|l|}{}      & \textbf{linear} & \multicolumn{1}{c|}{2}                         & 0.28             & 0.30              \\
-                            &                 & \multicolumn{1}{c|}{3}                         & 1.00             & 1.00              \\ \cline{3-5} 
-                            &                 & \multicolumn{1}{c|}{\textbf{Weighted Average}} & 0.44             & 0.64              \\ \hline
-\end{tabular}
-\caption{\label{tab:gnfuv_ocsvm_precision_per_kernel} GNFUV Data OCSVM Precision Results per kernel}
-\end{table*}
+% \clearpage
+% \subsection*{Figures}
 
-% \begin{figure}
-% \centering
-% \begin{center}
-% \includegraphics[scale=0.7]{BM Clustering.JPG}
-% \end{center}
-% \caption{\label{fig-BMcl}The Result of clustering on the BM Dataset}
-% \end{figure}
+\begin{figure*}[]
+    \begin{center}
+        \includegraphics[scale = 0.5]{experiment_2_std.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 2 Standardised Data Results. None of these pairs are good options for reusability despite the fact that most of them are above the equilibrium line. The rbf models perform better on the native dataset but nonetheless have higher discrepancy. There is a high difference between OCSVM scores of each node in the pair with the exception of the pair (pi3, pi5).}
+    \label{fig:gnfuv_exp2_std}
+\end{figure*}
+
+\begin{figure}[]
+    \begin{center}
+        \includegraphics[scale = 0.6]{experiment_2.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 2 Original Data Results. Neither of these pairs is a good pair for reusability. Even though for pair (pi3, pi5) we have instances models above the equilibrium line, the results are still not good. The rbf models perform better on the native dataset but nonetheless have higher discrepancy. There is a high difference between the OCSVM scores of the nodes in both pairs.}
+    \label{fig:gnfuv_exp2}
+\end{figure}
+
+\begin{figure}[]
+    \begin{center}
+        \includegraphics[scale = 0.09]{experiment_3.jpg}
+    \end{center}
+    \caption{GNFUV Experiment 3 Original Data Results. Both nodes have good models and could be used as replacement models for the other provided the kernel is linear, since the $R^2-discrepancy$ is well above the equilibrium line. The linear pi4 model is the best for this pair and rbf models have higher discrepancy.}
+    \label{fig:gnfuv_exp3}
+\end{figure}
+
+\begin{figure}[]
+    \centering
+    \includegraphics[scale = 0.09]{experiment_3_std.jpg}
+    \caption{NFUV Experiment 3 Standardised Data Results. Both nodes in the pair have good models and both of them could be used as a replacement model for the other, since the $R^2 - discrepancy$ is well above the equilibrium line.}
+    \label{fig:gnfuv_exp3_std}
+\end{figure}
 
 
-% Please add the following required packages to your document preamble:
-% \usepackage{multirow}
 
 
+% \end{appendices}
 
 
 

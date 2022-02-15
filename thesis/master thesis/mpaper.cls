@@ -19,6 +19,8 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{listings} % nice code listings
+\usepackage{float}
+% \usepackage{wrapfig}
 
 \usepackage[a4paper]{geometry}
 \usepackage[breaklinks,colorlinks,citecolor=black,urlcolor=black,linkcolor=black,pdfpagelabels=false,pdfusetitle]{hyperref}
@@ -262,9 +264,13 @@
 
 \setcounter{secnumdepth}{3}
 
+\usepackage[toc]{appendix}
+
 \def\appendix{\par
 \section*{APPENDIX}
 \setcounter{section}{0}
+\renewcommand\thefigure{\thesection.\arabic{figure}}  
+\renewcommand{\thetable}{\thesection.\arabic{table}}
  \setcounter{subsection}{0}
  \def\thesection{\Alph{section}} }
 

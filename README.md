@@ -1,6 +1,8 @@
-# master_project
+# Online Model Reuse Framework in Edge Computing
 
-## Virtual Environments
+This repository contains was used in the creation of an online model reuse framework in edge computing. The repo contains the data and notebooks showing full development cycle of the framework from it's inception and carrying out it's initial experiments to the paper and presentation showcasing the results.
+
+## Virtual Environments 
 
 ### Creation & Activation:
 

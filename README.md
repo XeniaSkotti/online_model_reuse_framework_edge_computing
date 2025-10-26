@@ -22,23 +22,22 @@ Edge devices increasingly collect and process large amounts of sensor data. Trai
 
 The framework is evaluated on two datasets:
 
-- GNFUV Sensor Dataset (regression): Contains humidity and temperature readings from four unmanned surface vehicles (USVs). Support Vector Regression (SVR) models are trained to predict the relationship between these variables
+- GNFUV Sensor Dataset (regression): Contains humidity and temperature readings from four unmanned surface vehicles (USVs). Support Vector Regression (SVR) models are trained to predict the relationship between these variables.
 
-- UCI Bank Marketing Dataset (classification): Contains telephone marketing data. The dataset is clustered into nodes using K‑means to simulate multiple edge devices
-. Logistic regression models are trained to classify whether a client subscribes to a term deposit.
+- UCI Bank Marketing Dataset (classification): Contains telephone marketing data. The dataset is clustered into nodes using K‑means to simulate multiple edge devices. Logistic regression models are trained to classify whether a client subscribes to a term deposit.
 
-Experiments consider original and standardised versions of the GNFUV data, and balanced and unbalanced versions of the Bank Marketing data
+Experiments consider original and standardised versions of the GNFUV data, and balanced and unbalanced versions of the Bank Marketing data.
 
 ## Metrics and Results
 
 Two metrics assess the framework’s effectiveness:
 
-- The speedup we benefit from when we avoid training models for some nodes in the network
-- the precision of the framework in terms of the recommendations it makes.
+- the speedup we benefit from when we avoid training models for some nodes in the network
+- the precision of the framework in terms of the recommendations it makes
 
 Experiments show:
-- >0.8 precision when using a tolerance margin (0.05)
-- ~30% speed up : 26% on the GNFUV dataset and 29% to 41% for the Bank Marketing dataset,
+- \> 0.8 precision when using a tolerance margin (0.05)
+- ~30% speed up : 26% on the GNFUV dataset and 29% to 41% for the Bank Marketing dataset
 
 ## Getting Started
 
